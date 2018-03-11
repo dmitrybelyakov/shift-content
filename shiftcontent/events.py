@@ -3,6 +3,15 @@
 # @todo: Implement media uploads outside event sourcing system
 # @todo: Only store references to files in event sourcing system
 
+# @todo: What is a field?
+# @todo: We do not need to store its value, as it comes from the store
+# @todo: We do however need to identify it, so it needs unique identifier
+# @todo: Field has some other attributes like: name, default value, constraints
+# @todo: We don't want to manually create field ids
+# @todo: We don't want store module config in the database
+
+# @todo: model a simple persistable unit of content
+
 
 class Module:
     id = None
@@ -19,12 +28,11 @@ class Version:
     id = None
     parent_version = None
     created = None
+    committed = None
     author = 'Identity'
     object = 'Module'
     object_id = 123
     events = []
-
-
 
 
 class BaseEvent:
