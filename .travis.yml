@@ -3,7 +3,6 @@ language: python
 # use pythons
 python:
   - "3.6"
-  - "3.7"
 
 # link services
 services:
