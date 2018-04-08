@@ -33,10 +33,10 @@ class ContentType:
 
 
 class ContentItem:
-    id: None
-    type: ContentType
-    version: None
-    fields: []
+    id = None
+    type = None
+    version = None
+    fields = None
 
     def __init__(self, data):
         pass
@@ -55,18 +55,18 @@ from shiftcontent import schema as schemas
 
 class ContentService:
 
-    def __init__(self, schema_path: str, known_path: str) -> None:
+    def __init__(self, schema_path, known_path):
         """
         Initialise service
         :param schema_path: str, yaml definition file path
         :param known_path: str, where to store known schemas
         """
-        self.schema_path: str = schema_path
-        self._known_schemas_path: str = known_path
-        self._schema: dict = None
+        self.schema_path = schema_path
+        self._known_schemas_path = known_path
+        self._schema = None
 
     @property
-    def known_schemas(self) -> str:
+    def known_schemas(self):
         """
         Known schemas
         Returns path to known schemas. Will check directory existence and
@@ -79,7 +79,7 @@ class ContentService:
         return path
 
     @property
-    def schema(self) -> dict:
+    def schema(self):
         """
         Schema
         Returns current schema. If none is found will load from a definition.
@@ -89,7 +89,7 @@ class ContentService:
             self._schema = self.load_definition(self.schema_path)
         return self._schema
 
-    def load_definition(self, schema_path) -> dict:
+    def load_definition(self, schema_path):
         """
         Load definition
         Loads a definition from a yaml file
@@ -119,7 +119,7 @@ class ContentService:
 
         return schema
 
-    def process_definition(self, definition: dict) -> None:
+    def process_definition(self, definition):
         """
         Process definition
         Performs definition syntax validation adn returns a nested dictionary of
