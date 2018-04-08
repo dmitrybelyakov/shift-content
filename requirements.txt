@@ -9,5 +9,6 @@ nose==1.3.7
 Faker==0.8.7
 
 # project
+shiftschema==0.1.0
 hiredis==0.2.0
 PyYAML==3.12
