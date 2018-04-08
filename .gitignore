@@ -21,18 +21,11 @@ www.esproj
 /man
 
 # Project ignores
-node_modules
-npm-debug.log
-.sass-cache
-.tmp
 /.coverage
-/config/*
-!/config/config.dist.py
-!/config/apps.py
+/config
+/project
 /var/data/*
 !/var/data/.gitkeep
-/var/logs/*
-!/var/logs/.gitkeep
 
 
 
