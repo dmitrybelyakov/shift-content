@@ -38,7 +38,7 @@ class ContentServiceTest(unittest.TestCase):
         self.assertIsInstance(service, ContentService)
 
     def test_create_directory_for_known_schemas(self):
-        """ Use know schemas property to create a directory"""
+        """ Use known schemas property to create a directory"""
         path = self.known_path
         service = ContentService(
             schema_path=self.schema_path,

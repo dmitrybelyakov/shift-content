@@ -1,14 +1,14 @@
-# from sqlalchemy import create_engine
-#
-# from sqlalchemy import Table
-# from sqlalchemy import Column
-# from sqlalchemy import MetaData
-# from sqlalchemy import ForeignKey
-#
-# from sqlalchemy import Integer
-# from sqlalchemy import String
-# from sqlalchemy import Text
-# from sqlalchemy import DateTime
+from sqlalchemy import create_engine
+
+from sqlalchemy import Table
+from sqlalchemy import Column
+from sqlalchemy import MetaData
+from sqlalchemy import ForeignKey
+
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy import Text
+from sqlalchemy import DateTime
 
 class Db:
     engine = None
