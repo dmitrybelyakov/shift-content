@@ -27,8 +27,8 @@ class ContentServiceTest(unittest.TestCase):
     def tearDown(self):
         """ Cleanup """
         super().tearDown()
-        if os.path.exists(self.known_path):
-            shutil.rmtree(self.known_path)
+        # if os.path.exists(self.known_path):
+        #     shutil.rmtree(self.known_path)
 
     # --------------------------------------------------------------------------
 
@@ -56,5 +56,16 @@ class ContentServiceTest(unittest.TestCase):
         )
         with self.assertRaises(x.ConfigurationException):
             service.load_definition('/nothing/here')
+
+    @attr('xxx')
+    def test_persist_schema_if_does_not_exist(self):
+        """ Persist new shemas for the first time"""
+        service = ContentService(
+            schema_path=self.schema_path,
+            known_path=self.known_path
+        )
+
+
+        service.load_definition(self.schema_path)
 
 

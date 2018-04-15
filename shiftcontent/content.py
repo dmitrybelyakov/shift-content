@@ -46,6 +46,7 @@ class ContentItem:
 
 
 import os
+import shutil
 import yaml
 import hashlib
 from pprint import pprint as pp
@@ -104,20 +105,54 @@ class ContentService:
         with open(schema_path) as yml:
             text = yml.read()
 
-
+        # hash definition and see if changed
         hash = hashlib.md5(str(text).encode('utf-8')).hexdigest()
-        # known_schema = os.path.join(self.known_schemas, hash + '.yml')
+        known_schema = os.path.join(self.known_schemas, hash + '.yml')
+        changed = not os.path.exists(known_schema)
 
-        # print(known_schema)
+        # todo: how to go back in history with schema changes?
+        # todo: how to identify which schema was previous?
+        # todo: how do we handle field deletions?
 
+        # if changed, validate and save
+        if changed:
+            shutil.copy(schema_path, known_schema)
 
-
+        # and return
         yml = yaml.load(text)
         schema = {t['handle'].lower(): t for t in yml['content']}
-
-
-
         return schema
+
+    def update_schema(self, new_schema):
+        """
+        Update schema
+        Validates new schema, then checks if content types or fields were
+        removed which can result in data loss. If the latter discovered will
+        raise an error, unless forced. In force mode will remove all data
+        from the database that is missing from the schema. Finally persists
+        schema definition as a new schema.
+
+        :param new_schema: dict, schema
+        :return:
+        """
+        # todo: do we actually delete data from the database?
+        # todo: or simply don't show it?
+        # todo: if we do, what happens to events in store that have the fields?
+
+        # todo: how to address gdpr?
+        # todo: https://www.michielrook.nl/2017/11/forget-me-please-event-sourcing-gdpr/
+        # todo: https://www.michielrook.nl/2017/11/event-sourcing-gdpr-follow-up/
+        # todo: 1. we can and must edit events in store
+        # todo: 2. events must be associated with a user
+        # todo: 3. all such events will be obfuscated (possibly removed)
+
+        # todo: validate new schema here
+        # todo: load old schema and check if fields deleted
+
+
+
+        pass
+
 
     def process_definition(self, definition):
         """
