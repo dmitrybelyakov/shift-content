@@ -1,83 +1,63 @@
-class Page:
-    meta = None
-    modules = []
-
-
-class ContentType:
-    """
-    Module
-    """
-    type = None
-    name = None
-    description = None
-    screenshot = None
-    fields = {
-        'Body': 'text'
-    }
-
-    def __init__(self, definition):
-        """
-        Initializes content item
-        :param definition: dict, configuration
-        :param store: state store
-        """
-        pass
-
-    def get_new_item(self):
-        """
-        Get new item
-        Factory method to create an item of this type
-        :return:
-        """
-        pass
-
-
-class ContentItem:
-    id = None
-    type = None
-    version = None
-    fields = None
-
-    def __init__(self, data):
-        pass
-
-    def to_dict(self):
-        return dict()
-
-
 import os
 import shutil
 import yaml
+import json
 import hashlib
+import arrow
 from pprint import pprint as pp
 from shiftcontent import exceptions as x
-from shiftcontent import schema as schemas
+from shiftcontent.schema import validator
 
 
 class ContentService:
 
-    def __init__(self, schema_path, known_path):
+    def __init__(self, schema_path, revisions_path):
         """
         Initialise service
         :param schema_path: str, yaml definition file path
         :param known_path: str, where to store known schemas
         """
         self.schema_path = schema_path
-        self._known_schemas_path = known_path
+        self._revisions_path = revisions_path
         self._schema = None
 
     @property
-    def known_schemas(self):
+    def revisions_path(self):
         """
-        Known schemas
-        Returns path to known schemas. Will check directory existence and
-        create one if necessary .
+        Revisions path
+        Returns path to directory where we store schema revisions. Will check
+        directory existence and create one if necessary .
         :return: str
         """
-        path = self._known_schemas_path
+        path = self._revisions_path
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
         return path
+
+    @property
+    def schema_revisions(self):
+        """
+        Schema revisions
+        Returns a registry of revision hashes stored in a file under
+        self.known_schemas. Backlog will have following structure:
+           backlog = {
+                '128762187612': {
+                    'schema_file': '102981209821.yml',
+                    'date': 'YYYY-MM-DD HH:mm:ss'
+                }
+            }
+
+        :return: dict
+        """
+        registry = os.path.join(self.revisions_path, '_registry.yml')
+        if not os.path.exists(registry):
+            return dict()
+
+        with open(registry) as file:
+            text = file.read()
+
+        text = json.loads(text)
+        return text
 
     @property
     def schema(self):
@@ -87,91 +67,146 @@ class ContentService:
         :return: dict
         """
         if not self._schema:
-            self._schema = self.load_definition(self.schema_path)
+            self._schema = self.load_definition()
         return self._schema
 
-    def load_definition(self, schema_path):
+    # todo: how do we handle field deletions?
+
+    # todo: how to address gdpr?
+    # todo: https://www.michielrook.nl/2017/11/forget-me-please-event-sourcing-gdpr/
+    # todo: https://www.michielrook.nl/2017/11/event-sourcing-gdpr-follow-up/
+    # todo: 1. we can and must edit events in store
+    # todo: 2. events must be associated with a user
+    # todo: 3. all such events will be obfuscated (possibly removed)
+
+    def register_revision(self, revision_filename):
+        """
+        Register revision
+        Creates a record in revisions registry with a given filename.
+        Will check revision file exisyence and abor if not found.
+        :param revision_filename: str, schema filename
+        :return: None
+        """
+        revision_file = os.path.join(self.revisions_path, revision_filename)
+        if not os.path.isfile(revision_file):
+            err = 'Error registering revision, revision file [{}] not found'
+            raise x.UnableToRegisterSchemaRevision(err.format(revision_file))
+
+        registry_file = os.path.join(self.revisions_path, '_registry.yml')
+        registry_tmp = os.path.join(self.revisions_path, '_registry.yml.tmp')
+
+        dt = arrow.utcnow()
+        utc_timestamp = str(dt.timestamp)
+        date = dt.format('YYYY-MM-DD HH:mm:ss')
+
+        current_registry = self.schema_revisions
+        current_registry[utc_timestamp] = dict(
+            schema_file=revision_filename,
+            date=date
+        )
+
+        new_registry = dict()
+        for timestamp in sorted(current_registry.keys()):
+            new_registry[timestamp] = current_registry[timestamp]
+
+        registry_json = json.dumps(new_registry, ensure_ascii=False, indent=4)
+        with open(registry_tmp, 'w') as file:
+            file.write(registry_json)
+
+        shutil.copy(registry_tmp, registry_file)
+        os.remove(registry_tmp)
+
+    def load_definition(self):
         """
         Load definition
         Loads a definition from a yaml file
-        :param schema_path: str, yaml file path
         :return: dict
         """
-        if not os.path.exists(schema_path):
+        if not os.path.exists(self.schema_path):
             msg = 'Unable to locate definition file at path [{}]'
-            raise x.ConfigurationException(msg.format(schema_path))
+            raise x.ConfigurationException(msg.format(self.schema_path))
 
-        # read current schema
-        with open(schema_path) as yml:
+        # load yaml
+        with open(self.schema_path) as yml:
             text = yml.read()
+            yml = yaml.load(text)
+            schema = {t['handle'].lower(): t for t in yml['content']}
 
-        # hash definition and see if changed
+        # hash to see if changed
         hash = hashlib.md5(str(text).encode('utf-8')).hexdigest()
-        known_schema = os.path.join(self.known_schemas, hash + '.yml')
-        changed = not os.path.exists(known_schema)
+        revision_path = os.path.join(self.revisions_path, hash + '.yml')
+        changed = not os.path.exists(revision_path)
 
-        # todo: how to go back in history with schema changes?
-        # todo: how to identify which schema was previous?
-        # todo: how do we handle field deletions?
+        # return if not changed
+        if not changed:
+            return schema
 
-        # if changed, validate and save
-        if changed:
-            shutil.copy(schema_path, known_schema)
+        # if changed, validate and persist
+        definitions_schema = validator.DefinitionSchema()
+        ok = definitions_schema.process(yml)
+        if not ok:
+            errors = ok.get_messages()
+            raise x.InvalidSchema(validation_errors=errors)
+        else:
+            schema = {t['handle'].lower(): t for t in yml['content']}
+
+        # todo: check if fields were removed, filed types changed etc
+
+        # save schema to backlog
+        shutil.copy(self.schema_path, revision_path)
+
+        # save to revision registry
+        self.register_revision(hash + '.yml')
 
         # and return
-        yml = yaml.load(text)
-        schema = {t['handle'].lower(): t for t in yml['content']}
         return schema
 
-    def update_schema(self, new_schema):
-        """
-        Update schema
-        Validates new schema, then checks if content types or fields were
-        removed which can result in data loss. If the latter discovered will
-        raise an error, unless forced. In force mode will remove all data
-        from the database that is missing from the schema. Finally persists
-        schema definition as a new schema.
-
-        :param new_schema: dict, schema
-        :return:
-        """
-        # todo: do we actually delete data from the database?
-        # todo: or simply don't show it?
-        # todo: if we do, what happens to events in store that have the fields?
-
-        # todo: how to address gdpr?
-        # todo: https://www.michielrook.nl/2017/11/forget-me-please-event-sourcing-gdpr/
-        # todo: https://www.michielrook.nl/2017/11/event-sourcing-gdpr-follow-up/
-        # todo: 1. we can and must edit events in store
-        # todo: 2. events must be associated with a user
-        # todo: 3. all such events will be obfuscated (possibly removed)
-
-        # todo: validate new schema here
-        # todo: load old schema and check if fields deleted
 
 
 
-        pass
 
 
-    def process_definition(self, definition):
-        """
-        Process definition
-        Performs definition syntax validation adn returns a nested dictionary of
-        errors if definitiuon is invalid.
 
-        :param definition: dict, definition
-        :return:
-        """
-        errors = []
 
-        for content_type in definition.items():
-            schema = schemas.DefinitionSchema()
-            valid = schema.process(content_type)
 
-            for field in content_type['fields']:
-                field_schema = schemas.FieldSchema()
-                field_valid = field_schema.valid
+    # def update_schema(self, new_schema):
+    #     """
+    #     Update schema
+    #     Validates new schema, then checks if content types or fields were
+    #     removed which can result in data loss. If the latter discovered will
+    #     raise an error, unless forced. In force mode will remove all data
+    #     from the database that is missing from the schema. Finally persists
+    #     schema definition as a new schema.
+    #
+    #     :param new_schema: dict, schema
+    #     :return:
+    #     """
+    #     # todo: do we actually delete data from the database?
+    #     # todo: or simply don't show it?
+    #     # todo: if we do, what happens to events in store that have the fields?
+    #     # todo: validate new schema here
+    #     # todo: load old schema and check if fields deleted
+    #     pass
+    #
+    #
+    # def process_definition(self, definition):
+    #     """
+    #     Process definition
+    #     Performs definition syntax validation adn returns a nested dictionary of
+    #     errors if definitiuon is invalid.
+    #
+    #     :param definition: dict, definition
+    #     :return:
+    #     """
+    #     errors = []
+    #
+    #     for content_type in definition.items():
+    #         schema = schemas.DefinitionSchema()
+    #         valid = schema.process(content_type)
+    #
+    #         for field in content_type['fields']:
+    #             field_schema = schemas.FieldSchema()
+    #             field_valid = field_schema.valid
 
 
 
