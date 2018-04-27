@@ -1,3 +1,9 @@
+meta:
+  fields:
+    - name: Children
+
+
+
 content:
 
   # what do we create from this definition

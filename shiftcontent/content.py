@@ -9,20 +9,38 @@ from shiftcontent import exceptions as x
 from shiftcontent.schema import validator
 
 
-# todo: how do we handle field deletions?
 
-# todo: how to address gdpr?
-# todo: https://www.michielrook.nl/2017/11/forget-me-please-event-sourcing-gdpr/
-# todo: https://www.michielrook.nl/2017/11/event-sourcing-gdpr-follow-up/
-# todo: 1. we can and must edit events in store
-# todo: 2. events must be associated with a user
-# todo: 3. all such events will be obfuscated (possibly removed)
 
-# todo: do we actually delete data from the database?
-# todo: or simply don't show it?
-# todo: if we do, what happens to events in store that have the fields?
-# todo: validate new schema here
-# todo: load old schema and check if fields deleted
+
+
+
+
+class ContentType():
+    pass
+
+class ContentMeta():
+
+    # todo: meta must be an object to be inheritable
+    # todo: is content item an object as well?
+    # todo: if we are dealing with objects are we going full-orm?
+
+    fields = {
+        'title': None,
+        'id': None
+    }
+
+    def __init__(self):
+        self.fields['title'] = ''
+
+
+class ContentItem():
+    id = None
+    meta = ContentMeta()
+    fields = {}
+
+
+
+
 
 
 class ContentService:
@@ -36,6 +54,11 @@ class ContentService:
         self.schema_path = schema_path
         self._revisions_path = revisions_path
         self._schema = None
+
+    # --------------------------------------------------------------------------
+    # schema definition
+    # --------------------------------------------------------------------------
+
 
     @property
     def revisions_path(self):
@@ -165,22 +188,31 @@ class ContentService:
         # save to revision registry
         self.register_revision(hash + '.yml')
 
+        # todo: fire an event
+
         # and return
         return schema
 
+    # -------------------------------------------------------------------------
 
 
-    def create_item(self, type):
+    def create_item(self, type, data):
+        """
+        Create item
+        Creates item of a certain content type. The item is a dictionary of
+        meta and fields.
+
+        :param type:
+        :param data:
+        :return:
+        """
+
+        # get item validator
+        # validate item
+        # returns errors if invalid
+
         pass
 
-    def start_version(self, item_id):
-        pass
-
-    def commit_version(self, item_id, version_id):
-        pass
-
-    def set_field(self, field, value, version):
-        pass
 
 
 
