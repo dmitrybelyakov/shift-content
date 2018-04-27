@@ -55,11 +55,7 @@ class Db:
         self.engine = create_engine(url, echo=echo)
         return self.engine
 
-    def define_tables(self):
-        """
-        Creates table definitions
-        :return:
-        """
+
 
 
 

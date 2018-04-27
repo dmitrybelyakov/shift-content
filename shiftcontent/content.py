@@ -7,8 +7,13 @@
 # todo: on the other hand orm is great because w e can do migrations!
 # todo: orm is also makes graphql easier (but does it?)
 
-class EventStore:
-    pass
+
+class Field:
+    id: None
+    object_id: None
+    version_id: None
+    filed_name: None
+    field_value: None
 
 
 class ContentService:
