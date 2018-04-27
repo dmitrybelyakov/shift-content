@@ -9,6 +9,22 @@ from shiftcontent import exceptions as x
 from shiftcontent.schema import validator
 
 
+# todo: how do we handle field deletions?
+
+# todo: how to address gdpr?
+# todo: https://www.michielrook.nl/2017/11/forget-me-please-event-sourcing-gdpr/
+# todo: https://www.michielrook.nl/2017/11/event-sourcing-gdpr-follow-up/
+# todo: 1. we can and must edit events in store
+# todo: 2. events must be associated with a user
+# todo: 3. all such events will be obfuscated (possibly removed)
+
+# todo: do we actually delete data from the database?
+# todo: or simply don't show it?
+# todo: if we do, what happens to events in store that have the fields?
+# todo: validate new schema here
+# todo: load old schema and check if fields deleted
+
+
 class ContentService:
 
     def __init__(self, schema_path, revisions_path):
@@ -69,15 +85,6 @@ class ContentService:
         if not self._schema:
             self._schema = self.load_definition()
         return self._schema
-
-    # todo: how do we handle field deletions?
-
-    # todo: how to address gdpr?
-    # todo: https://www.michielrook.nl/2017/11/forget-me-please-event-sourcing-gdpr/
-    # todo: https://www.michielrook.nl/2017/11/event-sourcing-gdpr-follow-up/
-    # todo: 1. we can and must edit events in store
-    # todo: 2. events must be associated with a user
-    # todo: 3. all such events will be obfuscated (possibly removed)
 
     def register_revision(self, revision_filename):
         """
@@ -160,59 +167,6 @@ class ContentService:
 
         # and return
         return schema
-
-
-
-
-
-
-
-
-
-    # def update_schema(self, new_schema):
-    #     """
-    #     Update schema
-    #     Validates new schema, then checks if content types or fields were
-    #     removed which can result in data loss. If the latter discovered will
-    #     raise an error, unless forced. In force mode will remove all data
-    #     from the database that is missing from the schema. Finally persists
-    #     schema definition as a new schema.
-    #
-    #     :param new_schema: dict, schema
-    #     :return:
-    #     """
-    #     # todo: do we actually delete data from the database?
-    #     # todo: or simply don't show it?
-    #     # todo: if we do, what happens to events in store that have the fields?
-    #     # todo: validate new schema here
-    #     # todo: load old schema and check if fields deleted
-    #     pass
-    #
-    #
-    # def process_definition(self, definition):
-    #     """
-    #     Process definition
-    #     Performs definition syntax validation adn returns a nested dictionary of
-    #     errors if definitiuon is invalid.
-    #
-    #     :param definition: dict, definition
-    #     :return:
-    #     """
-    #     errors = []
-    #
-    #     for content_type in definition.items():
-    #         schema = schemas.DefinitionSchema()
-    #         valid = schema.process(content_type)
-    #
-    #         for field in content_type['fields']:
-    #             field_schema = schemas.FieldSchema()
-    #             field_valid = field_schema.valid
-
-
-
-
-
-
 
 
 
