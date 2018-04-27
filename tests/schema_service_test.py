@@ -7,12 +7,12 @@ import hashlib
 import yaml
 import json
 from pprint import pprint as pp
-from shiftcontent.content import ContentService
+from shiftcontent import SchemaService
 from shiftcontent import exceptions as x
 
 
-@attr('content')
-class ContentServiceTest(unittest.TestCase):
+@attr('schema')
+class SchemaServiceTest(unittest.TestCase):
 
     @property
     def schema_path(self):
@@ -53,13 +53,13 @@ class ContentServiceTest(unittest.TestCase):
 
     def test_create_content_service(self):
         """ Creating content service"""
-        service = ContentService(self.schema_path, self.revisions_path)
-        self.assertIsInstance(service, ContentService)
+        service = SchemaService(self.schema_path, self.revisions_path)
+        self.assertIsInstance(service, SchemaService)
 
     def test_create_revisions_directory_on_first_access(self):
         """ Create directory for schema revisions if does not exist """
         path = self.revisions_path
-        service = ContentService(
+        service = SchemaService(
             schema_path=self.schema_path,
             revisions_path=path
         )
@@ -69,7 +69,7 @@ class ContentServiceTest(unittest.TestCase):
 
     def test_registry_is_empty_if_no_file(self):
         """ Return empty dict if registry file does not exist"""
-        service = ContentService(
+        service = SchemaService(
             schema_path=self.schema_path,
             revisions_path=self.revisions_path
         )
@@ -80,7 +80,7 @@ class ContentServiceTest(unittest.TestCase):
 
     def test_load_parse_and_return_existing_registry(self):
         """ Existing regitry can be loaded successfully into a dict"""
-        service = ContentService(
+        service = SchemaService(
             schema_path=self.schema_path,
             revisions_path=self.revisions_path
         )
@@ -102,7 +102,7 @@ class ContentServiceTest(unittest.TestCase):
 
     def test_raise_when_unable_to_find_schema(self):
         """ Content service raises exception when unable to find schema file"""
-        service = ContentService(
+        service = SchemaService(
             schema_path='/nothing/here',
             revisions_path=self.revisions_path
         )
@@ -125,7 +125,7 @@ class ContentServiceTest(unittest.TestCase):
         with open(path, 'w') as stream:
             yaml.dump(invalid, stream)
 
-        service = ContentService(
+        service = SchemaService(
             schema_path=path,
             revisions_path=self.revisions_path
         )
@@ -150,7 +150,7 @@ class ContentServiceTest(unittest.TestCase):
         with open(path, 'w') as stream:
             yaml.dump(valid, stream)
 
-        service = ContentService(
+        service = SchemaService(
             schema_path=path,
             revisions_path=self.revisions_path
         )
@@ -173,7 +173,7 @@ class ContentServiceTest(unittest.TestCase):
 
     def test_abort_schema_revision_registering_if_no_file(self):
         """ Abord adding revision to registry if file not found"""
-        service = ContentService(
+        service = SchemaService(
             schema_path=self.schema_path,
             revisions_path=self.revisions_path
         )
@@ -183,7 +183,7 @@ class ContentServiceTest(unittest.TestCase):
 
     def test_can_register_schema_revision(self):
         """ Resgistering schema revision"""
-        service = ContentService(
+        service = SchemaService(
             schema_path=self.schema_path,
             revisions_path=self.revisions_path
         )
