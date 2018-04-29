@@ -8,16 +8,8 @@
 # todo: orm is also makes graphql easier (but does it?)
 
 
-class Field:
-    id: None
-    object_id: None
-    version_id: None
-    filed_name: None
-    field_value: None
 
 
-class ContentService:
-    pass
 
 
 

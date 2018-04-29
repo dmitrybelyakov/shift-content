@@ -10,50 +10,53 @@ from sqlalchemy import String
 from sqlalchemy import Text
 from sqlalchemy import DateTime
 
+# todo: with core we don't get cascades
+from shiftcontent import exceptions as x
+
+
 class Db:
-    engine = None
-    meta = None
+    db_url = None
+    db_params = None
+    _engine = None
 
-    def __init__(self):
+    def __init__(self, db_url=None, engine=None, **db_params):
         """
-        Instantiate database object
-        """
-        self.get_engine()
-        self.get_meta()
+        Instantiates database object
+        Accepts database URL to connect the engine to and a dict of db engine
+        params that will be passed to te engine. See sqlalchmy engine docs for
+        possible params: http://docs.sqlalchemy.org/en/latest/core/engines.html
 
-    def get_meta(self):
-        """
-        Access metadata object.
-        :return: sqlalchemy.sql.schema.MetaData
-        """
-        if not self.meta:
-            self.meta = MetaData()
-        return self.meta
+        Alternatively can accept a ready-made engine via engine parameter which
+        is useful for integration into applications when we don't need to
+        manage separate connection pools.
 
-    def get_engine(self, echo=False):
+        :param db_url: str, database url
+        :param engine: sqalchemy engine
+        :param echo: bool, whether to print queries to console
+        """
+        if not db_url and not engine:
+            msg = 'Can\'t instantiate database:db_url or engine required'
+            raise x.DatabaseError(msg)
+
+        self.db_url = db_url
+        self.db_params = db_params
+        self._engine = engine
+
+    @property
+    def engine(self):
         """
         Get engine
         Instantiates database engine from configuration
-        :param echo: bool, log sql queries
         :return: sqlalchemy.engine.base.Engine
         """
 
-        if self.engine:
-            return self.engine
+        if self._engine:
+            return self._engine
 
-        url = 'mysql://{user}:{password}@{host}:{port}/{db}'
-        # url = 'mysql+pymysql://{user}:{password}@{host}:{port}/{db}'
-        url += '?charset=utf8'
-        url = url.format(
-            user='root',
-            password='god',
-            host='127.0.0.1',
-            port='3306',
-            db='shiftcontent',
-        )
+        self._engine = create_engine(self.db_url, **self.db_params)
+        return self._engine
 
-        self.engine = create_engine(url, echo=echo)
-        return self.engine
+
 
 
 

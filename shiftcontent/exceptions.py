@@ -19,3 +19,8 @@ class UnableToRegisterSchemaRevision(ContentException, RuntimeError):
     """ Raised when ading a bad schema revision file to regsitry """
     pass
 
+
+class DatabaseError(ContentException, Exception):
+    """ Generic database errors """
+    pass
+
