@@ -45,8 +45,7 @@ class Db:
     @property
     def engine(self):
         """
-        Get engine
-        Instantiates database engine from configuration
+        Core interface to the database
         :return: sqlalchemy.engine.base.Engine
         """
 
