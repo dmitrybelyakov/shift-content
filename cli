@@ -5,12 +5,12 @@ from boiler.cli import cli as kernel
 cli = kernel.cli
 
 # add orm cli
-# from boiler.cli import db
-# cli.add_command(db.cli, name='db')
+from boiler.cli import db
+cli.add_command(db.cli, name='db')
 
 # add user cli
-# from boiler.cli import user
-# cli.add_command(user.cli, name='user')
+from boiler.cli import user
+cli.add_command(user.cli, name='user')
 
 # and run
 cli()

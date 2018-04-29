@@ -26,6 +26,7 @@ www.esproj
 /project
 /var/data/*
 !/var/data/.gitkeep
+/migrations
 
 
 
