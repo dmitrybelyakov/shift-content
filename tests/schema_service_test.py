@@ -155,7 +155,7 @@ class SchemaServiceTest(unittest.TestCase):
             revisions_path=self.revisions_path
         )
 
-        service.load_definition()
+        service.schema
         with open(path) as yml:
             text = yml.read()
 
@@ -170,6 +170,7 @@ class SchemaServiceTest(unittest.TestCase):
             hash + '.yml',
             registry[list(registry.keys())[0]]['schema_file']
         )
+                
 
     def test_abort_schema_revision_registering_if_no_file(self):
         """ Abord adding revision to registry if file not found"""

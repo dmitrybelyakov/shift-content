@@ -8,6 +8,7 @@ from pprint import pprint as pp
 from shiftcontent import exceptions as x
 from shiftcontent.schema import validator
 
+
 class SchemaService:
     """
     Schema service
