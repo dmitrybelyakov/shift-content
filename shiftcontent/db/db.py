@@ -11,12 +11,14 @@ from sqlalchemy import Text
 from sqlalchemy import DateTime
 
 
+from shiftcontent.db.tables import define_tables
 from shiftcontent import exceptions as x
 
 
 class Db:
     db_url = None
     db_params = None
+    tables = dict()
     _meta = None
     _engine = None
 
@@ -47,27 +49,32 @@ class Db:
         self.db_params = db_params
         self._engine = engine
         self._meta = meta
+        self.tables = define_tables(self.meta)
 
     @property
     def engine(self):
         """
-        Core interface to the database
+        Core interface to the database. Maintains connection pool.
         :return: sqlalchemy.engine.base.Engine
         """
         if not self._engine:
             self._engine = create_engine(self.db_url, **self.db_params)
         return self._engine
 
+    # todo: always close the result or connection
+    # todo: want transactions? use engine.begin() context manager
+
     @property
     def meta(self):
         """
         Metadata
-        A catalogue of tables and columns
+        A catalogue of tables and columns.
         :return: sqlalchemy.sql.schema.MetaData
         """
         if not self._meta:
             self._meta = MetaData(self.engine)
         return self._meta
+
 
 
 

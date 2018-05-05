@@ -1,5 +1,6 @@
 import sqlalchemy as sa
 
+
 def define_tables(meta):
     """
     Creates content table definitions and adds them to schema catalogue.

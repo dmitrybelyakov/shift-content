@@ -1,4 +1,4 @@
-import unittest
+from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
 import os
@@ -12,44 +12,7 @@ from shiftcontent import exceptions as x
 
 
 @attr('schema')
-class SchemaServiceTest(unittest.TestCase):
-
-    @property
-    def schema_path(self):
-        """ Get path to content schema file """
-        path = os.path.join(os.getcwd(), 'shiftcontent', 'content.yml')
-        return path
-
-    @property
-    def revisions_path(self):
-        """ Get path to schema revisions """
-        return os.path.join(
-            os.getcwd(), 'var', 'data', 'tests', 'known_schemas'
-        )
-
-    @property
-    def tmp(self):
-        """ Get path to temp data """
-        tmp = os.path.join(
-            os.getcwd(), 'var', 'data', 'tests', 'tmp'
-        )
-        if not os.path.exists(tmp):
-            os.makedirs(tmp, exist_ok=True)
-        return tmp
-
-    def create_tmp(self):
-        """ Creates tenmp directory"""
-        if not os.path.exists(self.tmp):
-            os.makedirs(self.tmp, exist_ok=True)
-        return self.tmp
-
-    def tearDown(self):
-        """ Cleanup """
-        super().tearDown()
-        tests = os.path.join(os.getcwd(), 'var', 'data', 'tests')
-        if os.path.exists(tests): shutil.rmtree(tests)
-
-    # --------------------------------------------------------------------------
+class SchemaServiceTest(BaseTestCase):
 
     def test_create_content_service(self):
         """ Creating content service"""
@@ -120,8 +83,7 @@ class SchemaServiceTest(unittest.TestCase):
             },
         ]}
 
-        tmp = self.create_tmp()
-        path = os.path.join(tmp, 'invalid.yml')
+        path = os.path.join(self.tmp, 'invalid.yml')
         with open(path, 'w') as stream:
             yaml.dump(invalid, stream)
 
@@ -145,8 +107,7 @@ class SchemaServiceTest(unittest.TestCase):
             },
         ]}
 
-        tmp = self.create_tmp()
-        path = os.path.join(tmp, 'valid.yml')
+        path = os.path.join(self.tmp, 'valid.yml')
         with open(path, 'w') as stream:
             yaml.dump(valid, stream)
 
@@ -170,7 +131,7 @@ class SchemaServiceTest(unittest.TestCase):
             hash + '.yml',
             registry[list(registry.keys())[0]]['schema_file']
         )
-                
+
 
     def test_abort_schema_revision_registering_if_no_file(self):
         """ Abord adding revision to registry if file not found"""

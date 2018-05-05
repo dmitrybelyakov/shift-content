@@ -1,8 +1,10 @@
-import unittest
+from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
+
 
 import os
 import shutil
+from sqlalchemy import create_engine
 from sqlalchemy import Table
 from sqlalchemy import Column
 from sqlalchemy import Integer
@@ -15,30 +17,26 @@ from shiftcontent import exceptions as x
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.sql.schema import MetaData
 
+
 @attr('db')
-class DbTest(unittest.TestCase):
+class DbTest(BaseTestCase):
 
-    @property
-    def tmp(self):
-        """ Get path to temp data """
-        tmp = os.path.join(
-            os.getcwd(), 'var', 'data', 'tests', 'tmp'
+    def tables(self, meta):
+        """ Creates test table definitions """
+        tables = dict()
+        tables['employees'] = Table('employees2', meta,
+            Column('id', Integer, primary_key=True),
+            Column('name', String(128)),
+            Column('full_name', String(128)),
         )
-        if not os.path.exists(tmp):
-            os.makedirs(tmp, exist_ok=True)
-        return tmp
 
-    @property
-    def db_url(self):
-        """ Get test db url """
-        url = 'sqlite:///{}/test.db'.format(self.tmp)
-        return url
+        tables['addresses'] = Table('addresses2', meta,
+            Column('id', Integer, primary_key=True),
+            Column('user_id', None, ForeignKey('employees.id')),
+            Column('email_address', String(256),nullable=False)
+        )
 
-    def tearDown(self):
-        """ Cleanup """
-        super().tearDown()
-        tests = os.path.join(os.getcwd(), 'var', 'data', 'tests')
-        if os.path.exists(tests): shutil.rmtree(tests)
+        return tables
 
     # --------------------------------------------------------------------------
 
@@ -60,15 +58,15 @@ class DbTest(unittest.TestCase):
 
     def test_use_custom_engine(self):
         """ Skip engine creation when passed in """
-        mock_engine = 'I am an engine'
-        db = Db(engine=mock_engine)
-        self.assertEquals(mock_engine, db.engine)
+        engine = create_engine(self.db_url)
+        db = Db(engine=engine)
+        self.assertEquals(engine, db.engine)
 
     def test_use_custom_meta(self):
         """ Use custom metadata object """
-        mock_meta = 'I am metadata!'
-        db = Db(self.db_url, meta=mock_meta)
-        self.assertEquals(mock_meta, db.meta)
+        meta = MetaData()
+        db = Db(self.db_url, meta=meta)
+        self.assertEquals(meta, db.meta)
 
     def test_create_fresh_metadata(self):
         """ Creating metadata object on first access """
@@ -76,26 +74,50 @@ class DbTest(unittest.TestCase):
         meta = db.meta
         self.assertIsInstance(meta, MetaData)
 
+    def test_define_tables_upon_db_creation(self):
+        """ Load table definitions when instantiating db"""
+        db = Db(self.db_url)
+        for table in db.meta.sorted_tables:
+            self.assertIn(table, db.tables.values())
+
+    # -------------------------------------------------------------------------
+    # db operations
+    # -------------------------------------------------------------------------
+
     def test_creating_tables(self):
         """ Creating tables"""
         db_url = self.db_url
         db = Db(db_url)
-        employees = Table('employees', db.meta,
-            Column('id', Integer, primary_key=True),
-            Column('name', String(128)),
-            Column('full_name', String(128)),
-        )
-
-        addresses = Table('addresses', db.meta,
-            Column('id', Integer, primary_key=True),
-            Column('user_id', None, ForeignKey('employees.id')),
-            Column('email_address', String(256), nullable=False)
-        )
-
+        tables = self.tables(db.meta)
         db.meta.create_all()
-        self.assertIn(employees, db.meta.sorted_tables)
-        self.assertIn(addresses, db.meta.sorted_tables)
+        self.assertIn(tables['employees'], db.meta.sorted_tables)
+        self.assertIn(tables['addresses'], db.meta.sorted_tables)
 
+    def test_can_insert(self):
+        """ Inserting database records"""
+        db = Db(self.db_url)
+        tables = self.tables(db.meta)
+        db.meta.create_all()
+
+        employees = tables['employees']
+        insert = employees.insert().values(name='Test')
+
+        conn = db.engine.connect()
+        result = conn.execute(insert)
+        id = result.inserted_primary_key
+        self.assertEquals([1], id)
+
+    @attr('zzz')
+    def test_shorthand_insert(self):
+        """ Insert using shorthand"""
+        db = Db(self.db_url)
+        tables = self.tables(db.meta)
+        db.meta.create_all()
+
+        employees = tables['employees']
+        conn = db.engine.connect()
+        result = conn.execute(employees.insert(), name="DEMO")
+        self.assertIn(1, result.inserted_primary_key)
 
 
 

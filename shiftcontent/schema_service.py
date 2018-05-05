@@ -139,6 +139,7 @@ class SchemaService:
             return schema
 
         # if changed, validate and persist
+        # todo: trigger schema changed event
         definitions_schema = validator.DefinitionSchema()
         ok = definitions_schema.process(yml)
         if not ok:
@@ -147,7 +148,7 @@ class SchemaService:
         else:
             schema = {t['handle'].lower(): t for t in yml['content']}
 
-        # todo: check if fields were removed, filed types changed etc
+        # todo: check if fields were removed, field types changed etc
 
         # save schema to backlog
         shutil.copy(self.schema_path, revision_path)
