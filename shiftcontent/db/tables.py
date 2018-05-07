@@ -15,10 +15,10 @@ def define_tables(meta):
     # events
     tables['events'] = sa.Table('content_events', meta,
         sa.Column('id', sa.Integer, primary_key=True),
-        sa.Column('created', sa.DateTime, nullable=False),
-        sa.Column('type', sa.String(256), nullable=False),
-        sa.Column('author', sa.String(256), nullable=False),
-        sa.Column('object_id', sa.Integer, nullable=False),
+        sa.Column('created', sa.DateTime, nullable=False, index=True),
+        sa.Column('type', sa.String(256), nullable=False, index=True),
+        sa.Column('author', sa.String(256), nullable=False, index=True),
+        sa.Column('object_id', sa.Integer, nullable=False, index=True),
         sa.Column('payload', sa.Text),
     )
 

@@ -24,3 +24,8 @@ class DatabaseError(ContentException, Exception):
     """ Generic database errors """
     pass
 
+
+class EventLogError(DatabaseError, RuntimeError):
+    """ Raised when there is an issue wit hevent log """
+    pass
+

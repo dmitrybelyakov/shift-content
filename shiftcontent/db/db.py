@@ -75,6 +75,27 @@ class Db:
             self._meta = MetaData(self.engine)
         return self._meta
 
+    def append_event(self, event):
+        """
+        Append event
+        :param event: shiftcontent.events.Event
+        :return: shiftcontent.events.Event
+        """
+        if event.id:
+            msg = 'Appending events with existing ids is not allowed. '
+            x.EventLogError(msg)
+
+        events = self.tables['events']
+        with self.engine.begin() as conn:
+            result = conn.execute(events.insert(), **event.to_dict())
+            event.id = result.inserted_primary_key[0]
+
+        return event
+
+
+
+
+
 
 
 

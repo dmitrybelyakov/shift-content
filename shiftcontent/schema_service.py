@@ -25,8 +25,6 @@ class SchemaService:
         self._revisions_path = revisions_path
         self._schema = None
 
-
-
     @property
     def revisions_path(self):
         """

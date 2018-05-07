@@ -13,6 +13,7 @@ from sqlalchemy import ForeignKey
 
 
 from shiftcontent import Db
+from shiftcontent import Event
 from shiftcontent import exceptions as x
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.sql.schema import MetaData
@@ -83,6 +84,20 @@ class DbTest(BaseTestCase):
     # -------------------------------------------------------------------------
     # db operations
     # -------------------------------------------------------------------------
+
+    def test_append_event(self):
+        """ Appending an event """
+        data = dict(
+            type="TEST",
+            author='1',
+            object_id=123,
+            payload='some payload'
+        )
+        event = Event(**data)
+        self.db.append_event(event)
+        self.assertEquals(1, event.id)
+
+
 
     def test_creating_tables(self):
         """ Creating tables"""
