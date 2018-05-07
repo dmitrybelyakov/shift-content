@@ -88,7 +88,7 @@ class Db:
         events = self.tables['events']
         with self.engine.begin() as conn:
             result = conn.execute(events.insert(), **event.to_dict())
-            event.id = result.inserted_primary_key[0]
+            event.props['id'] = result.inserted_primary_key[0]
 
         return event
 

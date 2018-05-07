@@ -91,7 +91,7 @@ class DbTest(BaseTestCase):
             type="TEST",
             author='1',
             object_id=123,
-            payload='some payload'
+            payload={'dict': 'some payload'}
         )
         event = Event(**data)
         self.db.append_event(event)

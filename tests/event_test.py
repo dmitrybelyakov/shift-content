@@ -2,6 +2,7 @@ from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
 from shiftcontent.events import Event
+from shiftcontent import exceptions as x
 from datetime import datetime
 
 
@@ -42,21 +43,42 @@ class EventTest(BaseTestCase):
     def test_populate_event_from_dict(self):
         """ Can populate event from dict """
         data = dict(
-            id=123,
             type="TEST",
             author='1',
             object_id=123,
-            payload='some payload'
+            payload={'what': 'some payload'}
         )
 
         event = Event(**data)
         for prop in data.keys():
             self.assertEquals(data[prop], getattr(event, prop))
 
+    def test_raise_when_modifying_event_id_directly(self):
+        """ Raize exception when modifying event id"""
+        event = Event()
+        with self.assertRaises(x.EventError):
+            event.id = '123'
+
     def test_getting_event_as_dict(self):
         """ Getting event as dict """
         event = Event()
         self.assertTrue(type(event.to_dict()) is dict)
 
+    def test_raise_when_setting_non_dictionary_payload(self):
+        """ Raise when setting a payload that is not a dict """
+        event = Event()
+        with self.assertRaises(x.EventError):
+            event.payload = 'crap'
 
+    def test_setting_payload(self):
+        """ Setting event payload """
+        data = dict(some='payload_goes_here')
+        event = Event(payload=data)
+        self.assertTrue(type(event.props['payload']) is str)
+
+    def test_getting_event_payload(self):
+        """ Getting event payload """
+        data = dict(some='payload_goes_here')
+        event = Event(payload=data)
+        self.assertTrue(type(event.payload) is dict)
 

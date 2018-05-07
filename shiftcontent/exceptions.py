@@ -25,7 +25,12 @@ class DatabaseError(ContentException, Exception):
     pass
 
 
+class EventError(DatabaseError, RuntimeError):
+    """ Raised when there is an issue with event object """
+    pass
+
+
 class EventLogError(DatabaseError, RuntimeError):
-    """ Raised when there is an issue wit hevent log """
+    """ Raised when there is an issue with event log """
     pass
 
