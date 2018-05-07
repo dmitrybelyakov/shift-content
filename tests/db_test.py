@@ -24,13 +24,13 @@ class DbTest(BaseTestCase):
     def tables(self, meta):
         """ Creates test table definitions """
         tables = dict()
-        tables['employees'] = Table('employees2', meta,
+        tables['employees'] = Table('employees', meta,
             Column('id', Integer, primary_key=True),
             Column('name', String(128)),
             Column('full_name', String(128)),
         )
 
-        tables['addresses'] = Table('addresses2', meta,
+        tables['addresses'] = Table('addresses', meta,
             Column('id', Integer, primary_key=True),
             Column('user_id', None, ForeignKey('employees.id')),
             Column('email_address', String(256),nullable=False)
@@ -107,7 +107,6 @@ class DbTest(BaseTestCase):
         id = result.inserted_primary_key
         self.assertEquals([1], id)
 
-    @attr('zzz')
     def test_shorthand_insert(self):
         """ Insert using shorthand"""
         db = Db(self.db_url)

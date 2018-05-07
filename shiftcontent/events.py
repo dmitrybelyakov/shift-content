@@ -1,59 +1,62 @@
+from datetime import datetime
 
 
-# @todo: Implement media uploads outside event sourcing system
-# @todo: Only store references to files in event sourcing system
-
-# @todo: What is a field?
-# @todo: We do not need to store its value, as it comes from the store
-# @todo: We do however need to identify it, so it needs unique identifier
-# @todo: Field has some other attributes like: name, default value, constraints
-# @todo: We don't want to manually create field ids
-# @todo: We don't want store module config in the database
-
-# @todo: model a simple persistable unit of content
-
-
-class Module:
-    id = None
-    version = 'uuid'
-    fields = []
-
-
-class Version:
+class Event:
     """
-    Represents a change set - a collection of events.
-    We can rollback to this specific version by looking at all the events
-    an getting their state
+    Event
+    Represent single atomic operation.
     """
-    id = None
-    parent_version = None
-    created = None
-    committed = None
-    author = 'Identity'
-    object = 'Module'
-    object_id = 123
-    events = []
+    props = dict(
+        id=None,
+        created=None,
+        type=None,
+        author=None,
+        object_id=None,
+        payload=None
+    )
 
-
-class BaseEvent:
-    """
-    Will events be different per field?
-    Is image event the same as text event?
-    How do we track module updates?
-    Module update is just a change to one of its fields.
-    """
-    id = None
-    created = None
-    author = 'Identity'
-    object_type = 'field'
-    object_id = 123
-    payload = 'new_value'
-
-    def update_state(self):
+    def __init__(self, *_, **kwargs):
         """
-        Apply state changes based on payload.
-        This is can be a separate event handler, but it's nicer to have
-        event processing logic and payload in one place.
-        :return:
+        Instantiate event object
+        Can optionally populate itself from kwargs
+        :param _: args, ignored
+        :param kwargs: dict, key-value pairs used to populate event
         """
-        pass
+        self.from_dict(kwargs)
+        if not self.props['created']:
+            self.props['created'] = datetime.utcnow()
+
+    def __repr__(self):
+        """ Returns printable representation of an event """
+        repr = '<ContentEvent id=[{}] object_id=[{}] type=[{}] created={}>'
+        return repr.format(self.id, self.object_id, self.type, self.created)
+
+    def __getattr__(self, item):
+        """ Overrides attribute access for getting props """
+        if item in self.props:
+            return self.props[item]
+        return getattr(self, item)
+
+    def __setattr__(self, key, value):
+        """ Overrides "attribute access for setting props"""
+        if key in self.props:
+            self.props[key] = value
+            return self
+        object.__setattr__(self, key, value)
+        return self
+
+    def to_dict(self):
+        """ Returns dictionary representation of the event """
+        return self.props
+
+    def from_dict(self, data):
+        """ Populates itself from a dictionary """
+        for prop, val in data.items():
+            if prop in self.props:
+                self.props[prop] = val
+        return self
+
+
+
+
+

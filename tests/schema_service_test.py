@@ -132,7 +132,6 @@ class SchemaServiceTest(BaseTestCase):
             registry[list(registry.keys())[0]]['schema_file']
         )
 
-
     def test_abort_schema_revision_registering_if_no_file(self):
         """ Abord adding revision to registry if file not found"""
         service = SchemaService(
