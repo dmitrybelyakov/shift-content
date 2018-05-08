@@ -1,16 +1,9 @@
+import json
+from collections import Mapping
 from sqlalchemy import create_engine
-
-from sqlalchemy import Table
-from sqlalchemy import Column
 from sqlalchemy import MetaData
-from sqlalchemy import ForeignKey
-
-from sqlalchemy import Integer
-from sqlalchemy import String
-from sqlalchemy import Text
-from sqlalchemy import DateTime
-
-
+from sqlalchemy import sql
+from sqlalchemy import desc, asc
 from shiftcontent.db.tables import define_tables
 from shiftcontent import exceptions as x
 
@@ -61,9 +54,6 @@ class Db:
             self._engine = create_engine(self.db_url, **self.db_params)
         return self._engine
 
-    # todo: always close the result or connection
-    # todo: want transactions? use engine.begin() context manager
-
     @property
     def meta(self):
         """
@@ -81,16 +71,63 @@ class Db:
         :param event: shiftcontent.events.Event
         :return: shiftcontent.events.Event
         """
+        # todo: validate evnt with validator here
+
         if event.id:
             msg = 'Appending events with existing ids is not allowed. '
             x.EventLogError(msg)
 
         events = self.tables['events']
         with self.engine.begin() as conn:
-            result = conn.execute(events.insert(), **event.to_dict())
+            data = event.to_dict()
+            del data['id']  # autoincremented
+            result = conn.execute(events.insert(), **data)
             event.props['id'] = result.inserted_primary_key[0]
 
         return event
+
+    def merge_dicts(self, first, second):
+        """
+        Merge dicts
+        Recursively merges two dictionaries
+        :param first: dict, initial dict
+        :param second: dict, overwritten wit hthe second
+        :return: dict
+        """
+        for prop, val in second.items():
+            first_dict = prop in first and isinstance(first[prop], dict)
+            second_dict = prop in second and isinstance(second[prop], Mapping)
+            if prop in first and first_dict and second_dict:
+                self.merge_dicts(first[prop], second[prop])
+            else:
+                first[prop] = second[prop]
+
+        return first
+
+    def get_projection(self, object_id):
+        """
+        Get projection
+        Gets all the events for the given object id in chronological order
+        and replays them recursively merging payload. Returns resulting
+        payload.
+
+        :param object_id: str, object id to project
+        :return:
+        """
+        events = self.tables['events']
+        select = sql.select([events])\
+            .where(events.c.object_id == object_id)\
+            .order_by(asc('created'))
+
+        result = self.engine.execute(select)
+        projection = dict()
+        for row in result:
+            payload = json.loads(row['payload'], encoding='utf-8')
+            projection = self.merge_dicts(projection, payload)
+        result.close()
+
+        return projection
+
 
 
 

@@ -7,14 +7,8 @@ class Event:
     Event
     Represent single atomic operation.
     """
-    props = dict(
-        id=None,
-        created=None,
-        type=None,
-        author=None,
-        object_id=None,
-        payload=None
-    )
+    # event props, initialized at instance level
+    props = dict()
 
     def __init__(self, *_, **kwargs):
         """
@@ -23,6 +17,16 @@ class Event:
         :param _: args, ignored
         :param kwargs: dict, key-value pairs used to populate event
         """
+        # init props
+        self.props = dict(
+            id=None,
+            created=None,
+            type=None,
+            author=None,
+            object_id=None,
+            payload=None
+        )
+
         self.from_dict(kwargs)
         if not self.props['created']:
             self.props['created'] = datetime.utcnow()

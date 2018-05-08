@@ -22,25 +22,6 @@ from sqlalchemy.sql.schema import MetaData
 @attr('db')
 class DbTest(BaseTestCase):
 
-    def tables(self, meta):
-        """ Creates test table definitions """
-        tables = dict()
-        tables['employees'] = Table('employees', meta,
-            Column('id', Integer, primary_key=True),
-            Column('name', String(128)),
-            Column('full_name', String(128)),
-        )
-
-        tables['addresses'] = Table('addresses', meta,
-            Column('id', Integer, primary_key=True),
-            Column('user_id', None, ForeignKey('employees.id')),
-            Column('email_address', String(256),nullable=False)
-        )
-
-        return tables
-
-    # --------------------------------------------------------------------------
-
     def test_instantiate_db(self):
         """ Instantiating database """
         db = Db('sqlite:///:memory:', echo=True)
@@ -85,53 +66,74 @@ class DbTest(BaseTestCase):
     # db operations
     # -------------------------------------------------------------------------
 
-    def test_append_event(self):
-        """ Appending an event """
-        data = dict(
+    def test_append_events(self):
+        """ Appending events """
+        self.db.echo = True
+
+        event = Event(
             type="TEST",
             author='1',
             object_id=123,
             payload={'dict': 'some payload'}
         )
-        event = Event(**data)
         self.db.append_event(event)
+
+        event2 = Event(
+            type="TEST",
+            author='1',
+            object_id=123,
+            payload={'dict': 'more payload'}
+        )
+        self.db.append_event(event2)
+
         self.assertEquals(1, event.id)
+        self.assertEquals(2, event2.id)
 
+    def test_get_projection(self):
+        """ Getting a projection """
 
+        event1 = Event(
+            type='TEST',
+            author='1',
+            object_id=123,
+            payload={
+                'field1': 'somevalue 1',
+                'field2': None,
+                'field4': 'initial value'
+            }
+        )
 
-    def test_creating_tables(self):
-        """ Creating tables"""
-        db_url = self.db_url
-        db = Db(db_url)
-        tables = self.tables(db.meta)
-        db.meta.create_all()
-        self.assertIn(tables['employees'], db.meta.sorted_tables)
-        self.assertIn(tables['addresses'], db.meta.sorted_tables)
+        event2 = Event(
+            type='TEST',
+            author='1',
+            object_id=123,
+            payload={
+                'field1': 'somevalue 2',
+                'field2': 'Updating field 2',
+                'field4': 'initial value updated'
+            }
+        )
 
-    def test_can_insert(self):
-        """ Inserting database records"""
-        db = Db(self.db_url)
-        tables = self.tables(db.meta)
-        db.meta.create_all()
+        event3 = Event(
+            type='TEST',
+            author='1',
+            object_id=123,
+            payload={
+                'field1': 'somevalue 3',
+                'field3': 'Created field 3',
+                'field4': None
+            }
+        )
 
-        employees = tables['employees']
-        insert = employees.insert().values(name='Test')
+        self.db.append_event(event1)
+        self.db.append_event(event2)
+        self.db.append_event(event3)
 
-        conn = db.engine.connect()
-        result = conn.execute(insert)
-        id = result.inserted_primary_key
-        self.assertEquals([1], id)
-
-    def test_shorthand_insert(self):
-        """ Insert using shorthand"""
-        db = Db(self.db_url)
-        tables = self.tables(db.meta)
-        db.meta.create_all()
-
-        employees = tables['employees']
-        conn = db.engine.connect()
-        result = conn.execute(employees.insert(), name="DEMO")
-        self.assertIn(1, result.inserted_primary_key)
+        projection = self.db.get_projection(123)
+        self.assertEquals('somevalue 3', projection['field1'])
+        self.assertEquals('Updating field 2', projection['field2'])
+        self.assertEquals('Created field 3', projection['field3'])
+        self.assertEquals(None, projection['field4'])
 
 
 
