@@ -14,7 +14,6 @@ class SchemaService:
     Schema service
     Responsible for loading ant tracking schema fefinition file updates.
     """
-
     def __init__(self, schema_path, revisions_path):
         """
         Initialise service

@@ -1,8 +1,8 @@
 from datetime import datetime
 from shiftcontent import exceptions as x
 from shiftschema.schema import Schema
-from shiftschema import validators as validator
-from shiftschema import filters as filter
+from shiftschema import validators
+from shiftschema import filters
 import json
 
 
@@ -13,32 +13,32 @@ class EventSchema(Schema):
     """
     def schema(self):
         self.add_property('created')
-        self.created.add_validator(validator.Required(
+        self.created.add_validator(validators.Required(
             message='An event must have creation date'
         ))
 
         self.add_property('type')
-        self.type.add_filter(filter.Strip())
-        self.type.add_filter(filter.Uppercase())
-        self.type.add_validator(validator.Required(
+        self.type.add_filter(filters.Strip())
+        self.type.add_filter(filters.Uppercase())
+        self.type.add_validator(validators.Required(
             message='An event must have a type'
         ))
 
         self.add_property('object_id')
-        self.object_id.add_filter(filter.Strip())
-        self.object_id.add_validator(validator.Required(
+        self.object_id.add_filter(filters.Strip())
+        self.object_id.add_validator(validators.Required(
             message='An event must have an object id'
         ))
 
         self.add_property('author')
-        self.author.add_filter(filter.Strip())
-        self.author.add_validator(validator.Required(
+        self.author.add_filter(filters.Strip())
+        self.author.add_validator(validators.Required(
             message='An event must have an author set'
         ))
 
         self.add_property('payload')
-        self.payload.add_filter(filter.Strip())
-        self.payload.add_validator(validator.Required(
+        self.payload.add_filter(filters.Strip())
+        self.payload.add_validator(validators.Required(
             message='An event must have a payload'
         ))
 

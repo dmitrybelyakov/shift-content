@@ -18,7 +18,7 @@ class Db:
     def __init__(self, db_url=None, engine=None, meta=None, **db_params):
         """
         Instantiates database object
-        Accepts database URL to connect the engine to and a dict of db engine
+        Accepts database URL to connect to the engine  and a dict of db engine
         params that will be passed to te engine. See sqlalchmy engine docs for
         possible params: http://docs.sqlalchemy.org/en/latest/core/engines.html
 

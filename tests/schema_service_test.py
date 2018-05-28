@@ -11,7 +11,7 @@ from shiftcontent import SchemaService
 from shiftcontent import exceptions as x
 
 
-@attr('schema')
+@attr('schema', 'service')
 class SchemaServiceTest(BaseTestCase):
 
     def test_create_content_service(self):

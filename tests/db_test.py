@@ -1,22 +1,13 @@
 from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
-
-import os
-import shutil
 from sqlalchemy import create_engine
-from sqlalchemy import Table
-from sqlalchemy import Column
-from sqlalchemy import Integer
-from sqlalchemy import String
-from sqlalchemy import ForeignKey
-
-
-from shiftcontent import Db
-from shiftcontent import Event
-from shiftcontent import exceptions as x
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.sql.schema import MetaData
+
+from shiftcontent import Db
+from shiftcontent.event import Event
+from shiftcontent import exceptions as x
 
 
 @attr('db')
@@ -28,7 +19,7 @@ class DbTest(BaseTestCase):
         self.assertIsInstance(db, Db)
 
     def test_raise_when_no_engine_or_url(self):
-        """ Raise exception when neither db_url nor engine were passsed"""
+        """ Raise exception when neither db_url nor engine were passed"""
         with self.assertRaises(x.DatabaseError):
             Db()
 
