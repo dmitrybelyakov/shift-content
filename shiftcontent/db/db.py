@@ -71,7 +71,7 @@ class Db:
         :param event: shiftcontent.events.Event
         :return: shiftcontent.events.Event
         """
-        # todo: validate evnt with validator here
+        # todo: validate event with validator here
 
         if event.id:
             msg = 'Appending events with existing ids is not allowed. '
