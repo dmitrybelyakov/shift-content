@@ -86,47 +86,47 @@ class Db:
 
         return event
 
-    def merge_dicts(self, first, second):
-        """
-        Merge dicts
-        Recursively merges two dictionaries
-        :param first: dict, initial dict
-        :param second: dict, overwritten wit hthe second
-        :return: dict
-        """
-        for prop, val in second.items():
-            first_dict = prop in first and isinstance(first[prop], dict)
-            second_dict = prop in second and isinstance(second[prop], Mapping)
-            if prop in first and first_dict and second_dict:
-                self.merge_dicts(first[prop], second[prop])
-            else:
-                first[prop] = second[prop]
-
-        return first
-
-    def get_projection(self, object_id):
-        """
-        Get projection
-        Gets all the events for the given object id in chronological order
-        and replays them recursively merging payload. Returns resulting
-        payload.
-
-        :param object_id: str, object id to project
-        :return:
-        """
-        events = self.tables['events']
-        select = sql.select([events])\
-            .where(events.c.object_id == object_id)\
-            .order_by(asc('created'))
-
-        result = self.engine.execute(select)
-        projection = dict()
-        for row in result:
-            payload = json.loads(row['payload'], encoding='utf-8')
-            projection = self.merge_dicts(projection, payload)
-        result.close()
-
-        return projection
+    # def merge_dicts(self, first, second):
+    #     """
+    #     Merge dicts
+    #     Recursively merges two dictionaries
+    #     :param first: dict, initial dict
+    #     :param second: dict, overwritten wit hthe second
+    #     :return: dict
+    #     """
+    #     for prop, val in second.items():
+    #         first_dict = prop in first and isinstance(first[prop], dict)
+    #         second_dict = prop in second and isinstance(second[prop], Mapping)
+    #         if prop in first and first_dict and second_dict:
+    #             self.merge_dicts(first[prop], second[prop])
+    #         else:
+    #             first[prop] = second[prop]
+    #
+    #     return first
+    #
+    # def get_projection(self, object_id):
+    #     """
+    #     Get projection
+    #     Gets all the events for the given object id in chronological order
+    #     and replays them recursively merging payload. Returns resulting
+    #     payload.
+    #
+    #     :param object_id: str, object id to project
+    #     :return:
+    #     """
+    #     events = self.tables['events']
+    #     select = sql.select([events])\
+    #         .where(events.c.object_id == object_id)\
+    #         .order_by(asc('created'))
+    #
+    #     result = self.engine.execute(select)
+    #     projection = dict()
+    #     for row in result:
+    #         payload = json.loads(row['payload'], encoding='utf-8')
+    #         projection = self.merge_dicts(projection, payload)
+    #     result.close()
+    #
+    #     return projection
 
 
 

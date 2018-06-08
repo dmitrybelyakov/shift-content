@@ -80,51 +80,51 @@ class DbTest(BaseTestCase):
         self.assertEquals(1, event.id)
         self.assertEquals(2, event2.id)
 
-    def test_get_projection(self):
-        """ Getting a projection """
-
-        event1 = Event(
-            type='TEST',
-            author='1',
-            object_id=123,
-            payload={
-                'field1': 'somevalue 1',
-                'field2': None,
-                'field4': 'initial value'
-            }
-        )
-
-        event2 = Event(
-            type='TEST',
-            author='1',
-            object_id=123,
-            payload={
-                'field1': 'somevalue 2',
-                'field2': 'Updating field 2',
-                'field4': 'initial value updated'
-            }
-        )
-
-        event3 = Event(
-            type='TEST',
-            author='1',
-            object_id=123,
-            payload={
-                'field1': 'somevalue 3',
-                'field3': 'Created field 3',
-                'field4': None
-            }
-        )
-
-        self.db.append_event(event1)
-        self.db.append_event(event2)
-        self.db.append_event(event3)
-
-        projection = self.db.get_projection(123)
-        self.assertEquals('somevalue 3', projection['field1'])
-        self.assertEquals('Updating field 2', projection['field2'])
-        self.assertEquals('Created field 3', projection['field3'])
-        self.assertEquals(None, projection['field4'])
+    # def test_get_projection(self):
+    #     """ Getting a projection """
+    #
+    #     event1 = Event(
+    #         type='TEST',
+    #         author='1',
+    #         object_id=123,
+    #         payload={
+    #             'field1': 'somevalue 1',
+    #             'field2': None,
+    #             'field4': 'initial value'
+    #         }
+    #     )
+    #
+    #     event2 = Event(
+    #         type='TEST',
+    #         author='1',
+    #         object_id=123,
+    #         payload={
+    #             'field1': 'somevalue 2',
+    #             'field2': 'Updating field 2',
+    #             'field4': 'initial value updated'
+    #         }
+    #     )
+    #
+    #     event3 = Event(
+    #         type='TEST',
+    #         author='1',
+    #         object_id=123,
+    #         payload={
+    #             'field1': 'somevalue 3',
+    #             'field3': 'Created field 3',
+    #             'field4': None
+    #         }
+    #     )
+    #
+    #     self.db.append_event(event1)
+    #     self.db.append_event(event2)
+    #     self.db.append_event(event3)
+    #
+    #     projection = self.db.get_projection(123)
+    #     self.assertEquals('somevalue 3', projection['field1'])
+    #     self.assertEquals('Updating field 2', projection['field2'])
+    #     self.assertEquals('Created field 3', projection['field3'])
+    #     self.assertEquals(None, projection['field4'])
 
 
 

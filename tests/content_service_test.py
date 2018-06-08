@@ -19,7 +19,7 @@ class SchemaServiceTest(BaseTestCase):
         """ Configures and returns content service"""
         content_service = ContentService(
             db=self.db,
-            event_service=EventService(),
+            event_service=EventService(self.db),
             schema_service=SchemaService(self.schema_path, self.revisions_path)
         )
         return content_service
