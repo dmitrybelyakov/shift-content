@@ -37,7 +37,6 @@ class EventSchema(Schema):
         ))
 
         self.add_property('payload')
-        self.payload.add_filter(filters.Strip())
         self.payload.add_validator(validators.Required(
             message='An event must have a payload'
         ))
@@ -74,7 +73,7 @@ class Event:
 
     def __repr__(self):
         """ Returns printable representation of an event """
-        repr = '<ContentEvent id=[{}] object_id=[{}] type=[{}] created={}>'
+        repr = '<Event id=[{}] object_id=[{}] type=[{}] created=[{}]>'
         return repr.format(self.id, self.object_id, self.type, self.created)
 
     def __getattr__(self, item):
@@ -83,7 +82,7 @@ class Event:
             return self.get_payload()
         if item in self.props:
             return self.props[item]
-        return getattr(self, item)
+        return object.__getattr__(self, item)
 
     def __setattr__(self, key, value):
         """ Overrides "attribute access for setting props"""
@@ -118,7 +117,8 @@ class Event:
         :return:
         """
         if type(payload) is not dict:
-            raise x.EventError('Payload must be a dictionary')
+            msg = 'Payload must be a dictionary, got {}'
+            raise x.EventError(msg.format(type(payload)))
         self.props['payload'] = json.dumps(payload, ensure_ascii=False)
         return self
 

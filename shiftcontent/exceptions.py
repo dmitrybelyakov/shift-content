@@ -30,7 +30,11 @@ class EventError(DatabaseError, RuntimeError):
     pass
 
 
-class EventLogError(DatabaseError, RuntimeError):
-    """ Raised when there is an issue with event log """
-    pass
+class InvalidEvent(ContentException, RuntimeError):
+    """ Raised when trying to persist invalid event """
+    def __init__(self, *args, validation_errors=None, **kwargs):
+        self.validation_errors = validation_errors
+        super().__init__(*args, **kwargs)
+
+
 

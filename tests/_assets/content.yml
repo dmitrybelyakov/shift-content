@@ -28,6 +28,7 @@ content:
     editor: shiftcontent.editor.Default
     fields:
         - name: Body
+          handle: body
           description: Contains long blob of text
           type: text
           default_value: None

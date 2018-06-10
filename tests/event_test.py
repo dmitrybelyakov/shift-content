@@ -18,7 +18,7 @@ class EventTest(BaseTestCase):
         """ Getting printable representation of an event """
         event = Event()
         repr = event.__repr__()
-        self.assertIn('<ContentEvent', repr)
+        self.assertIn('<Event', repr)
 
     def test_event_gets_creation_date_upon_instantiation(self):
         """ Event gets creation date upon instantiating """
@@ -39,6 +39,11 @@ class EventTest(BaseTestCase):
 
         event.props = 'something'
         self.assertEquals('something', event.props)
+
+    def test_can_check_for_attribute_presence(self):
+        """ REGRESSION: can use hasattr to check for prop existence"""
+        event = Event()
+        self.assertFalse(hasattr(event, 'whatever'))
 
     def test_populate_event_from_dict(self):
         """ Can populate event from dict """

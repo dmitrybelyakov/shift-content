@@ -1,10 +1,4 @@
-# todo: meta must be an object to be inheritable (do we need inheritance)
-# todo: is content item an object as well?
-# todo: if we are dealing with objects are we going full-orm?
-# todo: is it a good idea to put custom meta fields into schema?
-# todo: if we do that, can we go without ORM? <- that'd be perfect
-
-# todo: orm is also makes graphql easier (but does it?)
+from uuid import uuid1
 
 
 class ContentService:
@@ -13,7 +7,6 @@ class ContentService:
     projections to retrieve content, handles content updates via event
     service, monitors and updates in-memory caches and search indexes
     """
-
     def __init__(self, db, event_service, schema_service):
         """
         Initialize content service
@@ -27,7 +20,27 @@ class ContentService:
         self.event_service = event_service
         self.schema_service = schema_service
 
+    def get_item(self, item_id):
+        # todo: try to get item from cache
+        # todo: get from projections if not found
+        # todo: put to cache if found in projections
+        pass
+
     def create_item(self, content_type, author, data):
+        # todo: filter and validate data
+        # todo: send event
+        # todo: what happens after an event is recorded?
+        # todo: a projection should update
+        # todo: cache should be refreshed
+        # todo: we return item from the cache
+
+        # todo: who updates projections?
+        # todo: how events are replayed?
+        # todo: we replay by sequentially firing events
+        # todo: then handlers get executed to perform actions on db
+        # todo: are event handlers async?
+        # todo: if we are how can we return an item here? and do we?
+        # todo: or should we just return an id here?
         pass
 
     def save_item(self, content_type, author, data):

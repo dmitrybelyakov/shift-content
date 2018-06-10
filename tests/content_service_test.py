@@ -9,7 +9,7 @@ from shiftcontent import EventService
 
 
 @attr('content', 'service')
-class SchemaServiceTest(BaseTestCase):
+class ContentServiceTest(BaseTestCase):
 
     # --------------------------------------------------------------------------
     # helpers & setuo
@@ -19,7 +19,7 @@ class SchemaServiceTest(BaseTestCase):
         """ Configures and returns content service"""
         content_service = ContentService(
             db=self.db,
-            event_service=EventService(),
+            event_service=EventService(self.db),
             schema_service=SchemaService(self.schema_path, self.revisions_path)
         )
         return content_service
@@ -34,5 +34,11 @@ class SchemaServiceTest(BaseTestCase):
         self.assertIsInstance(service, ContentService)
 
 
-
-
+    def test_create_content_item(self):
+        """ Create a simple content item """
+        service = self.get_service()
+        type = 'plain_text'
+        author = 123
+        data = dict(body='I am a simple content item')
+        item = service.create_item(type, author, data)
+        self.fail('Implement me!')
