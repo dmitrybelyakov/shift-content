@@ -35,7 +35,8 @@ class EventServiceTest(BaseTestCase):
             type='SOME_EVENT_TYPE',
             object_id=123,
             author=456,
-            payload={'wtf': 'IS THIS'}
+            payload={'wtf': 'IS THIS'},
+            emit=False
         )
         self.assertEquals(1, event.id)
 
@@ -45,5 +46,16 @@ class EventServiceTest(BaseTestCase):
         event = Event()
         with self.assertRaises(x.EventError):
             service.emit(event)
+
+    def test_raise_on_missing_handler(self):
+        """ Raise exception on missing event handler"""
+        service = EventService(db=self.db)
+        with self.assertRaises(x.EventError):
+            service.event(
+                type='UNKNOWN_EVENT_TYPE',
+                object_id=123,
+                author=456,
+                payload={'wtf': 'IS THIS'}
+            )
 
 

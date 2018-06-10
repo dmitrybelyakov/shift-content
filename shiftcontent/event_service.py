@@ -1,4 +1,3 @@
-from datetime import datetime
 from shiftcontent.event import Event, EventSchema
 from shiftcontent import exceptions as x
 
@@ -8,23 +7,6 @@ class EventService():
     Event service
     Responsible for handling events
     """
-
-    def __init__(self, db):
-        """
-        Init the service
-        Requires an instance of database to work with events.
-        :param db: shiftcontent.db.db.Db
-        """
-        self.db = db
-
-
-
-    # todo: accept db instance
-    # todo: validate and persist events
-    # todo: dispatch events to event handlers
-    # todo: event handlers must have access to db
-    # todo: they will need to update projections
-    # todo: build a simple projection for content item
 
     def __init__(self, db):
         """
@@ -86,6 +68,11 @@ class EventService():
         handlers = dict(
             CONTENT_ITEM_CREATE=self.content_item_create
         )
+
+        # get handler
+        handler = handlers[event.type] if event.type in handlers else None
+        if not handler:
+            raise x.EventError('No handler for event {}'.format(event.type))
 
 
 
