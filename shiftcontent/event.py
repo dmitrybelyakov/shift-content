@@ -85,7 +85,7 @@ class Event:
         return object.__getattr__(self, item)
 
     def __setattr__(self, key, value):
-        """ Overrides "attribute access for setting props"""
+        """ Overrides attribute access for setting props """
         if key == 'id':
             raise x.EventError('Modifying event id is forbidden')
         if key == 'payload':
@@ -124,6 +124,7 @@ class Event:
 
     def to_dict(self):
         """ Returns dictionary representation of the event """
+        # todo: shouldn't payload become dict at this point?
         return self.props
 
     def from_dict(self, data):

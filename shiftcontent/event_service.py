@@ -81,7 +81,7 @@ class EventService():
             raise x.EventError('No handler for event {}'.format(event.type))
 
         # trigger handler
-        return handler(event)
+        return handler(event, self.db)
 
     # --------------------------------------------------------------------------
     # handlers
@@ -92,16 +92,23 @@ class EventService():
     # todo: allow to chain handlers
     # todo: allow to add handlers from userland code
 
-    def dummy_event(self, event):
+    def dummy_event(self, event, db):
         """
         Dummy event handler
         This will simply return back your event payload. Used for testing.
         :param event: shiftcontent.event.Event
+        :param db: shiftcontent.db.db.Db
         :return:
         """
         return event
 
-    def content_item_create(self, event):
+    def content_item_create(self, event, db):
+        """
+        Create content item
+        :param event:
+        :param db: shiftcontent.db.db.Db
+        :return:
+        """
         print('TRIGGERING HANDLER FOR AN EVENT')
         pass
 

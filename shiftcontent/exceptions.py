@@ -30,6 +30,11 @@ class EventError(DatabaseError, RuntimeError):
     pass
 
 
+class ContentItemError(DatabaseError, RuntimeError):
+    """ Raised when there is an issue with content item object """
+    pass
+
+
 class InvalidEvent(ContentException, RuntimeError):
     """ Raised when trying to persist invalid event """
     def __init__(self, *args, validation_errors=None, **kwargs):

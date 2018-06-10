@@ -18,29 +18,18 @@ def define_tables(meta):
         sa.Column('created', sa.DateTime, nullable=False, index=True),
         sa.Column('type', sa.String(256), nullable=False, index=True),
         sa.Column('author', sa.String(256), nullable=False, index=True),
-        sa.Column('object_id', sa.Integer, nullable=False, index=True),
+        sa.Column('object_id', sa.String(256), nullable=False, index=True),
         sa.Column('payload', sa.Text),
     )
 
-    # items projection
-    # todo: object id
-    # todo: path
-    # todo: author
-    # todo: object data
-
-    # todo: version
-    # todo: parent_version
-    # todo: status
-
-    # todo: lat
-    # todo: long
-    # todo: categories
-    # todo: tags
-    # todo: comments
-    # todo: reactions [like]
-    # todo: uvotes
-    # todo: downvotes
-
+    # items
+    tables['items'] = sa.Table('content_items', meta,
+        sa.Column('id', sa.Integer, primary_key=True, autoincrement=True),
+        sa.Column('path', sa.String(256), nullable=True, index=True),
+        sa.Column('author', sa.String(256), nullable=False, index=True),
+        sa.Column('object_id', sa.String(256), nullable=False, index=True),
+        sa.Column('data', sa.Text),
+    )
 
     return tables
 
