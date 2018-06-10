@@ -44,7 +44,12 @@ class EventService():
             raise x.InvalidEvent(validation_errors=ok.get_messages())
 
         # and save
-        self.db.append_event(event)
+        events = self.db.tables['events']
+        with self.db.engine.begin() as conn:
+            data = event.to_dict()
+            del data['id']
+            result = conn.execute(events.insert(), **data)
+            event.props['id'] = result.inserted_primary_key[0]
 
         # also emit?
         if emit:
@@ -66,6 +71,7 @@ class EventService():
 
         # define events
         handlers = dict(
+            DUMMY_EVENT=self.dummy_event,
             CONTENT_ITEM_CREATE=self.content_item_create
         )
 
@@ -74,10 +80,29 @@ class EventService():
         if not handler:
             raise x.EventError('No handler for event {}'.format(event.type))
 
+        # trigger handler
+        return handler(event)
 
+    # --------------------------------------------------------------------------
+    # handlers
+    # --------------------------------------------------------------------------
 
+    # todo: events should be external
+    # todo: think of a handler interface
+    # todo: allow to chain handlers
+    # todo: allow to add handlers from userland code
+
+    def dummy_event(self, event):
+        """
+        Dummy event handler
+        This will simply return back your event payload. Used for testing.
+        :param event: shiftcontent.event.Event
+        :return:
+        """
+        return event
 
     def content_item_create(self, event):
+        print('TRIGGERING HANDLER FOR AN EVENT')
         pass
 
 

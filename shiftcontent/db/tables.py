@@ -22,5 +22,25 @@ def define_tables(meta):
         sa.Column('payload', sa.Text),
     )
 
+    # items projection
+    # todo: object id
+    # todo: path
+    # todo: author
+    # todo: object data
+
+    # todo: version
+    # todo: parent_version
+    # todo: status
+
+    # todo: lat
+    # todo: long
+    # todo: categories
+    # todo: tags
+    # todo: comments
+    # todo: reactions [like]
+    # todo: uvotes
+    # todo: downvotes
+
+
     return tables
 

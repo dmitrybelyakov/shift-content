@@ -58,4 +58,19 @@ class EventServiceTest(BaseTestCase):
                 payload={'wtf': 'IS THIS'}
             )
 
+    def test_emitting_an_event(self):
+        """ Emitting an event """
+        service = EventService(db=self.db)
+        event = service.event(
+            type='DUMMY_EVENT',
+            object_id=123,
+            author=456,
+            payload={'wtf': 'IS THIS'},
+            emit=False
+        )
+
+        result = service.emit(event)
+        self.assertEquals(event, result)
+
+
 
