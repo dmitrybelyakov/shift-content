@@ -3,10 +3,8 @@ from nose.plugins.attrib import attr
 
 from pprint import pprint as pp
 from shiftcontent import exceptions as x
-from shiftcontent import ContentService
-from shiftcontent import SchemaService
 from shiftcontent import EventService
-from shiftcontent.event import EventSchema
+from shiftcontent import Event
 
 
 @attr('event', 'service')
@@ -25,7 +23,7 @@ class EventServiceTest(BaseTestCase):
                 type='SOME_EVENT_TYPE',
                 object_id=None,
                 author=456,
-                payload={'wtf': 'IS THIS'}
+                payload={'what': 'IS THIS'}
             )
         except x.InvalidEvent as err:
             self.assertIn('object_id', err.validation_errors)
@@ -39,5 +37,13 @@ class EventServiceTest(BaseTestCase):
             author=456,
             payload={'wtf': 'IS THIS'}
         )
-
         self.assertEquals(1, event.id)
+
+    def test_fail_to_emit_unsaved_event(self):
+        """ Error out on emitting unsaved event """
+        service = EventService(db=self.db)
+        event = Event()
+        with self.assertRaises(x.EventError):
+            service.emit(event)
+
+
