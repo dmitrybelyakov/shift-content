@@ -91,7 +91,7 @@ class EventService():
     # todo: think of a handler interface
     # todo: allow to chain handlers
     # todo: allow to add handlers from userland code
-    # todo: how to roll back single event whithout replaying the whole store?
+    # todo: how to roll back single event without replaying the whole store?
 
     def dummy_event(self, event, db):
         """
