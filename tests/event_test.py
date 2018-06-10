@@ -66,20 +66,21 @@ class EventTest(BaseTestCase):
 
     def test_getting_event_as_dict(self):
         """ Getting event as dict """
-        event = Event()
+        event = Event(payload=dict(prop='value'))
         self.assertTrue(type(event.to_dict()) is dict)
+        self.assertTrue(type(event.to_dict()['payload']) is dict)
+
+    def test_get_db_representation(self):
+        """ Getting db representation of an event """
+        event = Event(payload=dict(prop='value'))
+        result = event.to_db()
+        self.assertTrue(type(result['payload']) is str)
 
     def test_raise_when_setting_non_dictionary_payload(self):
         """ Raise when setting a payload that is not a dict """
         event = Event()
         with self.assertRaises(x.EventError):
             event.payload = 'crap'
-
-    def test_setting_payload(self):
-        """ Setting event payload """
-        data = dict(some='payload_goes_here')
-        event = Event(payload=data)
-        self.assertTrue(type(event.props['payload']) is str)
 
     def test_getting_event_payload(self):
         """ Getting event payload """

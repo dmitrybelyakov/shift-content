@@ -46,7 +46,7 @@ class EventService():
         # and save
         events = self.db.tables['events']
         with self.db.engine.begin() as conn:
-            data = event.to_dict()
+            data = event.to_db()
             del data['id']
             result = conn.execute(events.insert(), **data)
             event.props['id'] = result.inserted_primary_key[0]
@@ -91,6 +91,7 @@ class EventService():
     # todo: think of a handler interface
     # todo: allow to chain handlers
     # todo: allow to add handlers from userland code
+    # todo: how to roll back single event whithout replaying the whole store?
 
     def dummy_event(self, event, db):
         """

@@ -4,6 +4,7 @@ from shiftschema.schema import Schema
 from shiftschema import validators
 from shiftschema import filters
 import json
+import copy
 
 
 class EventSchema(Schema):
@@ -78,8 +79,6 @@ class Event:
 
     def __getattr__(self, item):
         """ Overrides attribute access for getting props """
-        if item == 'payload':
-            return self.get_payload()
         if item in self.props:
             return self.props[item]
         return object.__getattr__(self, item)
@@ -97,17 +96,6 @@ class Event:
             object.__setattr__(self, key, value)
         return self
 
-    def get_payload(self):
-        """
-        Get payload
-        Decodes payload string into a dictionary and returns.
-        :return: dict
-        """
-        payload = self.props['payload']
-        if payload:
-            payload = json.loads(payload, encoding='utf-8')
-        return payload
-
     def set_payload(self, payload):
         """
         Set payload
@@ -119,13 +107,23 @@ class Event:
         if type(payload) is not dict:
             msg = 'Payload must be a dictionary, got {}'
             raise x.EventError(msg.format(type(payload)))
-        self.props['payload'] = json.dumps(payload, ensure_ascii=False)
+        self.props['payload'] = payload
         return self
 
     def to_dict(self):
         """ Returns dictionary representation of the event """
-        # todo: shouldn't payload become dict at this point?
-        return self.props
+        return copy.copy(self.props)
+
+    def to_db(self):
+        """
+        To db
+        Returns db representation of event. Same as to dict, but payload is
+        stringified to json. Used for persistence.
+        :return:
+        """
+        data = self.to_dict()
+        data['payload'] = json.dumps(data['payload'], ensure_ascii=False)
+        return data
 
     def from_dict(self, data):
         """ Populates itself from a dictionary """
