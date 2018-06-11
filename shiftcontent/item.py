@@ -1,5 +1,6 @@
 from shiftcontent import exceptions as x
 import json
+import copy
 
 
 class Item:
@@ -93,8 +94,19 @@ class Item:
 
     def to_dict(self):
         """ Returns dictionary representation of the item """
-        # todo: shouldn't data become dict at this point?
-        return self.props
+        return copy.copy(self.props)
+
+    def to_db(self):
+        """
+        To db
+        Returns database representation for persistence. Same as to_dict but
+        dapayload is stringified.
+        :return:
+        """
+        data = self.to_dict()
+        data['data'] = json.dumps(data, ensure_ascii=False)
+
+
 
     def from_dict(self, data):
         """ Populates itself from a dictionary """

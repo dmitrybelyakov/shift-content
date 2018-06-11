@@ -72,5 +72,18 @@ class EventServiceTest(BaseTestCase):
         result = service.emit(event)
         self.assertEquals(event, result)
 
+    def test_get_event_by_id(self):
+        """ Getting event by id"""
+        service = EventService(db=self.db)
+        event = service.event(
+            type='DUMMY_EVENT',
+            object_id=123,
+            author=456,
+            payload={'wtf': 'IS THIS'},
+            emit=False
+        )
 
-
+        id = event.id
+        event = service.get_event(id)
+        self.assertIsInstance(event, Event)
+        self.assertEquals(id, event.id)

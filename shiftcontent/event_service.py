@@ -2,7 +2,7 @@ from shiftcontent.event import Event, EventSchema
 from shiftcontent import exceptions as x
 
 
-class EventService():
+class EventService:
     """
     Event service
     Responsible for handling events
@@ -82,6 +82,27 @@ class EventService():
 
         # trigger handler
         return handler(event, self.db)
+
+    def get_event(self, id):
+        """
+        Get event
+        Returns event found by unique id.
+        :param id: int, event id
+        :return: shiftcontent.event.Event
+        """
+        event = None
+        events = self.db.tables['events']
+        with self.db.engine.begin() as conn:
+            select = events.select().where(events.c.id == id)
+            data = conn.execute(select).fetchone()
+            if data:
+                data = {p: v for p, v in data.items()}
+                id = data['id']
+                del data['id']
+                event = Event(**data)
+                event.props['id'] = id
+        return event
+
 
     # --------------------------------------------------------------------------
     # handlers

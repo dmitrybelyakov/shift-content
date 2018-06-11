@@ -104,6 +104,12 @@ class Event:
         :param payload: dict
         :return:
         """
+        if type(payload) is str:
+            try:
+                payload = json.loads(payload, encoding='utf-8')
+            except json.JSONDecodeError:
+                raise x.EventError('Failed to decode payload string')
+
         if type(payload) is not dict:
             msg = 'Payload must be a dictionary, got {}'
             raise x.EventError(msg.format(type(payload)))

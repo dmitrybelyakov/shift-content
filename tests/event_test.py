@@ -79,8 +79,17 @@ class EventTest(BaseTestCase):
     def test_raise_when_setting_non_dictionary_payload(self):
         """ Raise when setting a payload that is not a dict """
         event = Event()
-        with self.assertRaises(x.EventError):
-            event.payload = 'crap'
+        with self.assertRaises(x.EventError) as cm:
+            event.payload = [123]
+
+        self.assertIn('Payload must be a dictionary', str(cm.exception))
+
+    def test_raise_when_fails_to_decode_payload_string(self):
+        """ Raise when payload string can not be decoded """
+        event = Event()
+        with self.assertRaises(x.EventError) as cm:
+            event.payload = 'no-a-json-string'
+        self.assertIn('Failed to decode payload string', str(cm.exception))
 
     def test_getting_event_payload(self):
         """ Getting event payload """
