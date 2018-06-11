@@ -58,12 +58,6 @@ class EventTest(BaseTestCase):
         for prop in data.keys():
             self.assertEquals(data[prop], getattr(event, prop))
 
-    def test_raise_when_modifying_event_id_directly(self):
-        """ Raize exception when modifying event id"""
-        event = Event()
-        with self.assertRaises(x.EventError):
-            event.id = '123'
-
     def test_getting_event_as_dict(self):
         """ Getting event as dict """
         event = Event(payload=dict(prop='value'))

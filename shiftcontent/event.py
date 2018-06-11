@@ -85,8 +85,6 @@ class Event:
 
     def __setattr__(self, key, value):
         """ Overrides attribute access for setting props """
-        if key == 'id':
-            raise x.EventError('Modifying event id is forbidden')
         if key == 'payload':
             self.set_payload(value)
         elif key in self.props:

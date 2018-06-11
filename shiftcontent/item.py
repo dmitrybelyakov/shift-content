@@ -56,8 +56,6 @@ class Item:
 
     def __setattr__(self, key, value):
         """ Overrides attribute access for setting props"""
-        if key == 'id':
-            raise x.ContentItemError('Modifying content item id is forbidden')
         if key == 'data':
             self.set_data(value)
         elif key in self.props:

@@ -49,7 +49,7 @@ class EventService:
             data = event.to_db()
             del data['id']
             result = conn.execute(events.insert(), **data)
-            event.props['id'] = result.inserted_primary_key[0]
+            event.id = result.inserted_primary_key[0]
 
         # also emit?
         if emit:
@@ -96,11 +96,7 @@ class EventService:
             select = events.select().where(events.c.id == id)
             data = conn.execute(select).fetchone()
             if data:
-                data = {p: v for p, v in data.items()}
-                id = data['id']
-                del data['id']
                 event = Event(**data)
-                event.props['id'] = id
         return event
 
 
