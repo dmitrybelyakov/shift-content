@@ -1,6 +1,7 @@
 from shiftcontent import exceptions as x
 import json
 import copy
+from datetime import datetime
 
 
 class Item:
@@ -21,12 +22,15 @@ class Item:
         # init props
         self.props = dict(
             id=None,
+            created=None,
             path=None,
             author=None,
             object_id=None,
             data=None
         )
         self.from_dict(kwargs)
+        if not self.props['created']:
+            self.props['created'] = datetime.utcnow()
 
         # todo: version
         # todo: parent_version
@@ -43,14 +47,12 @@ class Item:
 
     def __repr__(self):
         """ Returns printable representation of item """
-        repr = '<ContentIten id=[{}] object_id=[{}]>'
+        repr = '<ContentItem id=[{}] object_id=[{}]>'
         return repr.format(self.id, self.object_id)
 
     def __getattr__(self, item):
         """ Overrides attribute access for getting props """
         if item in self.props:
-            if item == 'data':
-                return self.get_data()
             return self.props[item]
         return object.__getattr__(self, item)
 
@@ -65,17 +67,6 @@ class Item:
             object.__setattr__(self, key, value)
         return self
 
-    def get_data(self):
-        """
-        Get get data
-        Returns content item data
-        :return: dict
-        """
-        data = self.props['data']
-        if data:
-            data = json.loads(data, encoding='utf-8')
-        return data
-
     def set_data(self, data):
         """
         Set data
@@ -84,10 +75,16 @@ class Item:
         :param payload: dict
         :return:
         """
+        if type(data) is str:
+            try:
+                data = json.loads(data, encoding='utf-8')
+            except json.JSONDecodeError:
+                raise x.ContentItemError('Failed to decode data string')
+
         if type(data) is not dict:
             msg = 'Data must be a dictionary, got {}'
             raise x.ContentItemError(msg.format(type(data)))
-        self.props['data'] = json.dumps(data, ensure_ascii=False)
+        self.props['data'] = data
         return self
 
     def to_dict(self):
@@ -102,9 +99,8 @@ class Item:
         :return:
         """
         data = self.to_dict()
-        data['data'] = json.dumps(data, ensure_ascii=False)
-
-
+        data['data'] = json.dumps(data['data'], ensure_ascii=False)
+        return data
 
     def from_dict(self, data):
         """ Populates itself from a dictionary """
