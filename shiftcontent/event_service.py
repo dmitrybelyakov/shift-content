@@ -16,7 +16,7 @@ class EventService:
         """
         self.db = db
 
-    def event(self, type, object_id, author, payload, emit=True):
+    def event(self, type, object_id, author, payload):
         """
         Persist an event
         Creates a new event object, validates it and saves to the database.
@@ -26,7 +26,6 @@ class EventService:
         :param object_id: str, an id of the object being affected
         :param author:  str, author id in external system
         :param payload: dict, event payload
-        :param emit: bool, whether to call handler immediately
         :return: shiftcontent.event.Event
         """
         # create
@@ -50,10 +49,6 @@ class EventService:
             del data['id']
             result = conn.execute(events.insert(), **data)
             event.id = result.inserted_primary_key[0]
-
-        # also emit?
-        if emit:
-            self.emit(event)
 
         return event
 
@@ -98,7 +93,6 @@ class EventService:
             if data:
                 event = Event(**data)
         return event
-
 
     # --------------------------------------------------------------------------
     # handlers

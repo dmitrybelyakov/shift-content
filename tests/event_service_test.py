@@ -36,7 +36,6 @@ class EventServiceTest(BaseTestCase):
             object_id=123,
             author=456,
             payload={'wtf': 'IS THIS'},
-            emit=False
         )
         self.assertEquals(1, event.id)
 
@@ -58,20 +57,6 @@ class EventServiceTest(BaseTestCase):
                 payload={'wtf': 'IS THIS'}
             )
 
-    def test_emitting_an_event(self):
-        """ Emitting an event """
-        service = EventService(db=self.db)
-        event = service.event(
-            type='DUMMY_EVENT',
-            object_id=123,
-            author=456,
-            payload={'wtf': 'IS THIS'},
-            emit=False
-        )
-
-        result = service.emit(event)
-        self.assertEquals(event, result)
-
     def test_get_event_by_id(self):
         """ Getting event by id"""
         service = EventService(db=self.db)
@@ -80,7 +65,6 @@ class EventServiceTest(BaseTestCase):
             object_id=123,
             author=456,
             payload={'wtf': 'IS THIS'},
-            emit=False
         )
 
         id = event.id
