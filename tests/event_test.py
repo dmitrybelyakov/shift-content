@@ -26,12 +26,12 @@ class EventTest(BaseTestCase):
         self.assertIsInstance(event.props['created'], datetime)
 
     def test_property_access(self):
-        """ Can use property access for getting """
+        """ Can use property access for getting event props """
         event = Event()
-        self.assertIsInstance(event.props['created'], datetime)
+        self.assertIsInstance(event.created, datetime)
 
     def test_property_access_set(self):
-        """ Property access for setting """
+        """ Property access for setting event props"""
         dt = 'datetime!'
         event = Event()
         event.created = dt

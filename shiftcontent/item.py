@@ -95,7 +95,7 @@ class Item:
         """
         To db
         Returns database representation for persistence. Same as to_dict but
-        dapayload is stringified.
+        data is stringified.
         :return:
         """
         data = self.to_dict()
