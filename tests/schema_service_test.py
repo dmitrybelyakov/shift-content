@@ -163,6 +163,23 @@ class SchemaServiceTest(BaseTestCase):
             registry[list(registry.keys())[0]]['schema_file']
         )
 
+    def test_get_content_type_schema_by_handle(self):
+        """ Getting content type schema by handle"""
+        service = SchemaService(
+            schema_path=self.schema_path,
+            revisions_path=self.revisions_path
+        )
 
+        type_schema = service.get_type_schema('plain_text')
+        self.assertTrue(type_schema)
+        self.assertEquals('plain_text', type_schema['handle'])
 
-
+    def test_raise_when_getting_type_schema_for_nonexistent_type(self):
+        """ Raise exception when getting type schema for nonexistent type """
+        service = SchemaService(
+            schema_path=self.schema_path,
+            revisions_path=self.revisions_path
+        )
+        with self.assertRaises(x.UndefinedContentType) as cm:
+            service.get_type_schema('WOOPS')
+        self.assertIn('Unable to find definition', str(cm.exception))

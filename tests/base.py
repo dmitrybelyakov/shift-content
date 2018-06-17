@@ -62,7 +62,7 @@ class BaseTestCase(unittest.TestCase):
     @property
     def schema_path(self):
         """ Get path to content schema file """
-        path = os.path.join(os.getcwd(), 'shiftcontent', 'content.yml')
+        path = os.path.join(os.getcwd(), 'tests', '_assets', 'content.yml')
         return path
 
     @property

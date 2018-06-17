@@ -73,6 +73,22 @@ class SchemaService:
             self._schema = self.load_definition()
         return self._schema
 
+    def get_type_schema(self, content_type):
+        """
+        Get type schema
+        Finds content type definition by it's handle and returns that. May
+        raise an error if requesting schema for nonexistent type.
+
+        :param content_type: str, content type handle
+        :return: dict
+        """
+        if content_type not in self.schema:
+            msg = 'Unable to find definition for content type [{}]'
+            raise x.UndefinedContentType(msg.format(content_type))
+
+        # otherwise return
+        return self.schema[content_type]
+
     def register_revision(self, revision_filename):
         """
         Register revision

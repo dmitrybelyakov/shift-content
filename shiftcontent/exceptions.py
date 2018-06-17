@@ -16,7 +16,12 @@ class InvalidSchema(ContentException, RuntimeError):
 
 
 class UnableToRegisterSchemaRevision(ContentException, RuntimeError):
-    """ Raised when ading a bad schema revision file to regsitry """
+    """ Raised when adding a bad schema revision file to regsitry """
+    pass
+
+
+class UndefinedContentType(ContentException, RuntimeError):
+    """ Raised when requesting schema for nonexistent content type """
     pass
 
 

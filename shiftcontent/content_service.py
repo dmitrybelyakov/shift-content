@@ -1,5 +1,6 @@
 from uuid import uuid1
-
+from pprint import pprint as pp
+from shiftcontent import exceptions as x
 
 class ContentService:
     """
@@ -26,7 +27,27 @@ class ContentService:
         # todo: put to cache if found in projections
         pass
 
-    def create_item(self, content_type, author, data):
+    def create_item(self, author, content_type, data, parent=None):
+
+        # create event
+        type = self.schema_service.get_type_schema(content_type)
+        valid = [field['handle'] for field in type['fields']]
+        fields = {f: v for f, v in data.items() if f in valid}
+        event = self.event_service.event(
+            author=author,
+            object_id=uuid1(),
+            type='CONTENT_ITEM_CREATE',
+            payload=dict(type=content_type, data=fields)
+        )
+
+        # and emit
+        item = self.event_service.emit(event)
+        return item
+
+        # todo: who's responsibility is it to update caches?
+        # todo: content service or event handler?
+
+
         # todo: filter and validate data
         # todo: send event
         # todo: what happens after an event is recorded?
@@ -41,7 +62,6 @@ class ContentService:
         # todo: are event handlers async?
         # todo: if we are how can we return an item here? and do we?
         # todo: or should we just return an id here?
-        pass
 
     def save_item(self, content_type, author, data):
         pass

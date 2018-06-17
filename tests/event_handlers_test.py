@@ -4,7 +4,6 @@ from nose.plugins.attrib import attr
 from pprint import pprint as pp
 from shiftcontent import exceptions as x
 from shiftcontent import EventService
-from shiftcontent import Event
 from uuid import uuid1
 
 

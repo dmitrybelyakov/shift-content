@@ -1,9 +1,3 @@
-meta:
-  fields:
-    - name: Children
-
-
-
 content:
 
   # what do we create from this definition
@@ -23,7 +17,7 @@ content:
 
   - name: Plain Text
     handle: plain_text
-    short_name: This is a very simple plain text text container
+    description: This is a very simple plain text text container
     preview: http://screenshot.jpg
     editor: shiftcontent.editor.Default
     fields:

@@ -33,12 +33,18 @@ class ContentServiceTest(BaseTestCase):
         service = self.get_service()
         self.assertIsInstance(service, ContentService)
 
+    def test_create_content_item(self):
+        """ Create a simple content item """
+        service = self.get_service()
+        type = 'plain_text'
+        author = 123
+        data = dict(body='I am a simple content item')
+        item = service.create_item(author=author, content_type=type, data=data)
+        self.assertEquals(1, item.id)
 
-    # def test_create_content_item(self):
-    #     """ Create a simple content item """
-    #     service = self.get_service()
-    #     type = 'plain_text'
-    #     author = 123
-    #     data = dict(body='I am a simple content item')
-    #     item = service.create_item(type, author, data)
-    #     self.fail('Implement me!')
+    def test_raise_when_creating_an_item_of_undefined_type(self):
+        """ Raise when creating content item of undefined type """
+        service = self.get_service()
+        with self.assertRaises(x.UndefinedContentType) as cm:
+            service.create_item(author='123', content_type='BAD!', data={})
+
