@@ -74,8 +74,15 @@ class Event:
 
     def __repr__(self):
         """ Returns printable representation of an event """
-        repr = '<Event id=[{}] object_id=[{}] type=[{}] created=[{}]>'
-        return repr.format(self.id, self.object_id, self.type, self.created)
+        repr = '<Event id=[{}] created=[{}] type=[{}] object_id=[{}]' \
+               ' author=[{}]>'
+        return repr.format(
+            self.id,
+            self.created,
+            self.type,
+            self.object_id,
+            self.author
+        )
 
     def __getattr__(self, item):
         """ Overrides attribute access for getting props """

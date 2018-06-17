@@ -20,7 +20,7 @@ class EventServiceTest(BaseTestCase):
         service = EventService(db=self.db)
         try:
             service.event(
-                type='SOME_EVENT_TYPE',
+                type='DUMMY_EVENT',
                 object_id=None,
                 author=456,
                 payload={'what': 'IS THIS'}
@@ -32,7 +32,7 @@ class EventServiceTest(BaseTestCase):
         """ Creating an event """
         service = EventService(db=self.db)
         event = service.event(
-            type='SOME_EVENT_TYPE',
+            type='DUMMY_EVENT',
             object_id=123,
             author=456,
             payload={'wtf': 'IS THIS'},
@@ -46,8 +46,8 @@ class EventServiceTest(BaseTestCase):
         with self.assertRaises(x.EventError):
             service.emit(event)
 
-    def test_raise_on_missing_handler(self):
-        """ Raise exception on missing event handler"""
+    def test_raise_on_missing_handler_when_creating_an_event(self):
+        """ Raise exception on missing event handler when creating an event"""
         service = EventService(db=self.db)
         with self.assertRaises(x.EventError):
             service.event(
@@ -56,6 +56,18 @@ class EventServiceTest(BaseTestCase):
                 author=456,
                 payload={'wtf': 'IS THIS'}
             )
+
+    def test_raise_on_missing_handler_when_emitting_an_event(self):
+        """ Raise exception on missing event handler when emitting an event"""
+        service = EventService(db=self.db)
+        event = Event(
+            type='UNKNOWN_EVENT_TYPE',
+            object_id=123,
+            author=456,
+            payload={'wtf': 'IS THIS'}
+        )
+        with self.assertRaises(x.EventError):
+            service.emit(event)
 
     def test_get_event_by_id(self):
         """ Getting event by id"""

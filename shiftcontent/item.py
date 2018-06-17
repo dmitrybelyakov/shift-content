@@ -23,6 +23,7 @@ class Item:
         self.props = dict(
             id=None,
             created=None,
+            type=None,
             path=None,
             author=None,
             object_id=None,

@@ -1,4 +1,5 @@
 from shiftcontent.event import Event, EventSchema
+from shiftcontent.item import Item
 from shiftcontent import exceptions as x
 
 
@@ -15,6 +16,20 @@ class EventService:
         :param db:
         """
         self.db = db
+
+    @property
+    def handlers(self):
+        """
+        Event handlers
+        Returns a dictionary of event handlers
+        :return: dict
+        """
+        handlers = dict(
+            DUMMY_EVENT=self.dummy_event,
+            CONTENT_ITEM_CREATE=self.content_item_create
+        )
+
+        return handlers
 
     def event(self, type, object_id, author, payload):
         """
@@ -35,6 +50,10 @@ class EventService:
             object_id=object_id,
             payload=payload
         )
+
+        # check handler presence
+        if type not in self.handlers:
+            raise x.EventError('No handler for event of type [{}]'.format(type))
 
         # validate
         schema = EventSchema()
@@ -64,13 +83,8 @@ class EventService:
         if not event.id:
             raise x.EventError('To emit an event it must be saved first')
 
-        # define events
-        handlers = dict(
-            DUMMY_EVENT=self.dummy_event,
-            CONTENT_ITEM_CREATE=self.content_item_create
-        )
-
         # get handler
+        handlers = self.handlers
         handler = handlers[event.type] if event.type in handlers else None
         if not handler:
             raise x.EventError('No handler for event {}'.format(event.type))
@@ -121,7 +135,13 @@ class EventService:
         :param db: shiftcontent.db.db.Db
         :return:
         """
-        print('TRIGGERING HANDLER FOR AN EVENT')
+
+        # create item
+        item = Item(
+            author=event.author,
+            object_id=event.object_id,
+            data=event.payload
+        )
         pass
 
 
