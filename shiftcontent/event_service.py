@@ -140,9 +140,20 @@ class EventService:
         item = Item(
             author=event.author,
             object_id=event.object_id,
-            data=event.payload
+            type=event.payload['type'],
+            data=event.payload['data']
         )
-        pass
+
+        # persist
+        items = db.tables['items']
+        with self.db.engine.begin() as conn:
+            result = conn.execute(items.insert(), **item.to_db())
+            item.id = result.inserted_primary_key[0]
+
+        # and return
+        return item
+
+
 
 
 

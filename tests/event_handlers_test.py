@@ -24,8 +24,7 @@ class EventHandlersTest(BaseTestCase):
         result = service.emit(event)
         self.assertEquals(event, result)
 
-    @attr('zzz')
-    def test_emit_content_ite_create(self):
+    def test_emit_content_item_create(self):
         """ Emitting content item creation event """
         service = EventService(db=self.db)
         event = service.event(
@@ -33,10 +32,13 @@ class EventHandlersTest(BaseTestCase):
             author='123',
             object_id=uuid1(),
             payload=dict(
-                body='This is the content of this item\'s body'
+                type='markdown',
+                data=dict(
+                    body='This is the content of this item\'s body'
+                )
             )
         )
 
-        service.emit(event)
+        item = service.emit(event)
+        self.assertEquals(1, item.id)
 
-        print(event)
