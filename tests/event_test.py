@@ -36,12 +36,11 @@ class EventTest(BaseTestCase):
         event = Event()
         event.created = dt
         self.assertEquals(dt, event.props['created'])
-
         event.props = 'something'
         self.assertEquals('something', event.props)
 
     def test_can_check_for_attribute_presence(self):
-        """ REGRESSION: can use hasattr to check for prop existence"""
+        """ Can use hasattr to check for prop existence"""
         event = Event()
         self.assertFalse(hasattr(event, 'whatever'))
 
