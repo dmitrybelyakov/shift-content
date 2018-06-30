@@ -35,6 +35,15 @@ class EventError(DatabaseError, RuntimeError):
     pass
 
 
+class MissingEventType(ContentException, RuntimeError):
+    """ Raised when handler implementation doesn't define EVENT_TYPE """
+    pass
+
+class UnsupportedEventType(ContentException, RuntimeError):
+    """ Raised when running a handler with unsupported event type """
+    pass
+
+
 class ContentItemError(DatabaseError, RuntimeError):
     """ Raised when there is an issue with content item object """
     pass

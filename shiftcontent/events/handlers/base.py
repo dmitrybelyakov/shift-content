@@ -1,4 +1,5 @@
 import abc
+from shiftcontent import exceptions as x
 
 
 class BaseHandler(metaclass=abc.ABCMeta):
@@ -8,6 +9,9 @@ class BaseHandler(metaclass=abc.ABCMeta):
     all handlers have access to preconfigured environment objects like
     the database, cache, elastic search etc
     """
+
+    # define event type in your concrete implementation
+    EVENT_TYPE = None
 
     # database instance
     db = None
@@ -21,6 +25,50 @@ class BaseHandler(metaclass=abc.ABCMeta):
         :param db: shiftcontent.db.db.Db
         """
         self.db = db
+
+        # check event type defined
+        if self.EVENT_TYPE is None:
+            msg = 'Event type undefined for handler [{}]'
+            raise x.MissingEventType(msg.format(self.__class__))
+
+    def check(self, event):
+        """
+        Check
+        A shorthand to check if handler can support the event type passed in
+        to handle/rollback methods.
+        :param event: shiftcontent.events.event.Event
+        :return: bool
+        """
+        if event.type != self.EVENT_TYPE:
+            msg = 'Event handler {} can\'t support events of this type ({})'
+            raise x.UnsupportedEventType(msg.format(self.__class__, event.type))
+
+        return True
+
+    def handle_event(self, event):
+        """
+        Handle event
+        Wraps around user-defined handle method to run a check for
+        event type support before actual execution.
+
+        :param event: shiftcontent.events.event.Event
+        :return: shiftcontent.events.event.Event
+        """
+        self.check(event)
+        return self.handle(event)
+
+    def rollback_event(self, event):
+        """
+        Rollback event
+        Wraps around user-defined rollback method to run a check for
+        event type support before actual execution.
+
+        :param event: shiftcontent.events.event.Event
+        :return: shiftcontent.events.event.Event
+        :return:
+        """
+        self.check(event)
+        return self.rollback(event)
 
     @abc.abstractmethod
     def handle(self, event):

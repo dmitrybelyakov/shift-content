@@ -81,6 +81,8 @@ class EventService:
         :param event: shiftcontent.event.Event
         :return:
         """
+
+        # todo: move me to base handler
         if not event.id:
             raise x.EventError('To emit an event it must be saved first')
 
