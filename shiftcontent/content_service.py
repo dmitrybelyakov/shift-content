@@ -2,6 +2,7 @@ from uuid import uuid1
 from pprint import pprint as pp
 from shiftcontent import exceptions as x
 
+
 class ContentService:
     """
     Content service is the main interface to content library. It works with

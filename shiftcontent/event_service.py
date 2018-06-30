@@ -25,8 +25,8 @@ class EventService:
         :return: dict
         """
         handlers = dict(
-            DUMMY_EVENT=self.dummy_event,
-            CONTENT_ITEM_CREATE=self.content_item_create
+            DUMMY_EVENT=[self.dummy_event1, self.dummy_event2],
+            CONTENT_ITEM_CREATE=[self.content_item_create]
         )
 
         return handlers
@@ -53,7 +53,8 @@ class EventService:
 
         # check handler presence
         if type not in self.handlers:
-            raise x.EventError('No handler for event of type [{}]'.format(type))
+            msg = 'No handlers for event of type [{}]'
+            raise x.EventError(msg.format(type))
 
         # validate
         schema = EventSchema()
@@ -83,14 +84,15 @@ class EventService:
         if not event.id:
             raise x.EventError('To emit an event it must be saved first')
 
-        # get handler
-        handlers = self.handlers
-        handler = handlers[event.type] if event.type in handlers else None
-        if not handler:
-            raise x.EventError('No handler for event {}'.format(event.type))
+        # get handlers
+        if event.type not in self.handlers:
+            raise x.EventError('No handlers for event {}'.format(event.type))
 
-        # trigger handler
-        return handler(event, self.db)
+        # trigger handlers
+        handlers = self.handlers[event.type]
+        for handler in handlers:
+            event = handler(event, self.db)
+        return event
 
     def get_event(self, id):
         """
@@ -118,14 +120,30 @@ class EventService:
     # todo: allow to add handlers from userland code
     # todo: how to roll back single event without replaying the whole store?
 
-    def dummy_event(self, event, db):
+    def dummy_event1(self, event, db):
         """
-        Dummy event handler
-        This will simply return back your event payload. Used for testing.
+        Dummy event handler 1
+        Used for testing. In reality we should never modify an event.
         :param event: shiftcontent.event.Event
         :param db: shiftcontent.db.db.Db
         :return:
         """
+        payload = event.payload
+        payload['dummy_handler1'] = 'processed'
+        event.payload = payload
+        return event
+
+    def dummy_event2(self, event, db):
+        """
+        Dummy event handler 2
+        Used for testing. In reality we should never modify an event.
+        :param event: shiftcontent.event.Event
+        :param db: shiftcontent.db.db.Db
+        :return:
+        """
+        payload = event.payload
+        payload['dummy_handler2'] = 'processed'
+        event.payload = payload
         return event
 
     def content_item_create(self, event, db):
