@@ -4,4 +4,5 @@ from shiftcontent.db.tables import define_tables
 from shiftcontent.events.event_service import EventService
 from shiftcontent.content_service import ContentService
 from shiftcontent.events.event import Event
+from shiftcontent.events.handlers.base import BaseHandler
 
