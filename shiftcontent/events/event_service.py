@@ -1,4 +1,4 @@
-from shiftcontent.event import Event, EventSchema
+from shiftcontent.events.event import Event, EventSchema
 from shiftcontent.item import Item
 from shiftcontent import exceptions as x
 
