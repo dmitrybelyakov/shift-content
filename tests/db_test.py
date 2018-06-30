@@ -6,7 +6,6 @@ from sqlalchemy.engine.base import Engine
 from sqlalchemy.sql.schema import MetaData
 
 from shiftcontent import Db
-from shiftcontent.events.event import Event
 from shiftcontent import exceptions as x
 
 
