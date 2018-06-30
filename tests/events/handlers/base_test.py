@@ -24,17 +24,33 @@ class BaseHandlerTest(BaseTestCase):
             NoType(db=self.db)
         self.assertIn('Event type undefined for handler', str(cm.exception))
 
+    def test_raise_on_handling_unsaved_event(self):
+        """ Raise error when trying to handle unsaved event"""
+        event = Event(type='DUMMY_EVENT')
+        handler = Dummy1(db=self.db)
+        with self.assertRaises(x.ProcessingUnsavedEvent) as cm:
+            handler.handle_event(event)
+        self.assertIn('Unable to handle unsaved event', str(cm.exception))
+
     def test_raise_error_on_handling_unsupported_event(self):
         """ Raise error on handling unsupported events """
-        event = Event(type='UNSUPPORTED')
+        event = Event(type='UNSUPPORTED', id=123)
         handler = Dummy1(db=self.db)
         with self.assertRaises(x.UnsupportedEventType) as cm:
             handler.handle_event(event)
         self.assertIn('can\'t support events of this type', str(cm.exception))
 
+    def test_raise_on_rolling_back_unsaved_event(self):
+        """ Raise error when trying to roll back unsaved event"""
+        event = Event(type='DUMMY_EVENT')
+        handler = Dummy1(db=self.db)
+        with self.assertRaises(x.ProcessingUnsavedEvent) as cm:
+            handler.rollback_event(event)
+        self.assertIn('Unable to roll back unsaved event', str(cm.exception))
+
     def test_raise_error_on_rolling_back_usupported_event(self):
         """ Raise error when rolling back unsupported event """
-        event = Event(type='UNSUPPORTED')
+        event = Event(type='UNSUPPORTED', id=123)
         handler = Dummy1(db=self.db)
         with self.assertRaises(x.UnsupportedEventType) as cm:
             handler.rollback_event(event)

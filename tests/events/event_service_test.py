@@ -65,13 +65,6 @@ class EventServiceTest(BaseTestCase):
         self.assertIsInstance(event, Event)
         self.assertEquals(id, event.id)
 
-    def test_fail_to_emit_unsaved_event(self):
-        """ Error out on emitting unsaved event """
-        service = EventService(db=self.db)
-        event = Event()
-        with self.assertRaises(x.EventError):
-            service.emit(event)
-
     def test_raise_on_missing_handler_when_emitting_an_event(self):
         """ Raise exception on missing event handler when emitting an event"""
         service = EventService(db=self.db)

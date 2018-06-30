@@ -54,6 +54,10 @@ class BaseHandler(metaclass=abc.ABCMeta):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
+        if not event.id:
+            msg = 'Unable to handle unsaved event {}'
+            raise x.ProcessingUnsavedEvent(msg.format(event))
+
         self.check(event)
         return self.handle(event)
 
@@ -67,6 +71,10 @@ class BaseHandler(metaclass=abc.ABCMeta):
         :return: shiftcontent.events.event.Event
         :return:
         """
+        if not event.id:
+            msg = 'Unable to roll back unsaved event {}'
+            raise x.ProcessingUnsavedEvent(msg.format(event))
+
         self.check(event)
         return self.rollback(event)
 

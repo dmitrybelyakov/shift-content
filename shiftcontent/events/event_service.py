@@ -82,10 +82,6 @@ class EventService:
         :return:
         """
 
-        # todo: move me to base handler
-        if not event.id:
-            raise x.EventError('To emit an event it must be saved first')
-
         # get handlers
         if event.type not in self.handlers:
             raise x.EventError('No handlers for event {}'.format(event.type))
@@ -116,11 +112,7 @@ class EventService:
     # handlers
     # --------------------------------------------------------------------------
 
-    # todo: events should be external
-    # todo: think of a handler interface
-    # todo: allow to chain handlers
     # todo: allow to add handlers from userland code
-    # todo: how to roll back single event without replaying the whole store?
 
     def dummy_event1(self, event, db):
         """
