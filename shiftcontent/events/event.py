@@ -37,11 +37,6 @@ class EventSchema(Schema):
             message='An event must have an author set'
         ))
 
-        self.add_property('payload')
-        self.payload.add_validator(validators.Required(
-            message='An event must have a payload'
-        ))
-
 
 class Event:
     """

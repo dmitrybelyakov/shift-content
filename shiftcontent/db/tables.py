@@ -19,7 +19,7 @@ def define_tables(meta):
         sa.Column('type', sa.String(256), nullable=False, index=True),
         sa.Column('author', sa.String(256), nullable=False, index=True),
         sa.Column('object_id', sa.String(256), nullable=False, index=True),
-        sa.Column('payload', sa.Text),
+        sa.Column('payload', sa.Text, nullable=True),
     )
 
     # items

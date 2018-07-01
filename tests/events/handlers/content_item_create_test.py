@@ -37,8 +37,8 @@ class Dummy1Test(BaseTestCase):
             self.assertIsNotNone(result.fetchone())
 
     # def test_rollback_event(self):
-    #     """ Handler content iten create rolling back an event """
-    #     handler = Dummy1(self.db)
+    #     """ Handler content item create rolling back changes """
+    #     handler = ContentItemCreate(db=self.db)
     #     event = Event(
     #         type='DUMMY_EVENT',
     #         payload={'prop': 'val'}

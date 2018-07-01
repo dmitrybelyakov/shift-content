@@ -17,8 +17,6 @@ class ContentItemCreate(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-
-        # create item
         item = Item(
             author=event.author,
             object_id=event.object_id,
