@@ -50,7 +50,8 @@ class EventTest(BaseTestCase):
             type="TEST",
             author='1',
             object_id=123,
-            payload={'what': 'some payload'}
+            payload={'what': 'some payload'},
+            payload_rollback={'what': 'some payload'}
         )
 
         event = Event(**data)
@@ -59,9 +60,13 @@ class EventTest(BaseTestCase):
 
     def test_getting_event_as_dict(self):
         """ Getting event as dict """
-        event = Event(payload=dict(prop='value'))
+        event = Event(
+            payload=dict(prop='value'),
+            payload_rollback=dict(prop='value')
+        )
         self.assertTrue(type(event.to_dict()) is dict)
         self.assertTrue(type(event.to_dict()['payload']) is dict)
+        self.assertTrue(type(event.to_dict()['payload_rollback']) is dict)
 
     def test_get_db_representation(self):
         """ Getting db representation of an event """
@@ -89,4 +94,10 @@ class EventTest(BaseTestCase):
         data = dict(some='payload_goes_here')
         event = Event(payload=data)
         self.assertTrue(type(event.payload) is dict)
+
+    def test_getting_event_payload_rollback(self):
+        """ Getting event rollback payload """
+        data = dict(some='payload_goes_here')
+        event = Event(payload_rollback=data)
+        self.assertTrue(type(event.payload_rollback) is dict)
 

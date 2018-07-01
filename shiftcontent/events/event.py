@@ -50,6 +50,7 @@ class Event:
         """
         Instantiate event object
         Can optionally populate itself from kwargs
+
         :param _: args, ignored
         :param kwargs: dict, key-value pairs used to populate event
         """
@@ -60,7 +61,8 @@ class Event:
             type=None,
             author=None,
             object_id=None,
-            payload=None
+            payload=None,
+            payload_rollback=None,
         )
 
         self.from_dict(kwargs)
@@ -89,6 +91,8 @@ class Event:
         """ Overrides attribute access for setting props """
         if key == 'payload':
             self.set_payload(value)
+        if key == 'payload_rollback':
+            self.set_payload_rollback(value)
         elif key in self.props:
             self.props[key] = value
             return self
@@ -110,10 +114,30 @@ class Event:
             except json.JSONDecodeError:
                 raise x.EventError('Failed to decode payload string')
 
-        if type(payload) is not dict:
+        if payload and type(payload) is not dict:
             msg = 'Payload must be a dictionary, got {}'
             raise x.EventError(msg.format(type(payload)))
         self.props['payload'] = payload
+        return self
+
+    def set_payload_rollback(self, payload):
+        """
+        Set rollback payload
+        Accepts a dictionary and encodes it into a json string for persistence.
+        Will raise an exception if payload is not a dictionary.
+        :param payload: dict
+        :return:
+        """
+        if type(payload) is str:
+            try:
+                payload = json.loads(payload, encoding='utf-8')
+            except json.JSONDecodeError:
+                raise x.EventError('Failed to decode payload string')
+
+        if payload and type(payload) is not dict:
+            msg = 'Payload must be a dictionary, got {}'
+            raise x.EventError(msg.format(type(payload)))
+        self.props['payload_rollback'] = payload
         return self
 
     def to_dict(self):
@@ -128,7 +152,14 @@ class Event:
         :return:
         """
         data = self.to_dict()
-        data['payload'] = json.dumps(data['payload'], ensure_ascii=False)
+        data['payload'] = json.dumps(
+            data['payload'],
+            ensure_ascii=False
+        )
+        data['payload_rollback'] = json.dumps(
+            data['payload_rollback'],
+            ensure_ascii=False
+        )
         return data
 
     def from_dict(self, data):
