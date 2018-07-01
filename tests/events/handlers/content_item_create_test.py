@@ -33,19 +33,34 @@ class Dummy1Test(BaseTestCase):
         items = self.db.tables['items']
         with self.db.engine.begin() as conn:
             query = items.select().where(items.c.object_id == object_id)
-            result = conn.execute(query)
-            self.assertIsNotNone(result.fetchone())
+            result = conn.execute(query).fetchone()
+            self.assertIsNotNone(result)
 
-    # def test_rollback_event(self):
-    #     """ Handler content item create rolling back changes """
-    #     handler = ContentItemCreate(db=self.db)
-    #     event = Event(
-    #         type='DUMMY_EVENT',
-    #         payload={'prop': 'val'}
-    #     )
-    #
-    #     event = handler.handle(event)
-    #     self.assertIn('dummy_handler1', event.payload)
-    #
-    #     handler.rollback(event)
-    #     self.assertNotIn('dummy_handler1', event.payload)
+    def test_rollback_event(self):
+        """ Handler content item create rolling back changes """
+        handler = ContentItemCreate(db=self.db)
+        object_id = str(uuid1())
+        event = Event(
+            id=123,
+            type='CONTENT_ITEM_CREATE',
+            author=123,
+            object_id=object_id,
+            payload=dict(
+                type='plain_text',
+                data=dict(body='I am the body field')
+            ),
+            payload_rollback = None
+        )
+
+        # create
+        handler.handle(event)
+
+        # now roll back
+        handler.rollback(event)
+
+        items = self.db.tables['items']
+        with self.db.engine.begin() as conn:
+            query = items.select().where(items.c.object_id == object_id)
+            result = conn.execute(query).fetchone()
+            self.assertIsNone(result)
+

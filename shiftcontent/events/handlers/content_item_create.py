@@ -34,11 +34,15 @@ class ContentItemCreate(BaseHandler):
 
     def rollback(self, event):
         """ Rollback event """
-        payload = event.payload
-        if 'dummy_handler1' in payload:
-            del payload['dummy_handler1']
+        items = self.db.tables['items']
+        with self.db.engine.begin() as conn:
+            query = items.delete()\
+                .where(items.c.object_id == event.object_id)
+            conn.execute(query)
 
-        event.payload = payload
         return event
+
+
+
 
 
