@@ -55,7 +55,7 @@ class Item:
         """ Overrides attribute access for getting props """
         if item in self.props:
             return self.props[item]
-        return object.__getattr__(self, item)
+        return object.__getattribute__(self, item)
 
     def __setattr__(self, key, value):
         """ Overrides attribute access for setting props"""

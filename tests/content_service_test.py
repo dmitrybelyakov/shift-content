@@ -2,8 +2,11 @@ from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
 from pprint import pprint as pp
+from uuid import uuid1
+from datetime import datetime
 from shiftcontent import exceptions as x
 from shiftcontent import ContentService
+from shiftcontent.item import Item
 from shiftcontent import SchemaService
 from shiftcontent import EventService
 
@@ -33,6 +36,28 @@ class ContentServiceTest(BaseTestCase):
         service = self.get_service()
         self.assertIsInstance(service, ContentService)
 
+    def test_get_item(self):
+        """ Getting item by object id """
+        object_id = str(uuid1())
+        data = dict(
+            author=123,
+            created= datetime.utcnow(),
+            object_id=object_id,
+            type='plain_text',
+            data='{"data": "field"}'
+        )
+
+        # insert
+        items = self.db.tables['items']
+        with self.db.engine.begin() as conn:
+            conn.execute(items.insert(), **data)
+
+        # now get it
+        service = self.get_service()
+        item = service.get_item(object_id=object_id)
+        self.assertIsInstance(item, Item)
+
+    @attr('xxx')
     def test_create_content_item(self):
         """ Create a simple content item """
         service = self.get_service()

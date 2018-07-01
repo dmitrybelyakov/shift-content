@@ -17,7 +17,7 @@ class Dummy1Test(BaseTestCase):
     def test_handle_event(self):
         """ Handler content item create handles event"""
         handler = ContentItemCreate(db=self.db)
-        object_id = uuid1()
+        object_id = str(uuid1())
         event = Event(
             id=123,
             type='CONTENT_ITEM_CREATE',
@@ -25,18 +25,17 @@ class Dummy1Test(BaseTestCase):
             object_id=object_id,
             payload=dict(
                 type='plain_text',
-                data=dict(
-                    fields=dict(body='I am the body field')
-                )
+                data=dict(body='I am the body field')
             )
         )
 
-        result = handler.handle_event(event)
-        print(result)
-    #
-    #     event = handler.handle(event)
-    #     self.assertIn('dummy_handler1', event.payload)
-    #
+        handler.handle(event)
+        items = self.db.tables['items']
+        with self.db.engine.begin() as conn:
+            query = items.select().where(items.c.object_id == object_id)
+            result = conn.execute(query)
+            self.assertIsNotNone(result.fetchone())
+
     # def test_rollback_event(self):
     #     """ Handler content iten create rolling back an event """
     #     handler = Dummy1(self.db)

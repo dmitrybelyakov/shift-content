@@ -1,6 +1,7 @@
 from uuid import uuid1
 from pprint import pprint as pp
 from shiftcontent import exceptions as x
+from shiftcontent.item import Item
 
 
 class ContentService:
@@ -23,12 +24,41 @@ class ContentService:
         self.schema_service = schema_service
 
     def get_item(self, object_id):
+        """
+        Get item
+        Selects an item from projection table by its unique object_id
+        :param object_id: str, object id
+        :return: shiftcontent.ite.Item
+        """
         # todo: try to get item from cache
         # todo: get from projections if not found
         # todo: put to cache if found in projections
-        pass
+
+        # get from projection table
+        items = self.db.tables['items']
+        with self.db.engine.begin() as conn:
+            query = items.select().where(items.c.object_id == object_id)
+            result = conn.execute(query).fetchone()
+            if not result:
+                return
+            item = Item(**dict(result))
+            return item
 
     def create_item(self, author, content_type, data, parent=None):
+        """
+        Create item
+        Validates incoming data and returns validation errors. If data valid,
+        emits a conten item creation event and then after the handlers run,
+        fetches the item by object_id
+
+        :param author: str, author id
+        :param content_type: str, content type
+        :param data: dict, content item fields
+        :param parent: shiftcontent.item.Item, parent item
+        :return:
+        """
+
+        object_id = str(uuid1())
 
         # create event
         type = self.schema_service.get_type_schema(content_type)
@@ -36,17 +66,17 @@ class ContentService:
         fields = {f: v for f, v in data.items() if f in valid}
         event = self.event_service.event(
             author=author,
-            object_id=uuid1(),
+            object_id=object_id,
             type='CONTENT_ITEM_CREATE',
             payload=dict(type=content_type, data=fields)
         )
 
         # and emit
-        item = self.event_service.emit(event)
-        return item
+        event = self.event_service.emit(event)
+        return self.get_item(event.object_id)
 
         # todo: who's responsibility is it to update caches?
-        # todo: content service or event handler?
+        # todo: content service or event handler? - content service!
 
 
         # todo: filter and validate data

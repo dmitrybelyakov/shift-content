@@ -1,6 +1,5 @@
 from inspect import isclass
 from shiftcontent.events.event import Event, EventSchema
-from shiftcontent.item import Item
 from shiftcontent import exceptions as x
 from shiftcontent.events.default_handlers import default_handlers
 from shiftcontent.events.handlers import BaseHandler
