@@ -39,6 +39,7 @@ class ProcessingUnsavedEvent(ContentException, RuntimeError):
     """ Raised when emitting or rolling back  unsaved event"""
     pass
 
+
 class MissingEventType(ContentException, RuntimeError):
     """ Raised when handler implementation doesn't define EVENT_TYPE """
     pass
@@ -46,6 +47,11 @@ class MissingEventType(ContentException, RuntimeError):
 
 class UnsupportedEventType(ContentException, RuntimeError):
     """ Raised when running a handler with unsupported event type """
+    pass
+
+
+class HandlerInstantiationError(ContentException, RuntimeError):
+    """ Raised when handlers are defined not as classes """
     pass
 
 

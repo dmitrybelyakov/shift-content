@@ -1,6 +1,9 @@
+from inspect import isclass
 from shiftcontent.events.event import Event, EventSchema
 from shiftcontent.item import Item
 from shiftcontent import exceptions as x
+from shiftcontent.events.default_handlers import default_handlers
+from shiftcontent.events.handlers import BaseHandler
 
 
 class EventService:
@@ -9,27 +12,20 @@ class EventService:
     Responsible for handling events
     """
 
-    def __init__(self, db):
+    # database instance
+    db = None
+
+    # event handlers
+    handlers = None
+
+    def __init__(self, db, handlers=None):
         """
         Initialize event service
         Accepts a database instance to operate on events and projections.
         :param db:
         """
         self.db = db
-
-    @property
-    def handlers(self):
-        """
-        Event handlers
-        Returns a dictionary of event handlers
-        :return: dict
-        """
-        handlers = dict(
-            DUMMY_EVENT=[self.dummy_event1, self.dummy_event2],
-            CONTENT_ITEM_CREATE=[self.content_item_create]
-        )
-
-        return handlers
+        self.handlers = handlers if handlers else default_handlers
 
     def event(self, type, object_id, author, payload):
         """
@@ -75,21 +71,43 @@ class EventService:
     def emit(self, event):
         """
         Emit event
-        Triggers the corresponding error handler for an event and passes in
-        the payload. This is used when creating new events or replaying events
-        that were already saved.
-        :param event: shiftcontent.event.Event
+        Initialises every handler in the chain for the event and sequentially
+        executes each one.
+        :param event: shiftcontent.events.event.Event
         :return:
         """
-
-        # get handlers
         if event.type not in self.handlers:
             raise x.EventError('No handlers for event {}'.format(event.type))
 
         # trigger handlers
         handlers = self.handlers[event.type]
+        chain = []
         for handler in handlers:
-            event = handler(event, self.db)
+            if not isclass(handler):
+                msg = 'Handler {} for {} has to be a class, got [{}]'
+                raise x.HandlerInstantiationError(msg.format(
+                    handler,
+                    event.type,
+                    type(handler)
+                ))
+
+            handler = handler(db=self.db)
+            if not isinstance(handler, BaseHandler):
+                msg = 'Handler implementations must extend BaseHandler'
+                raise x.HandlerInstantiationError(msg)
+
+            # append to chain if valid
+            chain.append(handler)
+
+        # all valid? run chain
+        for handler in chain:
+            handled = handler.handle_event(event)
+            if handled:
+                event = handled
+            else:
+                break  # skip next handler
+
+        # return event at the end
         return event
 
     def get_event(self, id):
@@ -108,62 +126,6 @@ class EventService:
                 event = Event(**data)
         return event
 
-    # --------------------------------------------------------------------------
-    # handlers
-    # --------------------------------------------------------------------------
-
-    # todo: allow to add handlers from userland code
-
-    def dummy_event1(self, event, db):
-        """
-        Dummy event handler 1
-        Used for testing. In reality we should never modify an event.
-        :param event: shiftcontent.event.Event
-        :param db: shiftcontent.db.db.Db
-        :return:
-        """
-        payload = event.payload
-        payload['dummy_handler1'] = 'processed'
-        event.payload = payload
-        return event
-
-    def dummy_event2(self, event, db):
-        """
-        Dummy event handler 2
-        Used for testing. In reality we should never modify an event.
-        :param event: shiftcontent.event.Event
-        :param db: shiftcontent.db.db.Db
-        :return:
-        """
-        payload = event.payload
-        payload['dummy_handler2'] = 'processed'
-        event.payload = payload
-        return event
-
-    def content_item_create(self, event, db):
-        """
-        Create content item
-        :param event:
-        :param db: shiftcontent.db.db.Db
-        :return:
-        """
-
-        # create item
-        item = Item(
-            author=event.author,
-            object_id=event.object_id,
-            type=event.payload['type'],
-            data=event.payload['data']
-        )
-
-        # persist
-        items = db.tables['items']
-        with self.db.engine.begin() as conn:
-            result = conn.execute(items.insert(), **item.to_db())
-            item.id = result.inserted_primary_key[0]
-
-        # and return
-        return item
 
 
 

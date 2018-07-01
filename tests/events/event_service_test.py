@@ -5,6 +5,7 @@ from pprint import pprint as pp
 from shiftcontent import exceptions as x
 from shiftcontent import EventService
 from shiftcontent import Event
+from shiftcontent.events.handlers import Dummy1
 
 
 @attr('event', 'service')
@@ -35,7 +36,7 @@ class EventServiceTest(BaseTestCase):
             type='DUMMY_EVENT',
             object_id=123,
             author=456,
-            payload={'wtf': 'IS THIS'},
+            payload={'what': 'IS THIS'},
         )
         self.assertEquals(1, event.id)
 
@@ -47,7 +48,7 @@ class EventServiceTest(BaseTestCase):
                 type='UNKNOWN_EVENT_TYPE',
                 object_id=123,
                 author=456,
-                payload={'wtf': 'IS THIS'}
+                payload={'what': 'IS THIS'}
             )
 
     def test_get_event_by_id(self):
@@ -57,13 +58,49 @@ class EventServiceTest(BaseTestCase):
             type='DUMMY_EVENT',
             object_id=123,
             author=456,
-            payload={'wtf': 'IS THIS'},
+            payload={'what': 'IS THIS'},
         )
 
         id = event.id
         event = service.get_event(id)
         self.assertIsInstance(event, Event)
         self.assertEquals(id, event.id)
+
+    def test_instantiate_handler(self):
+        """ Instantiating handler """
+        handler_definitions = dict(DUMMY_EVENT=[Dummy1])
+        service = EventService(db=self.db, handlers=handler_definitions)
+        event = Event(type='DUMMY_EVENT', id=123, payload=dict(some='payload'))
+        event = service.emit(event)
+        self.assertIn('dummy_handler1', event.payload)
+
+    def test_raise_when_handler_not_defined_as_a_class(self):
+        """ Raise an error when handler is not a class """
+        handler_definitions = dict(DUMMY_EVENT=[Dummy1(db=self.db)])
+        service = EventService(db=self.db, handlers=handler_definitions)
+        event = Event(type='DUMMY_EVENT', id=123, payload=dict(some='payload'))
+        with self.assertRaises(x.HandlerInstantiationError) as cm:
+            service.emit(event)
+        self.assertIn('has to be a class, got', str(cm.exception))
+
+    def test_raise_when_handler_doesnt_iherit_from_base(self):
+        """ Raise error when handler does not extend from base """
+        class Handler:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def handle(self, *args, **kwargs):
+                pass
+
+        handler_definitions = dict(DUMMY_EVENT=[Handler])
+        service = EventService(db=self.db, handlers=handler_definitions)
+        event = Event(type='DUMMY_EVENT', id=123, payload=dict(some='payload'))
+        with self.assertRaises(x.HandlerInstantiationError) as cm:
+            service.emit(event)
+        self.assertIn(
+            'Handler implementations must extend BaseHandler',
+            str(cm.exception)
+        )
 
     def test_raise_on_missing_handler_when_emitting_an_event(self):
         """ Raise exception on missing event handler when emitting an event"""
@@ -72,7 +109,7 @@ class EventServiceTest(BaseTestCase):
             type='UNKNOWN_EVENT_TYPE',
             object_id=123,
             author=456,
-            payload={'wtf': 'IS THIS'}
+            payload={'what': 'IS THIS'}
         )
         with self.assertRaises(x.EventError):
             service.emit(event)
@@ -84,7 +121,7 @@ class EventServiceTest(BaseTestCase):
             type='DUMMY_EVENT',
             object_id=123,
             author=456,
-            payload={'wtf': 'IS THIS'}
+            payload={'what': 'IS THIS'}
         )
 
         processed = service.emit(event)

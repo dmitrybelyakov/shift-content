@@ -22,7 +22,7 @@ class ContentService:
         self.event_service = event_service
         self.schema_service = schema_service
 
-    def get_item(self, item_id):
+    def get_item(self, object_id):
         # todo: try to get item from cache
         # todo: get from projections if not found
         # todo: put to cache if found in projections
