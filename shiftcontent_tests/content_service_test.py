@@ -1,4 +1,4 @@
-from tests.base import BaseTestCase
+from shiftcontent_tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
 from pprint import pprint as pp
@@ -8,7 +8,8 @@ from shiftcontent import exceptions as x
 from shiftcontent import ContentService
 from shiftcontent.item import Item
 from shiftcontent import SchemaService
-from shiftcontent import EventService
+from shiftevent.event_service import EventService
+from shiftcontent.handlers import content_handlers
 
 
 @attr('content', 'service')
@@ -22,7 +23,7 @@ class ContentServiceTest(BaseTestCase):
         """ Configures and returns content service"""
         content_service = ContentService(
             db=self.db,
-            event_service=EventService(self.db),
+            event_service=EventService(db=self.db, handlers=content_handlers),
             schema_service=SchemaService(self.schema_path, self.revisions_path)
         )
         return content_service

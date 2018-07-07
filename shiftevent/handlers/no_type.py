@@ -1,4 +1,4 @@
-from shiftcontent.events.handlers import BaseHandler
+from shiftevent.handlers import BaseHandler
 
 
 class NoType(BaseHandler):

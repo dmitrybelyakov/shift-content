@@ -1,11 +1,11 @@
-from tests.base import BaseTestCase
+from shiftcontent_tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
 from pprint import pprint as pp
-from shiftcontent import exceptions as x
-from shiftcontent import EventService
-from shiftcontent import Event
-from shiftcontent.events.handlers import Dummy1
+from shiftevent import exceptions as x
+from shiftevent.event_service import EventService
+from shiftevent.event import Event
+from shiftevent.handlers import Dummy1
 
 
 @attr('event', 'service')

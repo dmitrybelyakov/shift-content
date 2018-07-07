@@ -1,8 +1,8 @@
-from tests.base import BaseTestCase
+from shiftcontent_tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
-from shiftcontent.events.event import Event
-from shiftcontent.events.handlers import Dummy1
+from shiftevent.event import Event
+from shiftevent.handlers import Dummy1
 
 
 @attr('event', 'handler', 'dummy1')

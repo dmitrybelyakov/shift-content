@@ -30,31 +30,6 @@ class DatabaseError(ContentException, Exception):
     pass
 
 
-class EventError(DatabaseError, RuntimeError):
-    """ Raised when there is an issue with event object """
-    pass
-
-
-class ProcessingUnsavedEvent(ContentException, RuntimeError):
-    """ Raised when emitting or rolling back  unsaved event"""
-    pass
-
-
-class MissingEventType(ContentException, RuntimeError):
-    """ Raised when handler implementation doesn't define EVENT_TYPE """
-    pass
-
-
-class UnsupportedEventType(ContentException, RuntimeError):
-    """ Raised when running a handler with unsupported event type """
-    pass
-
-
-class HandlerInstantiationError(ContentException, RuntimeError):
-    """ Raised when handlers are defined not as classes """
-    pass
-
-
 class ContentItemError(DatabaseError, RuntimeError):
     """ Raised when there is an issue with content item object """
     pass

@@ -1,4 +1,4 @@
-from shiftcontent.events.handlers import BaseHandler
+from shiftevent.handlers.base import BaseHandler
 from shiftcontent.item import Item
 
 

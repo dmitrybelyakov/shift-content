@@ -1,4 +1,4 @@
-from tests.base import BaseTestCase
+from shiftcontent_tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
 from sqlalchemy import create_engine

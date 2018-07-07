@@ -1,6 +1,5 @@
 from .handlers import Dummy1
 from .handlers import Dummy2
-from .handlers import ContentItemCreate
 
 default_handlers = dict(
 
@@ -10,8 +9,8 @@ default_handlers = dict(
         Dummy2
     ],
 
-    # create content item
-    CONTENT_ITEM_CREATE=[
-        ContentItemCreate
-    ]
+    # # create content item
+    # CONTENT_ITEM_CREATE=[
+    #     ContentItemCreate
+    # ]
 )

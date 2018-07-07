@@ -1,5 +1,5 @@
 import abc
-from shiftcontent import exceptions as x
+from shiftevent import exceptions as x
 
 
 class BaseHandler(metaclass=abc.ABCMeta):

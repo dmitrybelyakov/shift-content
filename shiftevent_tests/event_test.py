@@ -1,8 +1,8 @@
-from tests.base import BaseTestCase
+from shiftcontent_tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
-from shiftcontent.events.event import Event
-from shiftcontent import exceptions as x
+from shiftevent.event import Event
+from shiftevent import exceptions as x
 from datetime import datetime
 
 

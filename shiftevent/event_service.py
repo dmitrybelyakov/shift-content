@@ -1,8 +1,8 @@
 from inspect import isclass
-from shiftcontent.events.event import Event, EventSchema
-from shiftcontent import exceptions as x
-from shiftcontent.events.default_handlers import default_handlers
-from shiftcontent.events.handlers import BaseHandler
+from shiftevent.event import Event, EventSchema
+from shiftevent import exceptions as x
+from shiftevent.default_handlers import default_handlers
+from shiftevent.handlers import BaseHandler
 
 
 class EventService:

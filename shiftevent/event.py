@@ -1,5 +1,5 @@
 from datetime import datetime
-from shiftcontent import exceptions as x
+from shiftevent import exceptions as x
 from shiftschema.schema import Schema
 from shiftschema import validators
 from shiftschema import filters
