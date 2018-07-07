@@ -22,7 +22,7 @@ class BaseHandler(metaclass=abc.ABCMeta):
     def __init__(self, db):
         """
         Initializes the handler and gets all required service injected
-        :param db: shiftcontent.db.db.Db
+        :param db: shiftevent.db.Db
         """
         self.db = db
 
@@ -36,7 +36,7 @@ class BaseHandler(metaclass=abc.ABCMeta):
         Check
         A shorthand to check if handler can support the event type passed in
         to handle/rollback methods.
-        :param event: shiftcontent.events.event.Event
+        :param event: shiftevent.event.Event
         :return: bool
         """
         if event.type != self.EVENT_TYPE:
@@ -51,8 +51,8 @@ class BaseHandler(metaclass=abc.ABCMeta):
         Wraps around user-defined handle method to run a check for
         event type support before actual execution.
 
-        :param event: shiftcontent.events.event.Event
-        :return: shiftcontent.events.event.Event
+        :param event: shiftevent.event.Event
+        :return: shiftevent.event.Event
         """
         if not event.id:
             msg = 'Unable to handle unsaved event {}'
@@ -67,8 +67,8 @@ class BaseHandler(metaclass=abc.ABCMeta):
         Wraps around user-defined rollback method to run a check for
         event type support before actual execution.
 
-        :param event: shiftcontent.events.event.Event
-        :return: shiftcontent.events.event.Event
+        :param event: shiftevent.event.Event
+        :return: shiftevent.event.Event
         :return:
         """
         if not event.id:
@@ -85,8 +85,8 @@ class BaseHandler(metaclass=abc.ABCMeta):
         This should be implemented in concrete handler. It will get triggered
         once an event is emitted.
 
-        :param event: shiftcontent.events.event.Event
-        :return: shiftcontent.events.event.Event
+        :param event: shiftevent.event.Event
+        :return: shiftevent.event.Event
         """
         raise NotImplemented('Implement me in your concrete handler')
 
@@ -98,7 +98,7 @@ class BaseHandler(metaclass=abc.ABCMeta):
         once a travel back in time is requested and we have to sequentially
         undo events effectively reverting the changes made.
 
-        :param event: shiftcontent.events.event.Event
-        :return: shiftcontent.events.event.Event
+        :param event: shiftevent.event.Event
+        :return: shiftevent.event.Event
         """
         raise NotImplemented('Implement me in your concrete handler')

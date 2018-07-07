@@ -13,7 +13,7 @@ def define_tables(meta):
     tables = dict()
 
     # events
-    tables['events'] = sa.Table('content_events', meta,
+    tables['events'] = sa.Table('event_store', meta,
         sa.Column('id', sa.Integer, primary_key=True, autoincrement=True),
         sa.Column('created', sa.DateTime, nullable=False, index=True),
         sa.Column('type', sa.String(256), nullable=False, index=True),

@@ -36,7 +36,7 @@ class EventService:
         :param object_id: str, an id of the object being affected
         :param author:  str, author id in external system
         :param payload: dict, event payload
-        :return: shiftcontent.event.Event
+        :return: shiftevent.event.Event
         """
         # create
         event = Event(
@@ -72,7 +72,7 @@ class EventService:
         Emit event
         Initialises every handler in the chain for the event and sequentially
         executes each one.
-        :param event: shiftcontent.events.event.Event
+        :param event: shiftevent.events.event.Event
         :return:
         """
         if event.type not in self.handlers:
@@ -114,7 +114,7 @@ class EventService:
         Get event
         Returns event found by unique id.
         :param id: int, event id
-        :return: shiftcontent.event.Event
+        :return: shiftevent.event.Event
         """
         event = None
         events = self.db.tables['events']

@@ -4,8 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy import MetaData
 from sqlalchemy import sql
 from sqlalchemy import desc, asc
-from shiftcontent.db.tables import define_tables
-from shiftcontent import exceptions as x
+from shiftevent.db_tables import define_tables
+from shiftevent import exceptions as x
 
 
 class Db:
@@ -27,7 +27,7 @@ class Db:
         manage separate connection pools.
 
         Additionally accepts a custom metadata object. Pass this if you want
-        to integration content tables in already existing metadata catalogue
+        to integration tables in already existing metadata catalogue
         of your application.
 
         :param db_url: str, database url

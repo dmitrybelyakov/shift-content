@@ -8,9 +8,4 @@ default_handlers = dict(
         Dummy1,
         Dummy2
     ],
-
-    # # create content item
-    # CONTENT_ITEM_CREATE=[
-    #     ContentItemCreate
-    # ]
 )

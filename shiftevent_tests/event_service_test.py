@@ -1,4 +1,4 @@
-from shiftcontent_tests.base import BaseTestCase
+from shiftevent_tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
 from pprint import pprint as pp
