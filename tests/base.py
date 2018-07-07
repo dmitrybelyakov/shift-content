@@ -1,7 +1,7 @@
 import unittest
 import os
 import shutil
-from shiftevent.db import Db
+from shiftcontent import Db
 
 
 class BaseTestCase(unittest.TestCase):
@@ -37,7 +37,7 @@ class BaseTestCase(unittest.TestCase):
     @property
     def db_path(self):
         """ Path to test database file"""
-        path = os.path.join(os.getcwd(), 'var', 'data', 'events_test.db')
+        path = os.path.join(os.getcwd(), 'var', 'data', 'test.db')
         return path
 
     @property
@@ -58,6 +58,18 @@ class BaseTestCase(unittest.TestCase):
         if not os.path.exists(tmp):
             os.makedirs(tmp, exist_ok=True)
         return tmp
+
+    @property
+    def schema_path(self):
+        """ Get path to content schema file """
+        path = os.path.join(os.getcwd(), 'tests', '_assets', 'content.yml')
+        return path
+
+    @property
+    def revisions_path(self):
+        """ Get path to schema revisions """
+        cwd = os.getcwd()
+        return os.path.join(cwd, 'var', 'data', 'tests', 'known_schemas')
 
     def create_db(self):
         """

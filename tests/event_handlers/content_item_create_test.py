@@ -7,7 +7,7 @@ from shiftcontent.events.handlers import ContentItemCreate
 
 
 @attr('event', 'handler', 'content_item_create')
-class Dummy1Test(BaseTestCase):
+class ContentItemCreateTest(BaseTestCase):
 
     def test_instantiating_handler(self):
         """ Instantiating content item create handler """
