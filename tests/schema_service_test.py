@@ -94,7 +94,6 @@ class SchemaServiceTest(BaseTestCase):
         with self.assertRaises(x.InvalidSchema):
             service.load_definition()
 
-    @attr('zzz')
     def test_ingest_valid_schema(self):
         """ Save schema file to schema revisions backlog """
         valid = {'content': [
@@ -103,7 +102,14 @@ class SchemaServiceTest(BaseTestCase):
                 'handle': 'markdown',
                 'description': 'This is a markdown type',
                 'editor': 'shiftcontent.editor.Default',
-                'fields': []
+                'fields': [
+                    {
+                        'name': 'Body',
+                        'handle': 'body',
+                        'description': 'body text',
+                        'type': 'text',
+                    }
+                ]
             },
         ]}
 
