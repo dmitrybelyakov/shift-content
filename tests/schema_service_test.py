@@ -13,8 +13,8 @@ from shiftcontent import exceptions as x
 @attr('schema', 'service')
 class SchemaServiceTest(BaseTestCase):
 
-    def test_create_content_service(self):
-        """ Creating content service"""
+    def test_create_schema_service(self):
+        """ Creating schema service"""
         service = SchemaService(self.schema_path, self.revisions_path)
         self.assertIsInstance(service, SchemaService)
 
