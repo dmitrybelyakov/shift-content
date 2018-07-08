@@ -59,9 +59,6 @@ class TypeSchema(Schema):
         ))
 
 
-
-
-
 class FieldSchema(Schema):
     """
     Field schema
@@ -92,6 +89,14 @@ class FieldSchema(Schema):
         self.type.add_filter(filter.Strip())
         self.type.add_validator(validator.Required())
 
+        # field filters
+        self.add_collection('filters')
+        self.filters.schema = FilterSchema()
+
+        # field validators
+        self.add_collection('validators')
+        self.validators.schema = ValidatorSchema()
+
 
 class FilterSchema(Schema):
     """
@@ -99,7 +104,13 @@ class FilterSchema(Schema):
     Used to validate filter definitions attached to content type fields.
     This will get run for every filter attached to every field.
     """
-    pass
+    def schema(self):
+        self.add_property('type')
+        self.type.add_filter(filter.Strip())
+        self.type.add_validator(validator.Required())
+        self.type.add_validator(content_validators.ImportableClass(
+            message='Filter class [{class}] is not importable'
+        ))
 
 
 class ValidatorSchema(Schema):
@@ -108,7 +119,13 @@ class ValidatorSchema(Schema):
     Used to validate validator definitions attached to content type fields.
     This will get run for every validator attached to every field.
     """
-    pass
+    def schema(self):
+        self.add_property('type')
+        self.type.add_filter(filter.Strip())
+        self.type.add_validator(validator.Required())
+        self.type.add_validator(content_validators.ImportableClass(
+            message='Validator class [{class}] is not importable'
+        ))
 
 
 

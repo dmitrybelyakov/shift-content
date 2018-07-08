@@ -27,10 +27,10 @@ content:
           type: text
           default_value: None
           filters:
-            - filter: shiftschema.filters.Strip
+            - type: shiftschema.filters.Strip
           validators:
-            - validator: shiftschema.validator.NotEmpty
-            - validator: shiftschema.validator.Length
+            - type: shiftschema.validator.NotEmpty
+            - type: shiftschema.validator.Length
               min: 2
               max: 20
 
