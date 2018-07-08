@@ -152,9 +152,11 @@ class SchemaService:
             return schema
 
         # if changed, validate and persist
+        # it's important to force context here so that all vaidators have
+        # access to the whole definition object
         # todo: trigger schema changed event
         definitions_schema = validator.DefinitionSchema()
-        ok = definitions_schema.process(yml)
+        ok = definitions_schema.process(yml, context=yml)
         if not ok:
             errors = ok.get_messages()
             raise x.InvalidSchema(validation_errors=errors)

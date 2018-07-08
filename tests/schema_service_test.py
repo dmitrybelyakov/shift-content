@@ -2,7 +2,6 @@ from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
 import os
-import shutil
 import hashlib
 import yaml
 import json

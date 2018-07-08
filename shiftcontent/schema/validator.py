@@ -2,6 +2,7 @@ from shiftschema.schema import Schema
 from shiftschema import validators as validator
 from shiftschema import filters as filter
 
+from shiftcontent.schema import validators as content_validators
 
 class TypeSchema(Schema):
     """
@@ -14,14 +15,14 @@ class TypeSchema(Schema):
         self.add_property('name')
         self.name.add_filter(filter.Strip())
         self.name.add_validator(validator.Required())
-        # todo: name must be unique
+        self.name.add_validator(content_validators.UniqueTypeName())
 
         # content type handle
         self.add_property('handle')
         self.handle.add_filter(filter.Strip())
         self.handle.add_filter(filter.Lowercase())
         self.handle.add_validator(validator.Required())
-        # todo: handle must be unique
+        self.handle.add_validator(content_validators.UniqueTypeHandle())
 
         # content type description
         self.add_property('description')
@@ -47,5 +48,7 @@ class DefinitionSchema(Schema):
     """
     def schema(self):
         self.add_collection('content')
+        # self.content.add_validator(content_validators.UniqueTypeName())
         self.content.schema = TypeSchema()
+
 
