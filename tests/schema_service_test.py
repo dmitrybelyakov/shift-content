@@ -41,7 +41,7 @@ class SchemaServiceTest(BaseTestCase):
         self.assertFalse(registry)
 
     def test_load_parse_and_return_existing_registry(self):
-        """ Existing regitry can be loaded successfully into a dict"""
+        """ Existing registry can be loaded successfully into a dict"""
         service = SchemaService(
             schema_path=self.schema_path,
             revisions_path=self.revisions_path
@@ -94,6 +94,7 @@ class SchemaServiceTest(BaseTestCase):
         with self.assertRaises(x.InvalidSchema):
             service.load_definition()
 
+    @attr('zzz')
     def test_ingest_valid_schema(self):
         """ Save schema file to schema revisions backlog """
         valid = {'content': [
@@ -115,7 +116,12 @@ class SchemaServiceTest(BaseTestCase):
             revisions_path=self.revisions_path
         )
 
-        service.schema
+        try:
+            service.schema
+        except x.InvalidSchema as err:
+            print(err.validation_errors)
+
+
         with open(path) as yml:
             text = yml.read()
 
