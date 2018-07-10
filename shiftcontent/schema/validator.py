@@ -28,14 +28,16 @@ class TypeSchema(Schema):
         # content type name
         self.add_property('name')
         self.name.add_filter(filter.Strip())
-        self.name.add_validator(validator.Required())
+        self.name.add_validator(validator.Required(
+            message='Content type must have a name'
+        ))
         self.name.add_validator(content_validators.UniqueTypeName())
 
         # content type handle
         self.add_property('handle')
         self.handle.add_filter(filter.Strip())
-        self.handle.add_filter(filter.Lowercase())
         self.handle.add_validator(validator.Required())
+        self.handle.add_validator(content_validators.Handle())
         self.handle.add_validator(content_validators.UniqueTypeHandle())
 
         # content type description

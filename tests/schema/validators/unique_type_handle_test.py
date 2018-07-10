@@ -6,7 +6,7 @@ from shiftcontent.schema.validators import UniqueTypeHandle
 
 
 @attr('schema', 'validators', 'unique_type_handle')
-class UniqueTypeNameTest(BaseTestCase):
+class UniqueTypeHandleTest(BaseTestCase):
 
     def test_instantiate_unique_type_name_validator(self):
         """ Instantiating unique type name validato """

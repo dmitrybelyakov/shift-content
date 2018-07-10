@@ -19,7 +19,15 @@ class DefinitionSchemaTest(BaseTestCase):
 
     def test_type_content(self):
         """ Type content test """
-        self.fail('Implement me!')
+        schema = DefinitionSchema()
+        result = schema.process(dict())
+        errors = result.get_messages()
+        self.assertFalse(result)
+        self.assertIn('content', errors)
+        self.assertIn(
+            'Content types can\'t be empty',
+            errors['content']['direct']
+        )
 
 
 @attr('schema', 'type')
@@ -32,10 +40,35 @@ class TypeSchemaTest(BaseTestCase):
 
     def test_type_name(self):
         """ Type name test """
-        self.fail('Implement me!')
+        definition = dict(name='   Type Name   ')
+        schema = TypeSchema()
+        schema.process(definition)
+        self.assertEquals(definition['name'], 'Type Name')
 
+        result = schema.process(dict())
+        errors = result.get_messages()
+        self.assertIn('Content type must have a name', errors['name'])
+
+    def test_content_type_names_are_unique(self):
+        """ Content type names must be unique """
+        definition = dict(name='Content Type')
+        context = dict(content=[definition, definition])
+        schema = TypeSchema()
+        result = schema.process(definition, context)
+        errors = result.get_messages()
+        self.assertIn('is not unique', errors['name'][0])
+
+    @attr('zzz')
     def test_type_handle(self):
         """ Type handle test """
+        definition = dict(handle='   TYPE_HANDLE   ')
+
+    def test_type_handle_name_convention(self):
+        """ Type handle must conform to naming conventions"""
+        self.fail('Implement me!')
+
+    def test_type_handles_are_unique(self):
+        """ Type handles are unique """
         self.fail('Implement me!')
 
     def test_type_description(self):
