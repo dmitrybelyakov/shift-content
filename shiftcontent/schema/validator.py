@@ -36,24 +36,28 @@ class TypeSchema(Schema):
         # content type handle
         self.add_property('handle')
         self.handle.add_filter(filter.Strip())
-        self.handle.add_validator(validator.Required())
+        self.handle.add_validator(validator.Required(
+            message='Content type must have a handle'
+        ))
         self.handle.add_validator(content_validators.Handle())
         self.handle.add_validator(content_validators.UniqueTypeHandle())
 
         # content type description
         self.add_property('description')
         self.description.add_filter(filter.Strip())
-        self.description.add_validator(validator.Required())
+        self.description.add_validator(validator.Required(
+            message='Content type needs a description'
+        ))
 
         # content type editor
         self.add_property('editor')
         self.editor.add_filter(filter.Strip())
-        # todo: editor must be importable
+        self.editor.add_validator(content_validators.ImportableClass())
 
         # content type fields
         self.add_collection('fields')
         self.fields.schema = FieldSchema()
-        self.fields.add_validator(validator.NotEmpty(
+        self.fields.add_validator(validator.Required(
             message='Content type must have fields'
         ))
 
@@ -68,25 +72,30 @@ class FieldSchema(Schema):
         # field name
         self.add_property('name')
         self.name.add_filter(filter.Strip())
-        self.name.add_validator(validator.Required())
-        self.name.add_validator(content_validators.UniqueTypeName())
+        self.name.add_validator(validator.Required(
+            message='Field requires a name'
+        ))
+        # todo: name must be unique
 
         # field handle
         self.add_property('handle')
         self.handle.add_filter(filter.Strip())
-        self.handle.add_filter(filter.Lowercase())
-        self.handle.add_validator(validator.Required())
-        self.handle.add_validator(content_validators.UniqueTypeHandle())
+        self.handle.add_validator(content_validators.Handle())
+        self.handle.add_validator(validator.Required(
+            message='Field requires a handle'
+        ))
+        # todo: handle must be unique
 
         # field description
         self.add_property('description')
         self.description.add_filter(filter.Strip())
-        self.description.add_validator(validator.Required())
 
         # field type
         self.add_property('type')
         self.type.add_filter(filter.Strip())
-        self.type.add_validator(validator.Required())
+        self.type.add_validator(validator.Required(
+            message='Field requires a type'
+        ))
 
         # field filters
         self.add_collection('filters')

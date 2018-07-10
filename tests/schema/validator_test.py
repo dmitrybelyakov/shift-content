@@ -58,30 +58,73 @@ class TypeSchemaTest(BaseTestCase):
         errors = result.get_messages()
         self.assertIn('is not unique', errors['name'][0])
 
-    @attr('zzz')
     def test_type_handle(self):
         """ Type handle test """
         definition = dict(handle='   TYPE_HANDLE   ')
+        schema = TypeSchema()
+        schema.process(definition)
+        self.assertEquals(definition['handle'], 'TYPE_HANDLE')
+
+        result = schema.process(dict())
+        errors = result.get_messages()
+        self.assertIn('Content type must have a handle', errors['handle'])
 
     def test_type_handle_name_convention(self):
         """ Type handle must conform to naming conventions"""
-        self.fail('Implement me!')
+        definition = dict(handle='1inv@lid')
+        schema = TypeSchema()
+        result = schema.process(definition)
+        errors = result.get_messages()
+        self.assertIn('handle', errors)
+
+        definition = dict(handle='valid_handle')
+        schema = TypeSchema()
+        result = schema.process(definition)
+        errors = result.get_messages()
+        self.assertNotIn('handle', errors)
 
     def test_type_handles_are_unique(self):
         """ Type handles are unique """
-        self.fail('Implement me!')
+        definition = dict(handle='type_handle')
+        context = dict(content=[definition, definition])
+        schema = TypeSchema()
+        result = schema.process(definition, context)
+        errors = result.get_messages()
+        self.assertIn('is not unique', errors['handle'][0])
 
     def test_type_description(self):
         """ Type description test """
-        self.fail('Implement me!')
+        definition = dict(description='   TYPE DESCRIPTION   ')
+        schema = TypeSchema()
+        schema.process(definition)
+        self.assertEquals(definition['description'], 'TYPE DESCRIPTION')
+
+        result = schema.process(dict())
+        errors = result.get_messages()
+        self.assertIn('Content type needs a description', errors['description'])
 
     def test_type_editor(self):
         """ Content type editor test"""
+        definition = dict(editor='   some.module   ')
+        schema = TypeSchema()
+        schema.process(definition)
+        self.assertEquals(definition['editor'], 'some.module')
+
+    @attr('zzz')
+    def test_type_editor_is_importable(self):
+        """ Content type editor is importable """
         self.fail('Implement me!')
 
     def test_type_fields(self):
         """ Content type fields test """
-        self.fail('Implement me!')
+        definition = dict(fields=None)
+        schema = TypeSchema()
+        result = schema.process(definition)
+        errors = result.get_messages()
+        self.assertIn(
+            'Content type must have fields',
+            errors['fields']['direct']
+        )
 
 
 @attr('schema', 'field')

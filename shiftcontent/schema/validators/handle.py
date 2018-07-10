@@ -10,7 +10,7 @@ class Handle(AbstractValidator):
     characters
     """
 
-    invalid_name = 'Handle [{}] must start with a letter, and contain ' \
+    invalid_name = 'Handle [{handle}] must start with a letter, and contain ' \
                    'numbers, lowercase letters and underscores only'
 
     def __init__(self, message=None):

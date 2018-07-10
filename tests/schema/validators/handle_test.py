@@ -8,7 +8,7 @@ from shiftcontent.schema.validators import Handle
 @attr('schema', 'validators', 'handle')
 class HandleTest(BaseTestCase):
 
-    def test_instantiate_unique_type_name_validator(self):
+    def test_instantiate_handle_validator(self):
         """ Instantiating handle validator """
         validator = Handle()
         self.assertIsInstance(validator, Handle)
