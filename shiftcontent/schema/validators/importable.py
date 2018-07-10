@@ -1,16 +1,16 @@
 from shiftschema.validators.abstract_validator import AbstractValidator
 from shiftschema.result import Error
 import sys
-from importlib import __import__, import_module
-# from werkzeug.utils import import_string
+from importlib import import_module
 
-class ImportableClass(AbstractValidator):
+
+class Importable(AbstractValidator):
     """
     Importable class
     Checks that a class defined in schema can be imported
     """
 
-    not_importable = 'Class [{}] is not importable.'
+    not_importable = 'Import failed: [{name}] is not importable.'
 
     def __init__(self, message=None):
         """
@@ -61,7 +61,9 @@ class ImportableClass(AbstractValidator):
         try:
             self.import_by_name(value)
         except ImportError:
-            return Error(self.not_importable)
+            params = dict(name=value)
+            return Error(self.not_importable, params)
 
         # success otherwise
         return Error()
+

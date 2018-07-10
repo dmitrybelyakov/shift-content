@@ -110,10 +110,18 @@ class TypeSchemaTest(BaseTestCase):
         schema.process(definition)
         self.assertEquals(definition['editor'], 'some.module')
 
-    @attr('zzz')
     def test_type_editor_is_importable(self):
         """ Content type editor is importable """
-        self.fail('Implement me!')
+        definition = dict(editor='shiftschema.schema.Schema')
+        schema = TypeSchema()
+        result = schema.process(definition)
+        errors = result.get_messages()
+        self.assertNotIn('editor', errors)
+
+        definition = dict(editor='not.importable.Something')
+        result = schema.process(definition)
+        errors = result.get_messages()
+        self.assertIn('editor', errors)
 
     def test_type_fields(self):
         """ Content type fields test """

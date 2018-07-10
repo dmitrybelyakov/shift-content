@@ -52,7 +52,9 @@ class TypeSchema(Schema):
         # content type editor
         self.add_property('editor')
         self.editor.add_filter(filter.Strip())
-        self.editor.add_validator(content_validators.ImportableClass())
+        self.editor.add_validator(content_validators.Importable(
+            message='Content type editor [{name}] is not importable'
+        ))
 
         # content type fields
         self.add_collection('fields')
@@ -116,7 +118,7 @@ class FilterSchema(Schema):
         self.add_property('type')
         self.type.add_filter(filter.Strip())
         self.type.add_validator(validator.Required())
-        self.type.add_validator(content_validators.ImportableClass(
+        self.type.add_validator(content_validators.Importable(
             message='Filter class [{class}] is not importable'
         ))
 
@@ -131,7 +133,7 @@ class ValidatorSchema(Schema):
         self.add_property('type')
         self.type.add_filter(filter.Strip())
         self.type.add_validator(validator.Required())
-        self.type.add_validator(content_validators.ImportableClass(
+        self.type.add_validator(content_validators.Importable(
             message='Validator class [{class}] is not importable'
         ))
 
