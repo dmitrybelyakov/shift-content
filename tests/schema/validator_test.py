@@ -145,19 +145,64 @@ class FieldSchemaTest(BaseTestCase):
 
     def test_field_name(self):
         """ Field name test """
+        definition = dict(name='   Field Name   ')
+        schema = FieldSchema()
+        schema.process(definition)
+        self.assertEquals('Field Name', definition['name'])
+
+        result = schema.process(dict())
+        errors = result.get_messages()
+        self.assertIn('Field requires a name', errors['name'])
+
+    def test_field_names_are_unique(self):
+        """ Field names are unique within type """
         self.fail('Implement me!')
 
     def test_field_handle(self):
         """ Filed handle test """
+        definition = dict(handle='   field_handle   ')
+        schema = FieldSchema()
+        schema.process(definition)
+        self.assertEquals('field_handle', definition['handle'])
+
+        result = schema.process(dict())
+        errors = result.get_messages()
+        self.assertIn('Field requires a handle', errors['handle'])
+
+    def test_field_handle_name_convention(self):
+        """ Field handles conform to naming conventions """
+        definition = dict(handle='1inv@lid')
+        schema = FieldSchema()
+        result = schema.process(definition)
+        errors = result.get_messages()
+        self.assertIn('handle', errors)
+
+        definition = dict(handle='valid_handle')
+        result = schema.process(definition)
+        errors = result.get_messages()
+        self.assertNotIn('handle', errors)
+
+    def test_field_handles_are_unique(self):
+        """ Field handles are unique within type """
         self.fail('Implement me!')
 
     def test_field_description(self):
         """ Field description test """
-        self.fail('Implement me!')
+        definition = dict(description='   some description   ')
+        schema = FieldSchema()
+        schema.process(definition)
+        self.assertEquals('some description', definition['description'])
 
     def test_field_type(self):
         """ Field type test """
-        self.fail('Implement me!')
+        definition = dict(type='   field_type   ')
+        schema = FieldSchema()
+        schema.process(definition)
+        self.assertEquals('field_type', definition['type'])
+
+        result = schema.process(dict())
+        errors = result.get_messages()
+        self.assertIn('Field requires a type', errors['type'])
 
 
 @attr('schema', 'filter')
