@@ -101,7 +101,7 @@ class SchemaServiceTest(BaseTestCase):
                 'name': 'Markdown',
                 'handle': 'markdown',
                 'description': 'This is a markdown type',
-                'editor': 'shiftcontent.editor.Default',
+                'editor': 'shiftcontent.editor.Editor',
                 'fields': [
                     {
                         'name': 'Body',

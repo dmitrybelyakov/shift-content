@@ -215,11 +215,22 @@ class FilterSchemaTest(BaseTestCase):
 
     def test_filter_type(self):
         """ Filter type test """
-        self.fail('Implement me!')
+        schema = FilterSchema()
+        result = schema.process(dict())
+        errors = result.get_messages()
+        self.assertIn('Filter requires a type', errors['type'])
 
     def test_filter_type_class_is_importable(self):
         """ Filter type class is importable """
-        self.fail('Implement me!')
+        schema = FilterSchema()
+        definition = dict(type='shiftschema.filters.Strip')
+        result = schema.process(definition)
+        self.assertTrue(result)
+
+        definition = dict(type='shiftschema.filters.Strips')
+        result = schema.process(definition)
+        errors = result.get_messages()
+        self.assertIn('is not importable', errors['type'][0])
 
 
 @attr('schema', 'validator')
@@ -232,8 +243,19 @@ class ValidatorSchemaTest(BaseTestCase):
 
     def test_validator_type(self):
         """ Validator type test """
-        self.fail('Implement me!')
+        schema = ValidatorSchema()
+        result = schema.process(dict())
+        errors = result.get_messages()
+        self.assertIn('Validator requires a type', errors['type'])
 
     def test_validator_type_class_is_importable(self):
         """ Validator type class is importable """
-        self.fail('Implement me!')
+        schema = ValidatorSchema()
+        definition = dict(type='shiftschema.validators.Required')
+        result = schema.process(definition)
+        self.assertTrue(result)
+
+        definition = dict(type='shiftschema.validators.Requiredz')
+        result = schema.process(definition)
+        errors = result.get_messages()
+        self.assertIn('is not importable', errors['type'][0])

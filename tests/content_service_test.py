@@ -58,7 +58,6 @@ class ContentServiceTest(BaseTestCase):
         item = service.get_item(object_id=object_id)
         self.assertIsInstance(item, Item)
 
-    @attr('xxx')
     def test_create_content_item(self):
         """ Create a simple content item """
         service = self.get_service()

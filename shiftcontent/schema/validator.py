@@ -116,11 +116,13 @@ class FilterSchema(Schema):
     """
     def schema(self):
         self.add_property('type')
-        self.type.add_filter(filter.Strip())
-        self.type.add_validator(validator.Required())
+        self.type.add_validator(validator.Required(
+            message='Filter requires a type'
+        ))
         self.type.add_validator(content_validators.Importable(
             message='Filter class [{class}] is not importable'
         ))
+        # todo: filters must be instantiatable with params
 
 
 class ValidatorSchema(Schema):
@@ -131,11 +133,13 @@ class ValidatorSchema(Schema):
     """
     def schema(self):
         self.add_property('type')
-        self.type.add_filter(filter.Strip())
-        self.type.add_validator(validator.Required())
+        self.type.add_validator(validator.Required(
+            message='Validator requires a type'
+        ))
         self.type.add_validator(content_validators.Importable(
             message='Validator class [{class}] is not importable'
         ))
+        # todo: validators must be instantiatable with params
 
 
 

@@ -5,7 +5,7 @@ content:
   - name: Markdown
     handle: markdown
     description: This is a very simple markdown text container
-    editor: shiftcontent.editor.Default
+    editor: shiftcontent.editor.Editor
     fields:
         - name: Body
           handle: body
@@ -17,7 +17,7 @@ content:
   - name: Plain Text
     handle: plain_text
     description: This is a very simple plain text text container
-    editor: shiftcontent.editor.Default
+    editor: shiftcontent.editor.Editor
     fields:
         - name: Body
           handle: body
@@ -27,8 +27,8 @@ content:
           filters:
             - type: shiftschema.filters.Strip
           validators:
-            - type: shiftschema.validator.NotEmpty
-            - type: shiftschema.validator.Length
+            - type: shiftschema.validators.NotEmpty
+            - type: shiftschema.validators.Length
               min: 2
               max: 20
 
