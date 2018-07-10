@@ -26,6 +26,8 @@ class TypeSchemaTest(BaseTestCase):
         schema = TypeSchema()
         self.assertIsInstance(schema, TypeSchema)
 
+    def test_type
+
 
 @attr('schema', 'field')
 class FieldSchemaTest(BaseTestCase):
@@ -34,6 +36,22 @@ class FieldSchemaTest(BaseTestCase):
         """ Instantiating field schema"""
         schema = FieldSchema()
         self.assertIsInstance(schema, FieldSchema)
+
+    def test_field_name(self):
+        """ Field name test """
+        self.fail('Implement me!')
+
+    def test_field_handle(self):
+        """ Filed handle test """
+        self.fail('Implement me!')
+
+    def test_field_description(self):
+        """ Field description test """
+        self.fail('Implement me!')
+
+    def test_field_type(self):
+        """ Field type test """
+        self.fail('Implement me!')
 
 
 @attr('schema', 'filter')
@@ -44,6 +62,14 @@ class FilterSchemaTest(BaseTestCase):
         schema = FilterSchema()
         self.assertIsInstance(schema, FilterSchema)
 
+    def test_filter_type(self):
+        """ Filter type test """
+        self.fail('Implement me!')
+
+    def test_filter_type_class_is_importable(self):
+        """ Filter type class is importable """
+        self.fail('Implement me!')
+
 
 @attr('schema', 'validator')
 class ValidatorSchemaTest(BaseTestCase):
@@ -52,3 +78,11 @@ class ValidatorSchemaTest(BaseTestCase):
         """ Instantiating validatoe schema"""
         schema = ValidatorSchema()
         self.assertIsInstance(schema, ValidatorSchema)
+
+    def test_validator_type(self):
+        """ Validator type test """
+        self.fail('Implement me!')
+
+    def test_validator_type_class_is_importable(self):
+        """ Validator type class is importable """
+        self.fail('Implement me!')

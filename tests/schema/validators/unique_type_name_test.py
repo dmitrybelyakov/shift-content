@@ -9,7 +9,7 @@ from shiftcontent.schema.validators import UniqueTypeName
 class UniqueTypeNameTest(BaseTestCase):
 
     def test_instantiate_unique_type_name_validator(self):
-        """ Instantiating unique type name validato """
+        """ Instantiating unique type name validator """
         validator = UniqueTypeName()
         self.assertIsInstance(validator, UniqueTypeName)
 
