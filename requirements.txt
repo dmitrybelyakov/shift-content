@@ -28,3 +28,4 @@ PyYAML==3.12
 shiftmemory==0.0.4
 shiftschema==0.1.4
 shiftevent==0.0.3
+elasticsearch>=6.0.0,<7.0.0
