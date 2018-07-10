@@ -17,6 +17,10 @@ class DefinitionSchemaTest(BaseTestCase):
         schema = DefinitionSchema()
         self.assertIsInstance(schema, DefinitionSchema)
 
+    def test_type_content(self):
+        """ Type content test """
+        self.fail('Implement me!')
+
 
 @attr('schema', 'type')
 class TypeSchemaTest(BaseTestCase):
@@ -26,7 +30,25 @@ class TypeSchemaTest(BaseTestCase):
         schema = TypeSchema()
         self.assertIsInstance(schema, TypeSchema)
 
-    def test_type
+    def test_type_name(self):
+        """ Type name test """
+        self.fail('Implement me!')
+
+    def test_type_handle(self):
+        """ Type handle test """
+        self.fail('Implement me!')
+
+    def test_type_description(self):
+        """ Type description test """
+        self.fail('Implement me!')
+
+    def test_type_editor(self):
+        """ Content type editor test"""
+        self.fail('Implement me!')
+
+    def test_type_fields(self):
+        """ Content type fields test """
+        self.fail('Implement me!')
 
 
 @attr('schema', 'field')

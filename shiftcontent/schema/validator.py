@@ -13,6 +13,9 @@ class DefinitionSchema(Schema):
     def schema(self):
         self.add_collection('content')
         self.content.schema = TypeSchema()
+        self.content.add_validator(validator.Required(
+            message='Content types can\'t be empty'
+        ))
 
 
 class TypeSchema(Schema):
@@ -40,15 +43,9 @@ class TypeSchema(Schema):
         self.description.add_filter(filter.Strip())
         self.description.add_validator(validator.Required())
 
-        # content type preview url
-        self.add_property('preview')
-        self.preview.add_filter(filter.Strip())
-        # todo: url must be valid
-
         # content type editor
         self.add_property('editor')
         self.editor.add_filter(filter.Strip())
-        self.editor.add_validator(validator.Required())
         # todo: editor must be importable
 
         # content type fields

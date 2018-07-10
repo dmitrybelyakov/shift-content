@@ -5,7 +5,6 @@ content:
   - name: Markdown
     handle: markdown
     description: This is a very simple markdown text container
-    preview: http://screenshot.jpg
     editor: shiftcontent.editor.Default
     fields:
         - name: Body
@@ -18,7 +17,6 @@ content:
   - name: Plain Text
     handle: plain_text
     description: This is a very simple plain text text container
-    preview: http://screenshot.jpg
     editor: shiftcontent.editor.Default
     fields:
         - name: Body
