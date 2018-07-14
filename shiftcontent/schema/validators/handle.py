@@ -22,12 +22,13 @@ class Handle(AbstractValidator):
         if message:
             self.invalid_name = message
 
-    def validate(self, value, context=None):
+    def validate(self, value, model=None, context=None):
         """
         Validate
         Performs validation and return an error object
 
         :param value: str, value being validated
+        :param model: obj or None, model being validated
         :param context: obj or None, validation context
         :return: shiftschema.results.SimpleResult
         """

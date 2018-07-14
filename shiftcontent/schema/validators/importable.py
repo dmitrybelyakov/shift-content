@@ -48,12 +48,13 @@ class Importable(AbstractValidator):
         except AttributeError as e:
             raise ImportError(e)
 
-    def validate(self, value, context=None):
+    def validate(self, value, model=None, context=None):
         """
         Validate
         Performs validation and return an error object
 
         :param value: str, value being validated
+        :param model: obj or None, validation context
         :param context: obj or None, validation context
         :return: shiftschema.results.SimpleResult
         """

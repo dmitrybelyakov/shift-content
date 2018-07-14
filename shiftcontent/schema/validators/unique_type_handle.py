@@ -20,17 +20,18 @@ class UniqueTypeHandle(AbstractValidator):
         if message:
             self.handle_not_unique = message
 
-    def validate(self, value, context=None):
+    def validate(self, value, model=None, context=None):
         """
         Validate
         Performs validation and return an error object
 
         :param value: str, value being validated
+        :param model: obj or None, model being validated
         :param context: obj or None, validation context
         :return: shiftschema.results.SimpleResult
         """
         count = 0
-        types = context['content'] if 'content' in context else None
+        types = context['content'] if context and 'content' in context else None
         if types:
             count = reduce(
                 lambda a, c: a + 1 if c['handle'] == value else a,

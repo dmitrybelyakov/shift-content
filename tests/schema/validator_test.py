@@ -54,7 +54,7 @@ class TypeSchemaTest(BaseTestCase):
         definition = dict(name='Content Type')
         context = dict(content=[definition, definition])
         schema = TypeSchema()
-        result = schema.process(definition, context)
+        result = schema.process(definition, context=context)
         errors = result.get_messages()
         self.assertIn('is not unique', errors['name'][0])
 
@@ -88,7 +88,7 @@ class TypeSchemaTest(BaseTestCase):
         definition = dict(handle='type_handle')
         context = dict(content=[definition, definition])
         schema = TypeSchema()
-        result = schema.process(definition, context)
+        result = schema.process(definition, context=context)
         errors = result.get_messages()
         self.assertIn('is not unique', errors['handle'][0])
 

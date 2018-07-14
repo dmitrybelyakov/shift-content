@@ -4,11 +4,11 @@ coveralls==0.5
 
 # project
 blinker==1.4
-shiftschema==0.1.4
+shiftschema>=0.2.0,<0.3.0
 hiredis==0.2.0
 PyYAML==3.12
 click==6.6
 arrow==0.12.1
 SQLAlchemy==1.2.6
-shiftevent==0.0.3
+shiftevent==0.0.4
 elasticsearch>=6.0.0,<7.0.0
