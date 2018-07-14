@@ -156,7 +156,23 @@ class FieldSchemaTest(BaseTestCase):
 
     def test_field_names_are_unique(self):
         """ Field names are unique within type """
-        self.fail('Implement me!')
+        field = dict(
+            name='Body',
+            handle='body',
+            type='text'
+        )
+        definition = dict(
+            name='Text',
+            handle='text',
+            description='some description',
+            editor='shiftcontent.editor.Editor',
+            fields=[field, field]
+        )
+        schema = FieldSchema()
+        result = schema.process(field, context=definition)
+        errors = result.get_messages()
+        self.assertFalse(result)
+        self.assertIn('name', errors)
 
     def test_field_handle(self):
         """ Filed handle test """
@@ -184,7 +200,23 @@ class FieldSchemaTest(BaseTestCase):
 
     def test_field_handles_are_unique(self):
         """ Field handles are unique within type """
-        self.fail('Implement me!')
+        field = dict(
+            name='Body',
+            handle='body',
+            type='text'
+        )
+        definition = dict(
+            name='Text',
+            handle='text',
+            description='some description',
+            editor='shiftcontent.editor.Editor',
+            fields=[field, field]
+        )
+        schema = FieldSchema()
+        result = schema.process(field, context=definition)
+        errors = result.get_messages()
+        self.assertFalse(result)
+        self.assertIn('handle', errors)
 
     def test_field_description(self):
         """ Field description test """

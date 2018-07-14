@@ -1,15 +1,21 @@
-from shiftschema.schema import Schema
 from shiftschema import validators as validator
 from shiftschema import filters as filter
 
 from shiftcontent.schema import validators as content_validators
+from shiftcontent.schema.base import BaseSchema
 
 
-class DefinitionSchema(Schema):
+class DefinitionSchema(BaseSchema):
     """
     Content definition schema
     Used to validate content type definitions
     """
+    def validate_collections(self, model, context=None):
+        """
+        Use definition as context for nested collections (types need that)
+        """
+        return super().validate_collections(model, model)
+
     def schema(self):
         self.add_collection('content')
         self.content.schema = TypeSchema()
@@ -18,12 +24,16 @@ class DefinitionSchema(Schema):
         ))
 
 
-class TypeSchema(Schema):
+class TypeSchema(BaseSchema):
     """
     Type schema
     Used to validate content types. This will be applied to every content type
     in the collection.
     """
+    def validate_collections(self, model, context=None):
+        """ Use type as context for nested collections (fields rely on that)"""
+        return super().validate_collections(model, model)
+
     def schema(self):
         # content type name
         self.add_property('name')
@@ -64,7 +74,7 @@ class TypeSchema(Schema):
         ))
 
 
-class FieldSchema(Schema):
+class FieldSchema(BaseSchema):
     """
     Field schema
     Used to validate fields attached to content types. This will be run for
@@ -74,19 +84,19 @@ class FieldSchema(Schema):
         # field name
         self.add_property('name')
         self.name.add_filter(filter.Strip())
+        self.name.add_validator(content_validators.UniqueFieldName())
         self.name.add_validator(validator.Required(
             message='Field requires a name'
         ))
-        # todo: name must be unique
 
         # field handle
         self.add_property('handle')
         self.handle.add_filter(filter.Strip())
         self.handle.add_validator(content_validators.Handle())
+        self.handle.add_validator(content_validators.UniqueFieldHandle())
         self.handle.add_validator(validator.Required(
             message='Field requires a handle'
         ))
-        # todo: handle must be unique
 
         # field description
         self.add_property('description')
@@ -108,7 +118,7 @@ class FieldSchema(Schema):
         self.validators.schema = ValidatorSchema()
 
 
-class FilterSchema(Schema):
+class FilterSchema(BaseSchema):
     """
     Filter schema
     Used to validate filter definitions attached to content type fields.
@@ -125,7 +135,7 @@ class FilterSchema(Schema):
         # todo: filters must be instantiatable with params
 
 
-class ValidatorSchema(Schema):
+class ValidatorSchema(BaseSchema):
     """
     Validator schema
     Used to validate validator definitions attached to content type fields.
