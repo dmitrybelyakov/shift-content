@@ -45,7 +45,7 @@ class ContentServiceTest(BaseTestCase):
             created= datetime.utcnow(),
             object_id=object_id,
             type='plain_text',
-            data='{"data": "field"}'
+            data='{"body": "some content"}'
         )
 
         # insert
@@ -57,6 +57,29 @@ class ContentServiceTest(BaseTestCase):
         service = self.get_service()
         item = service.get_item(object_id=object_id)
         self.assertIsInstance(item, Item)
+
+    def test_fail_to_initialize_an_item_from_database_if_type_is_unknown(self):
+        """ Fail to initialize item from database if type not in schema """
+        object_id = str(uuid1())
+        data = dict(
+            author=123,
+            created= datetime.utcnow(),
+            object_id=object_id,
+            type='nonexistent',
+            data='{"body": "some content"}'
+        )
+
+        # insert
+        items = self.db.tables['items']
+        with self.db.engine.begin() as conn:
+            conn.execute(items.insert(), **data)
+
+        # now get it
+        service = self.get_service()
+        with self.assertRaises(x.UndefinedContentType) as cm:
+            service.get_item(object_id=object_id)
+        err = 'Database contains item (1) of undefined type [nonexistent]'
+        self.assertIn(err, str(cm.exception))
 
     def test_create_content_item(self):
         """ Create a simple content item """

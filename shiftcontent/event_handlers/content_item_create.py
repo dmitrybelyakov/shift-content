@@ -18,6 +18,7 @@ class ContentItemCreate(BaseHandler):
         :return: shiftcontent.events.event.Event
         """
         item = Item(
+            fields=event.payload['data'].keys(),
             author=event.author,
             object_id=event.object_id,
             type=event.payload['type'],

@@ -21,7 +21,7 @@ class UnableToRegisterSchemaRevision(ContentException, RuntimeError):
 
 
 class UndefinedContentType(ContentException, RuntimeError):
-    """ Raised when requesting schema for nonexistent content type """
+    """ Raised when discovered a nonexistent content type  """
     pass
 
 

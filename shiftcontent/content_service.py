@@ -41,7 +41,15 @@ class ContentService:
             result = conn.execute(query).fetchone()
             if not result:
                 return
-            item = Item(**dict(result))
+
+            try:
+                content_type = self.schema_service.get_type_schema(result.type)
+            except x.UndefinedContentType:
+                msg = 'Database contains item ({}) of undefined type [{}]'
+                raise x.UndefinedContentType(msg.format(result.id, result.type))
+
+            fields = [field['handle'] for field in content_type['fields']]
+            item = Item(fields=fields, **dict(result))
             return item
 
     def create_item(self, author, content_type, data, parent=None):
@@ -76,8 +84,8 @@ class ContentService:
         return self.get_item(event.object_id)
 
         # todo: who's responsibility is it to update caches?
-        # todo: content service or event handler? - content service!
-
+        # todo: content service or event handler? - not content service!
+        # todo: time travelling should also update caches
 
         # todo: filter and validate data
         # todo: send event
@@ -90,9 +98,6 @@ class ContentService:
         # todo: how events are replayed?
         # todo: we replay by sequentially firing events
         # todo: then handlers get executed to perform actions on db
-        # todo: are event handlers async?
-        # todo: if we are how can we return an item here? and do we?
-        # todo: or should we just return an id here?
 
     def save_item(self, content_type, author, data):
         pass

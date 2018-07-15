@@ -12,14 +12,13 @@ class Item:
     # item props, initialized at instance level
     props = dict()
 
-    def __init__(self, *_, **kwargs):
+    def __init__(self, fields, **kwargs):
         """
         Instantiate item
         Can optionally populate itself from kwargs
-        :param _: args, ignored
+        :param fields: list, list of data fields according to content type
         :param kwargs: dict, key-value pairs used to populate the item
         """
-        # init props
         self.props = dict(
             id=None,
             created=None,
@@ -27,8 +26,9 @@ class Item:
             path=None,
             author=None,
             object_id=None,
-            data=None
+            data={field: None for field in fields}
         )
+
         self.from_dict(kwargs)
         if not self.props['created']:
             self.props['created'] = datetime.utcnow()
@@ -52,20 +52,27 @@ class Item:
         return repr.format(self.id, self.object_id)
 
     def __getattr__(self, item):
-        """ Overrides attribute access for getting props """
+        """ Overrides attribute access for getting props and data fields  """
+        if item == 'props':
+            return self.props
+        if self.props['data'] and item in self.props['data']:
+            return self.props['data'][item]
         if item in self.props:
             return self.props[item]
         return object.__getattribute__(self, item)
 
     def __setattr__(self, key, value):
-        """ Overrides attribute access for setting props"""
+        """ Overrides attribute access for setting props and data fields """
         if key == 'data':
             self.set_data(value)
+        elif 'data' in self.props and key in self.props['data']:
+            self.props['data'][key] = value
         elif key in self.props:
             self.props[key] = value
             return self
         else:
             object.__setattr__(self, key, value)
+
         return self
 
     def set_data(self, data):
@@ -73,7 +80,7 @@ class Item:
         Set data
         Accepts a dictionary and encodes it into a json string for persistence.
         Will raise an exception if data is not a dictionary.
-        :param payload: dict
+        :param data: dict
         :return:
         """
         if type(data) is str:
@@ -85,6 +92,8 @@ class Item:
         if type(data) is not dict:
             msg = 'Data must be a dictionary, got {}'
             raise x.ContentItemError(msg.format(type(data)))
+
+        data = {k: v for k, v in data.items() if k in self.props['data']}
         self.props['data'] = data
         return self
 
@@ -106,7 +115,7 @@ class Item:
     def from_dict(self, data):
         """ Populates itself from a dictionary """
         for prop, val in data.items():
-            if prop in self.props:
+            if prop in self.props or prop in self.props['data']:
                 setattr(self, prop, val)
         return self
 
