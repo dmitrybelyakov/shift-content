@@ -264,6 +264,24 @@ class FilterSchemaTest(BaseTestCase):
         errors = result.get_messages()
         self.assertIn('is not importable', errors['type'][0])
 
+    def test_filter_is_instantiatable(self):
+        """ Filters are instantiatable """
+        schema = FilterSchema()
+        result = schema.validate(dict(
+            type='shiftschema.filters.Linkify',
+            crap=True
+        ))
+        err = result.get_messages()
+        self.assertFalse(result)
+        self.assertIn('type', err)
+        self.assertIn('is not instantiatable', err['type'][0])
+
+        result = schema.validate(dict(
+            type='shiftschema.filters.Linkify',
+            parse_email=True
+        ))
+        self.assertTrue(result)
+
 
 @attr('schema', 'validator')
 class ValidatorSchemaTest(BaseTestCase):
@@ -291,3 +309,22 @@ class ValidatorSchemaTest(BaseTestCase):
         result = schema.process(definition)
         errors = result.get_messages()
         self.assertIn('is not importable', errors['type'][0])
+
+    def test_validator_is_instantiatable(self):
+        """ Validators are instantiatable """
+        schema = ValidatorSchema()
+        result = schema.validate(dict(
+            type='shiftschema.validators.Required',
+            crap=True
+        ))
+        err = result.get_messages()
+        self.assertFalse(result)
+        self.assertIn('type', err)
+        self.assertIn('is not instantiatable', err['type'][0])
+
+        result = schema.validate(dict(
+            type='shiftschema.validators.Required',
+            allow_zero=True
+        ))
+        self.assertTrue(result)
+

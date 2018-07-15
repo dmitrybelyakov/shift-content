@@ -132,7 +132,10 @@ class FilterSchema(BaseSchema):
         self.type.add_validator(content_validators.Importable(
             message='Filter class [{class}] is not importable'
         ))
-        # todo: filters must be instantiatable with params
+        self.type.add_validator(content_validators.Instantiatable(
+            message='Filter [{cls}] is not instantiatable with provided '
+                    'parameters [{params}]'
+        ))
 
 
 class ValidatorSchema(BaseSchema):
@@ -147,9 +150,12 @@ class ValidatorSchema(BaseSchema):
             message='Validator requires a type'
         ))
         self.type.add_validator(content_validators.Importable(
-            message='Validator class [{class}] is not importable'
+            message='Validator class [{cls}] is not importable'
         ))
-        # todo: validators must be instantiatable with params
+        self.type.add_validator(content_validators.Instantiatable(
+            message='Validator [{cls}] is not instantiatable with provided '
+                    'parameters [{params}]'
+        ))
 
 
 
