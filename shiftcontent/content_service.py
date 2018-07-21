@@ -1,11 +1,9 @@
 from uuid import uuid1
 from pprint import pprint as pp
-from shiftschema.schema import Schema
-from shiftschema import filters
-from shiftschema import validators
 from shiftcontent import exceptions as x
 from shiftcontent.item import Item
 from shiftcontent.item_schema import BaseItemSchema
+from shiftcontent.utils import import_by_name
 
 
 class ContentService:
@@ -67,13 +65,31 @@ class ContentService:
         # default schema
         schema = BaseItemSchema()
 
-        # todo: we should decide here on what will be item validation context
-        # todo: it should contain things item validators will need access to
-        # todo: for example, the schema, database, etc
+        # add filter/validators defined in schema
+        definition = self.schema_service.get_type_schema(content_type)
+        for field in definition['fields']:
+            filters = field['filters'] if field['filters'] else ()
+            validators = field['validators'] if field['validators'] else ()
+            if not filters and not validators:
+                continue
 
+            # add prop
+            schema.add_property(field['handle'])
+            prop = getattr(schema, field['handle'])
 
-        # content_type = self.schema_service.get_type_schema(content_type)
+            # add custom filters
+            for params in filters:
+                filter_class = import_by_name(params['type'])
+                del params['type']
+                filter = filter_class(**params)
+                prop.add_filter(filter)
 
+            # add custom validators
+            for params in field['validators']:
+                validator_class = import_by_name(params['type'])
+                del params['type']
+                validator = validator_class(**params)
+                prop.add_validator(validator)
 
         # and return
         return schema

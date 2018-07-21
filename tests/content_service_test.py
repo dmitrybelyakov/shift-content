@@ -109,3 +109,10 @@ class ContentServiceTest(BaseTestCase):
         service = self.get_service()
         schema = service.create_item_schema('plain_text')
         self.assertIsInstance(schema, BaseItemSchema)
+
+        # assert custom filters and validators added to prop
+        self.assertIn('body', schema.properties)
+        prop = getattr(schema, 'body')
+        self.assertEquals(1, len(prop.filters))
+        self.assertEquals(2, len(prop.validators))
+

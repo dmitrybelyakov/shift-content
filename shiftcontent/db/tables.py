@@ -16,7 +16,7 @@ def define_tables(meta):
     # event store tables
     event_tables = define_event_tables(meta)
 
-    # cpntent tables
+    # content tables
     content_tables = dict()
     content_tables['items'] = sa.Table('content_items', meta,
         sa.Column('id', sa.Integer, primary_key=True, autoincrement=True),

@@ -6,7 +6,7 @@ from shiftcontent.schema_service import SchemaService
 from pprint import pprint as pp
 
 
-@attr('item', 'schema', 'zzz')
+@attr('item', 'schema')
 class DefaultItemSchemaTest(BaseTestCase):
 
     def test_create_default_schema(self):
