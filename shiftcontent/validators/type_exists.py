@@ -1,17 +1,15 @@
 from shiftschema.validators.abstract_validator import AbstractValidator
 from shiftschema.result import Error
-from shiftcontent.utils import import_by_name
+import re
 
 
-class Instantiatable(AbstractValidator):
+class TypeExists(AbstractValidator):
     """
-    Instantiatable
-    Checks that filters and validators are instantiatable with all the
-    parameters provided in the schema
+    Type exists validator
+    Checks that content type assigned to an item exists in schema
     """
 
-    not_instantiatable = 'Class [{cls}] is not instantiatable with ' \
-                         'provided parameters [{params}]'
+    type_doesnt_exist = 'Content type [{type}] does not exist.'
 
     def __init__(self, message=None):
         """
@@ -32,19 +30,7 @@ class Instantiatable(AbstractValidator):
         :param context: obj or None, validation context
         :return: shiftschema.results.SimpleResult
         """
-        params = dict()
-        if model:
-            params = {p: v for p, v in model.items() if p != 'type'}
-
-        error_params = dict(cls=value, params=', '.join(params.keys()))
-
-        try:
-            imported = import_by_name(value)
-            imported(**params)
-        except TypeError:
-            return Error(self.not_instantiatable, error_params)
-        except ImportError:
-            return Error(self.not_instantiatable, error_params)
+        
 
         # success otherwise
         return Error()

@@ -1,7 +1,11 @@
 from uuid import uuid1
 from pprint import pprint as pp
+from shiftschema.schema import Schema
+from shiftschema import filters
+from shiftschema import validators
 from shiftcontent import exceptions as x
 from shiftcontent.item import Item
+from shiftcontent.item_schema import BaseItemSchema
 
 
 class ContentService:
@@ -51,6 +55,26 @@ class ContentService:
             fields = [field['handle'] for field in content_type['fields']]
             item = Item(fields=fields, **dict(result))
             return item
+
+    def create_item_schema(self, content_type):
+        """
+        Creates item filtering and validation schema from content type
+        definition.
+
+        :param content_type: str, content type
+        :return: shiftschema.schema.Schema
+        """
+        # default schema
+        schema = BaseItemSchema()
+
+
+        # content_type = self.schema_service.get_type_schema(content_type)
+
+
+        # and return
+        return schema
+
+
 
     def create_item(self, author, content_type, data, parent=None):
         """

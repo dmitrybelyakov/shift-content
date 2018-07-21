@@ -4,12 +4,15 @@ from nose.plugins.attrib import attr
 from pprint import pprint as pp
 from uuid import uuid1
 from datetime import datetime
+from shiftschema.schema import Schema
 from shiftcontent import exceptions as x
 from shiftcontent import ContentService
 from shiftcontent.item import Item
 from shiftcontent import SchemaService
 from shiftevent.event_service import EventService
 from shiftcontent.handlers import content_handlers
+from shiftcontent.item_schema import BaseItemSchema
+from shiftevent.db import Db as EventsDb
 
 
 @attr('content', 'service')
@@ -21,9 +24,13 @@ class ContentServiceTest(BaseTestCase):
 
     def get_service(self):
         """ Configures and returns content service"""
+        event_service = EventService(
+            db=self.event_db,
+            handlers=content_handlers
+        )
         content_service = ContentService(
             db=self.db,
-            event_service=EventService(db=self.db, handlers=content_handlers),
+            event_service=event_service,
             schema_service=SchemaService(self.schema_path, self.revisions_path)
         )
         return content_service
@@ -81,6 +88,7 @@ class ContentServiceTest(BaseTestCase):
         err = 'Database contains item (1) of undefined type [nonexistent]'
         self.assertIn(err, str(cm.exception))
 
+    @attr('zzz')
     def test_create_content_item(self):
         """ Create a simple content item """
         service = self.get_service()
@@ -96,3 +104,9 @@ class ContentServiceTest(BaseTestCase):
         with self.assertRaises(x.UndefinedContentType) as cm:
             service.create_item(author='123', content_type='BAD!', data={})
 
+    def test_creating_item_schema(self):
+        """ Create filtering and validation schema for content item"""
+        service = self.get_service()
+        schema = service.create_item_schema('plain_text')
+        self.assertIsInstance(schema, BaseItemSchema)
+        self.fail()

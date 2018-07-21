@@ -1,7 +1,11 @@
 import unittest
 import os
 import shutil
+from sqlalchemy import MetaData
+from sqlalchemy import create_engine
 from shiftcontent import Db
+from shiftevent.db import Db as EventDb
+
 
 
 class BaseTestCase(unittest.TestCase):
@@ -11,7 +15,10 @@ class BaseTestCase(unittest.TestCase):
     back test SQLite database between tests
     """
 
+    meta = None
+    db_engine = None
     db = None
+    event_db = None
 
     def setUp(self):
         """
@@ -20,7 +27,14 @@ class BaseTestCase(unittest.TestCase):
         """
         super().setUp()
         self.tmp
-        self.db = Db(self.db_url)
+
+        # setup db
+        # todo: this is a bit tricky with shiftevent being separate
+        # todo: how do we simplify this?
+        self.db_engine = create_engine(self.db_url)
+        self.meta = MetaData(bind=self.db_engine)
+        self.db = Db(engine=self.db_engine, meta=self.meta)
+        self.event_db = EventDb(engine=self.db_engine, meta=self.meta)
         self.create_db()
 
     def tearDown(self):
@@ -84,7 +98,7 @@ class BaseTestCase(unittest.TestCase):
             return
 
         # otherwise create
-        self.db.meta.create_all()
+        self.meta.create_all()
         shutil.copyfile(self.db_path, self.db_path + '.bak')
 
     def refresh_db(self, force=False):
