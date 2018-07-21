@@ -67,6 +67,10 @@ class ContentService:
         # default schema
         schema = BaseItemSchema()
 
+        # todo: we should decide here on what will be item validation context
+        # todo: it should contain things item validators will need access to
+        # todo: for example, the schema, database, etc
+
 
         # content_type = self.schema_service.get_type_schema(content_type)
 

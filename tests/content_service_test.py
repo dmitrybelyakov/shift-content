@@ -24,6 +24,11 @@ class ContentServiceTest(BaseTestCase):
 
     def get_service(self):
         """ Configures and returns content service"""
+
+        # IMPORTANT: we have to make sure the same content db instance is passed
+        # to event service. It is what gets passed to event handlers as db, and
+        # handlers have to have access to content tables
+
         content_service = ContentService(
             db=self.db,
             event_service=EventService(self.db, handlers=content_handlers),
