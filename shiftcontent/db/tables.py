@@ -1,5 +1,6 @@
 import sqlalchemy as sa
 from pprint import pprint as pp
+from shiftevent.db import define_tables as define_event_tables
 
 
 def define_tables(meta):
@@ -11,10 +12,13 @@ def define_tables(meta):
     :param meta: metadata catalogue to add to
     :return: dict
     """
-    tables = dict()
 
-    # items
-    tables['items'] = sa.Table('content_items', meta,
+    # event store tables
+    event_tables = define_event_tables(meta)
+
+    # cpntent tables
+    content_tables = dict()
+    content_tables['items'] = sa.Table('content_items', meta,
         sa.Column('id', sa.Integer, primary_key=True, autoincrement=True),
         sa.Column('created', sa.DateTime, nullable=False, index=True),
         sa.Column('type', sa.String(256), nullable=False, index=True),
@@ -24,5 +28,6 @@ def define_tables(meta):
         sa.Column('data', sa.Text),
     )
 
+    tables = {**content_tables, **event_tables}
     return tables
 
