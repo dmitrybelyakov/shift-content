@@ -92,7 +92,7 @@ class BaseTestCase(unittest.TestCase):
             return
 
         # otherwise create
-        self.meta.create_all()
+        self.db.meta.create_all()
         shutil.copyfile(self.db_path, self.db_path + '.bak')
 
     def refresh_db(self, force=False):
