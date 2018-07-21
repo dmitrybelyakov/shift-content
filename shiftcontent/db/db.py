@@ -4,8 +4,9 @@ from sqlalchemy import create_engine
 from sqlalchemy import MetaData
 from sqlalchemy import sql
 from sqlalchemy import desc, asc
-from shiftcontent.db.tables import define_tables
 from shiftcontent import exceptions as x
+from shiftcontent.db.tables import define_tables as define_content_tables
+from shiftevent.db import define_tables as define_event_tables
 
 
 class Db:
@@ -42,7 +43,10 @@ class Db:
         self.db_params = db_params
         self._engine = engine
         self._meta = meta
-        self.tables = define_tables(self.meta)
+
+        content_tables = define_content_tables(self.meta)
+        event_tables = define_event_tables(self.meta)
+        self.tables = {**content_tables, **event_tables}
 
     @property
     def engine(self):

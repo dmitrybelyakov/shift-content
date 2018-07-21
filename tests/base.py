@@ -16,9 +16,7 @@ class BaseTestCase(unittest.TestCase):
     """
 
     meta = None
-    db_engine = None
     db = None
-    event_db = None
 
     def setUp(self):
         """
@@ -29,12 +27,11 @@ class BaseTestCase(unittest.TestCase):
         self.tmp
 
         # setup db
-        # todo: this is a bit tricky with shiftevent being separate
-        # todo: how do we simplify this?
         self.db_engine = create_engine(self.db_url)
         self.meta = MetaData(bind=self.db_engine)
         self.db = Db(engine=self.db_engine, meta=self.meta)
-        self.event_db = EventDb(engine=self.db_engine, meta=self.meta)
+
+        # create db now
         self.create_db()
 
     def tearDown(self):

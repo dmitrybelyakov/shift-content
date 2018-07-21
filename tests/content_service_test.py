@@ -24,13 +24,9 @@ class ContentServiceTest(BaseTestCase):
 
     def get_service(self):
         """ Configures and returns content service"""
-        event_service = EventService(
-            db=self.event_db,
-            handlers=content_handlers
-        )
         content_service = ContentService(
             db=self.db,
-            event_service=event_service,
+            event_service=EventService(self.db, handlers=content_handlers),
             schema_service=SchemaService(self.schema_path, self.revisions_path)
         )
         return content_service
@@ -88,7 +84,6 @@ class ContentServiceTest(BaseTestCase):
         err = 'Database contains item (1) of undefined type [nonexistent]'
         self.assertIn(err, str(cm.exception))
 
-    @attr('zzz')
     def test_create_content_item(self):
         """ Create a simple content item """
         service = self.get_service()
@@ -109,4 +104,3 @@ class ContentServiceTest(BaseTestCase):
         service = self.get_service()
         schema = service.create_item_schema('plain_text')
         self.assertIsInstance(schema, BaseItemSchema)
-        self.fail()

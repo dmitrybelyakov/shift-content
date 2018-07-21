@@ -25,9 +25,6 @@ class ContentItemCreate(BaseHandler):
             data=event.payload['data']
         )
 
-        # persist
-        print(self.db)
-
         items = self.db.tables['items']
         with self.db.engine.begin() as conn:
             result = conn.execute(items.insert(), **item.to_db())
