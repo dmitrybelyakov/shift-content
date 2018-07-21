@@ -22,6 +22,12 @@ class DbTest(BaseTestCase):
         with self.assertRaises(x.DatabaseError):
             Db()
 
+    def test_event_table_definitions_are_attached_to_meta(self):
+        """ DB imports event table definition into content metadatata """
+        db = Db('sqlite:///:memory:')
+        self.assertIn('content_items', db.meta.tables)
+        self.assertIn('event_store', db.meta.tables)
+
     def test_create_engine(self):
         """ Creating enginne on first access"""
         db = Db('sqlite:///:memory:', echo=True)

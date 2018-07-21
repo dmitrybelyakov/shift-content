@@ -15,7 +15,6 @@ class BaseTestCase(unittest.TestCase):
     back test SQLite database between tests
     """
 
-    meta = None
     db = None
 
     def setUp(self):
@@ -27,9 +26,7 @@ class BaseTestCase(unittest.TestCase):
         self.tmp
 
         # setup db
-        self.db_engine = create_engine(self.db_url)
-        self.meta = MetaData(bind=self.db_engine)
-        self.db = Db(engine=self.db_engine, meta=self.meta)
+        self.db = Db(self.db_url)
 
         # create db now
         self.create_db()
