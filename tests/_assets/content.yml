@@ -30,7 +30,7 @@ content:
             - type: shiftschema.validators.NotEmpty
             - type: shiftschema.validators.Length
               min: 2
-              max: 20
+              max: 40
 
 
 

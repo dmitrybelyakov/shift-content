@@ -4,6 +4,15 @@ import copy
 from datetime import datetime
 
 
+
+# todo: problem - we don not want item to require fields
+# todo: otherwise the list of fields will have to be saved in every event
+# todo: this will cause issues when content definition changes
+# todo: we will have to have globally accessible initialized services
+# todo: so that item can access fields and event handlers access cahe, db, etc
+
+
+
 class Item:
     """
     Content item
@@ -12,11 +21,11 @@ class Item:
     # item props, initialized at instance level
     props = dict()
 
-    def __init__(self, fields, **kwargs):
+    def __init__(self, fields=(), **kwargs):
         """
         Instantiate item
         Can optionally populate itself from kwargs
-        :param fields: list, list of data fields according to content type
+        :param fields: list, data fields according to content type
         :param kwargs: dict, key-value pairs used to populate the item
         """
         self.props = dict(

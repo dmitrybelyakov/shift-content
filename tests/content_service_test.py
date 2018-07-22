@@ -95,9 +95,19 @@ class ContentServiceTest(BaseTestCase):
         service = self.get_service()
         type = 'plain_text'
         author = 123
-        data = dict(body='I am a simple content item')
+        data = dict(body='   I am a simple content item    ')
         item = service.create_item(author=author, content_type=type, data=data)
         self.assertEquals(1, item.id)
+
+
+
+    # def test_created_item_filtered(self):
+    #     """ Incoming data is filtered with schema when creeating item """
+    #     self.fail('Implement me!')
+    #
+    # def test_return_validation_result_when_creating_with_invalid_data(self):
+    #     """ Return validation errors when creating item with bad data """
+    #     self.fail('Implement me!')
 
     def test_raise_when_creating_an_item_of_undefined_type(self):
         """ Raise when creating content item of undefined type """

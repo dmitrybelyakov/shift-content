@@ -30,7 +30,7 @@ class TypeExists(AbstractValidator):
         :param context: obj or None, validation context
         :return: shiftschema.results.SimpleResult
         """
-        schema = context['content_schema']
+        schema = context['definition']
         if value not in schema.keys():
             params = dict(type=value)
             return Error(self.type_doesnt_exist, params)

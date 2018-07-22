@@ -9,6 +9,9 @@ from shiftcontent import exceptions as x
 from shiftcontent.schema import validator
 
 
+# TODO: RENAME SCHEMA SERVICE TO DEFINITION SERVICE
+# TODO: TO AVOID CONFUSION WITH VALIDATION SCHEMAS
+
 class SchemaService:
     """
     Schema service

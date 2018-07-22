@@ -39,7 +39,7 @@ class ItemSchemaTest(BaseTestCase):
         """ Default item schema: content type must exist """
         schema_service = SchemaService(self.schema_path, self.revisions_path)
         context = dict(
-            content_schema=schema_service.schema
+            definition=schema_service.schema
         )
 
         data = dict(

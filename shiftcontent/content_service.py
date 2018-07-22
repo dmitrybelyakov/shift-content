@@ -111,7 +111,7 @@ class ContentService:
         """
         Create item
         Validates incoming data and returns validation errors. If data valid,
-        emits a conten item creation event and then after the handlers run,
+        emits a content item creation event and then after the handlers run,
         fetches the item by object_id
 
         :param author: str, author id
@@ -120,22 +120,31 @@ class ContentService:
         :param parent: shiftcontent.item.Item, parent item
         :return:
         """
-        item_data = dict(
+        # drop nonexistent fields
+        type_definition = self.schema_service.get_type_schema(content_type)
+        valid_fields = [field['handle'] for field in type_definition['fields']]
+        fields = {f: v for f, v in data.items() if f in valid_fields}
 
+        # validate data
+        item_data = dict(
+            type=content_type,
+            author=author,
+            object_id=str(uuid1()),
+            **fields
         )
 
+        context = dict(definition=self.schema_service.schema)
+        schema = self.item_schema(content_type, 'create')
+        result = schema.process(item_data, context)
+        if result is False:
+            return result
 
-        object_id = str(uuid1())
-
-        # create event
-        type = self.schema_service.get_type_schema(content_type)
-        valid = [field['handle'] for field in type['fields']]
-        fields = {f: v for f, v in data.items() if f in valid}
+        # # create event
         event = self.event_service.event(
             author=author,
-            object_id=object_id,
+            object_id=item_data['object_id'],
             type='CONTENT_ITEM_CREATE',
-            payload=dict(type=content_type, data=fields)
+            payload=item_data
         )
 
         # and emit
