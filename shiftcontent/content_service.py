@@ -1,10 +1,11 @@
-from uuid import uuid1
-from pprint import pprint as pp
-from shiftcontent import exceptions as x
-from shiftcontent.item import Item
-from shiftcontent.item_schema import CreateItemSchema, UpdateItemSchema
-from shiftcontent.utils import import_by_name
+# from uuid import uuid1
+# from pprint import pprint as pp
+# from shiftcontent import exceptions as x
+# from shiftcontent.item import Item
+# from shiftcontent.item_schema import CreateItemSchema, UpdateItemSchema
+# from shiftcontent.utils import import_by_name
 
+from shiftcontent import services
 
 class ContentService:
     """
@@ -12,7 +13,7 @@ class ContentService:
     projections to retrieve content, handles content updates via event
     service, monitors and updates in-memory caches and search indexes
     """
-    def __init__(self, db, event_service, schema_service):
+    def __init__(self):
         """
         Initialize content service
         Accepts an initialized database instance, event and schema services
@@ -21,9 +22,8 @@ class ContentService:
         :param event_service: shiftcontent.event_service.EventService
         :param schema_service: shiftcontent.schema_service.SchemaService
         """
-        self.db = db
-        self.event_service = event_service
-        self.schema_service = schema_service
+        pass
+
 
     def get_item(self, object_id):
         """

@@ -1,19 +1,22 @@
+import unittest
 from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
-import shiftschema
-import shiftschema.schema
-from shiftschema.schema import Schema
-
-from shiftcontent.utils import import_by_name
 
 
 @attr('services')
 class ServicesTest(BaseTestCase):
+    """
+    Services test
+    This will check that services are actually importable
+    and there are no circular import errors.
+    """
 
-    def test_importing_from_globals(self):
-        """ Importing from globals """
-        from shiftcontent import services
-        print(globals)
-        import pdb; pdb.set_trace();
+    def test_importing_services(self):
+        """ Importing globally accessible services """
+        from shiftcontent.services import content
+        import shiftcontent.content_service as cs
+        self.assertIsInstance(content, cs.ContentService)
+
+
 
 

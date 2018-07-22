@@ -6,9 +6,9 @@ from uuid import uuid1
 from datetime import datetime
 from shiftschema.schema import Schema
 from shiftcontent import exceptions as x
-from shiftcontent import ContentService
+from shiftcontent.content_service import ContentService
 from shiftcontent.item import Item
-from shiftcontent import SchemaService
+from shiftcontent.schema_service import SchemaService
 from shiftevent.event_service import EventService
 from shiftcontent.handlers import content_handlers
 from shiftcontent.item_schema import UpdateItemSchema, CreateItemSchema

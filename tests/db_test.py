@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.sql.schema import MetaData
 
-from shiftcontent import Db
+from shiftcontent.db.db import Db
 from shiftcontent import exceptions as x
 
 

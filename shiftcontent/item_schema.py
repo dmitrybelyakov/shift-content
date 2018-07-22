@@ -1,8 +1,7 @@
 from shiftschema.schema import Schema
-from shiftschema import filters
 from shiftschema import validators
-
 from shiftcontent.validators import TypeExists
+
 
 class CreateItemSchema(Schema):
     """

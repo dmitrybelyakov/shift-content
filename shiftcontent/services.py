@@ -1,12 +1,9 @@
 from shiftcontent.content_service import ContentService
-from shiftcontent.db.db import Db
 from shiftcontent.schema_service import SchemaService
+from shiftcontent.db.db import Db
+
+content = ContentService()
+db = Db('sqlite://')
+definition = SchemaService('123', '456')
 
 
-content = 'I AM CONTENT SERVICE'
-db = 'I AM DATABASE INSTANCE'
-cache = 'I AM CACHE INSTANCE'
-definition = 'I AM DEFINITION SERVICE'
-
-def test():
-    pass

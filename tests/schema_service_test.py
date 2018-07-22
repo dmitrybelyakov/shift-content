@@ -6,7 +6,7 @@ import hashlib
 import yaml
 import json
 from pprint import pprint as pp
-from shiftcontent import SchemaService
+from shiftcontent.schema_service import SchemaService
 from shiftcontent import exceptions as x
 
 
