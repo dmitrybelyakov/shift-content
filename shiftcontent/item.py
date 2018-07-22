@@ -11,6 +11,12 @@ from datetime import datetime
 # todo: we will have to have globally accessible initialized services
 # todo: so that item can access fields and event handlers access cahe, db, etc
 
+# todo: now how do we do this?
+# todo: it should be importable on module level
+# todo: but then how consumers can redefine these services?
+
+# todo: we can create those globals but then initialize them later with configs
+
 
 
 class Item:
