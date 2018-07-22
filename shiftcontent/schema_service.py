@@ -17,9 +17,18 @@ class SchemaService:
     Schema service
     Responsible for loading ant tracking schema fefinition file updates.
     """
-    def __init__(self, schema_path, revisions_path):
+    def __init__(self, *args, **kwargs):
         """
-        Initialise service
+        Init service
+        If any parameters are given to constructor, a delayed initializer is
+        called withe these parameters.
+        """
+        if args or kwargs:
+            self.init(*args, **kwargs)
+
+    def init(self, schema_path, revisions_path):
+        """
+        Delayed service initializer
         :param schema_path: str, yaml definition file path
         :param known_path: str, where to store known schemas
         """

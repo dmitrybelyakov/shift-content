@@ -1,11 +1,12 @@
-# from uuid import uuid1
-# from pprint import pprint as pp
-# from shiftcontent import exceptions as x
-# from shiftcontent.item import Item
-# from shiftcontent.item_schema import CreateItemSchema, UpdateItemSchema
-# from shiftcontent.utils import import_by_name
+from uuid import uuid1
+from pprint import pprint as pp
+from shiftcontent import exceptions as x
+from shiftcontent.item import Item
+from shiftcontent.item_schema import CreateItemSchema, UpdateItemSchema
+from shiftcontent.utils import import_by_name
 
 from shiftcontent import services
+
 
 class ContentService:
     """
@@ -13,16 +14,7 @@ class ContentService:
     projections to retrieve content, handles content updates via event
     service, monitors and updates in-memory caches and search indexes
     """
-    def __init__(self):
-        """
-        Initialize content service
-        Accepts an initialized database instance, event and schema services
 
-        :param db: shiftcontent.db.db.Db - database instance
-        :param event_service: shiftcontent.event_service.EventService
-        :param schema_service: shiftcontent.schema_service.SchemaService
-        """
-        pass
 
 
     def get_item(self, object_id):
@@ -36,16 +28,17 @@ class ContentService:
         # todo: get from projections if not found
         # todo: put to cache if found in projections
 
+
         # get from projection table
-        items = self.db.tables['items']
-        with self.db.engine.begin() as conn:
+        items = services.db.tables['items']
+        with services.db.engine.begin() as conn:
             query = items.select().where(items.c.object_id == object_id)
             result = conn.execute(query).fetchone()
             if not result:
                 return
 
             try:
-                content_type = self.schema_service.get_type_schema(result.type)
+                content_type = services.definition.get_type_schema(result.type)
             except x.UndefinedContentType:
                 msg = 'Database contains item ({}) of undefined type [{}]'
                 raise x.UndefinedContentType(msg.format(result.id, result.type))
@@ -79,7 +72,7 @@ class ContentService:
         schema = schema_types[schema_type]()
 
         # add filter/validators defined in schema
-        definition = self.schema_service.get_type_schema(content_type)
+        definition = services.definition.get_type_schema(content_type)
         for field in definition['fields']:
             filters = field['filters'] if field['filters'] else ()
             validators = field['validators'] if field['validators'] else ()
@@ -121,7 +114,7 @@ class ContentService:
         :return:
         """
         # drop nonexistent fields
-        type_definition = self.schema_service.get_type_schema(content_type)
+        type_definition = services.definition.get_type_schema(content_type)
         valid_fields = [field['handle'] for field in type_definition['fields']]
         fields = {f: v for f, v in data.items() if f in valid_fields}
 
@@ -133,14 +126,14 @@ class ContentService:
             **fields
         )
 
-        context = dict(definition=self.schema_service.schema)
+        context = dict(definition=services.definition.schema)
         schema = self.item_schema(content_type, 'create')
         result = schema.process(item_data, context)
         if result is False:
             return result
 
         # # create event
-        event = self.event_service.event(
+        event = services.events.event(
             author=author,
             object_id=item_data['object_id'],
             type='CONTENT_ITEM_CREATE',
@@ -148,7 +141,7 @@ class ContentService:
         )
 
         # and emit
-        event = self.event_service.emit(event)
+        event = services.events.emit(event)
         return self.get_item(event.object_id)
 
         # todo: who's responsibility is it to update caches?

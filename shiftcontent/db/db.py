@@ -15,9 +15,18 @@ class Db:
     _meta = None
     _engine = None
 
-    def __init__(self, db_url=None, engine=None, meta=None, **db_params):
+    def __init__(self, *args, **kwargs):
         """
-        Instantiates database object
+        Init database
+        If any parameters are given to constructor, a delayed initializer is
+        called withe these parameters.
+        """
+        if args or kwargs:
+            self.init(*args, **kwargs)
+
+    def init(self, db_url=None, engine=None, meta=None, **db_params):
+        """
+        Delayed initializer
         Accepts database URL to connect to the engine  and a dict of db engine
         params that will be passed to te engine. See sqlalchmy engine docs for
         possible params: http://docs.sqlalchemy.org/en/latest/core/engines.html

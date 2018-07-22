@@ -19,42 +19,49 @@ class DbTest(BaseTestCase):
 
     def test_raise_when_no_engine_or_url(self):
         """ Raise exception when neither db_url nor engine were passed"""
+        db = Db()
         with self.assertRaises(x.DatabaseError):
-            Db()
+            db.init()
 
     def test_event_table_definitions_are_attached_to_meta(self):
         """ DB imports event table definition into content metadatata """
-        db = Db('sqlite:///:memory:')
+        db = Db()
+        db.init('sqlite:///:memory:')
         self.assertIn('content_items', db.meta.tables)
         self.assertIn('event_store', db.meta.tables)
 
     def test_create_engine(self):
         """ Creating enginne on first access"""
-        db = Db('sqlite:///:memory:', echo=True)
+        db = Db()
+        db.init('sqlite:///:memory:', echo=True)
         engine = db.engine
         self.assertIsInstance(engine, Engine)
 
     def test_use_custom_engine(self):
         """ Skip engine creation when passed in """
+        db = Db()
         engine = create_engine(self.db_url)
-        db = Db(engine=engine)
+        db.init(engine=engine)
         self.assertEquals(engine, db.engine)
 
     def test_use_custom_meta(self):
         """ Use custom metadata object """
+        db = Db()
         meta = MetaData()
-        db = Db(self.db_url, meta=meta)
+        db.init(self.db_url, meta=meta)
         self.assertEquals(meta, db.meta)
 
     def test_create_fresh_metadata(self):
         """ Creating metadata object on first access """
-        db = Db(self.db_url)
+        db = Db()
+        db.init(self.db_url)
         meta = db.meta
         self.assertIsInstance(meta, MetaData)
 
     def test_define_tables_upon_db_creation(self):
         """ Load table definitions when instantiating db"""
-        db = Db(self.db_url)
+        db = Db()
+        db.init(self.db_url)
         for table in db.meta.sorted_tables:
             self.assertIn(table, db.tables.values())
 

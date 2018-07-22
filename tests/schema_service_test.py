@@ -15,13 +15,17 @@ class SchemaServiceTest(BaseTestCase):
 
     def test_create_schema_service(self):
         """ Creating schema service"""
-        service = SchemaService(self.schema_path, self.revisions_path)
+        service = SchemaService(
+            schema_path=self.schema_path,
+            revisions_path=self.revisions_path
+        )
         self.assertIsInstance(service, SchemaService)
 
     def test_create_revisions_directory_on_first_access(self):
         """ Create directory for schema revisions if does not exist """
         path = self.revisions_path
-        service = SchemaService(
+        service = SchemaService()
+        service.init(
             schema_path=self.schema_path,
             revisions_path=path
         )
@@ -31,7 +35,8 @@ class SchemaServiceTest(BaseTestCase):
 
     def test_registry_is_empty_if_no_file(self):
         """ Return empty dict if registry file does not exist"""
-        service = SchemaService(
+        service = SchemaService()
+        service.init(
             schema_path=self.schema_path,
             revisions_path=self.revisions_path
         )
@@ -42,7 +47,8 @@ class SchemaServiceTest(BaseTestCase):
 
     def test_load_parse_and_return_existing_registry(self):
         """ Existing registry can be loaded successfully into a dict"""
-        service = SchemaService(
+        service = SchemaService()
+        service.init(
             schema_path=self.schema_path,
             revisions_path=self.revisions_path
         )
@@ -64,7 +70,8 @@ class SchemaServiceTest(BaseTestCase):
 
     def test_raise_when_unable_to_find_schema(self):
         """ Content service raises exception when unable to find schema file"""
-        service = SchemaService(
+        service = SchemaService()
+        service.init(
             schema_path='/nothing/here',
             revisions_path=self.revisions_path
         )
@@ -86,7 +93,8 @@ class SchemaServiceTest(BaseTestCase):
         with open(path, 'w') as stream:
             yaml.dump(invalid, stream)
 
-        service = SchemaService(
+        service = SchemaService()
+        service.init(
             schema_path=path,
             revisions_path=self.revisions_path
         )
@@ -117,7 +125,8 @@ class SchemaServiceTest(BaseTestCase):
         with open(path, 'w') as stream:
             yaml.dump(valid, stream)
 
-        service = SchemaService(
+        service = SchemaService()
+        service.init(
             schema_path=path,
             revisions_path=self.revisions_path
         )
@@ -145,7 +154,8 @@ class SchemaServiceTest(BaseTestCase):
 
     def test_abort_schema_revision_registering_if_no_file(self):
         """ Abord adding revision to registry if file not found"""
-        service = SchemaService(
+        service = SchemaService()
+        service.init(
             schema_path=self.schema_path,
             revisions_path=self.revisions_path
         )
@@ -154,8 +164,9 @@ class SchemaServiceTest(BaseTestCase):
             service.register_revision('nothing.yml')
 
     def test_can_register_schema_revision(self):
-        """ Resgistering schema revision"""
-        service = SchemaService(
+        """ Registering schema revision"""
+        service = SchemaService()
+        service.init(
             schema_path=self.schema_path,
             revisions_path=self.revisions_path
         )
@@ -176,7 +187,8 @@ class SchemaServiceTest(BaseTestCase):
 
     def test_get_content_type_schema_by_handle(self):
         """ Getting content type schema by handle"""
-        service = SchemaService(
+        service = SchemaService()
+        service.init(
             schema_path=self.schema_path,
             revisions_path=self.revisions_path
         )
@@ -187,7 +199,8 @@ class SchemaServiceTest(BaseTestCase):
 
     def test_raise_when_getting_type_schema_for_nonexistent_type(self):
         """ Raise exception when getting type schema for nonexistent type """
-        service = SchemaService(
+        service = SchemaService()
+        service.init(
             schema_path=self.schema_path,
             revisions_path=self.revisions_path
         )

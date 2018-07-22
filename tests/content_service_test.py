@@ -1,40 +1,22 @@
 from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
-
 from pprint import pprint as pp
+
 from uuid import uuid1
 from datetime import datetime
+
+from shiftcontent import services
 from shiftschema.schema import Schema
 from shiftcontent import exceptions as x
 from shiftcontent.content_service import ContentService
 from shiftcontent.item import Item
-from shiftcontent.schema_service import SchemaService
-from shiftevent.event_service import EventService
-from shiftcontent.handlers import content_handlers
+# from shiftcontent.schema_service import SchemaService
+# from shiftevent.event_service import EventService
 from shiftcontent.item_schema import UpdateItemSchema, CreateItemSchema
-from shiftevent.db import Db as EventsDb
 
 
 @attr('content', 'service')
 class ContentServiceTest(BaseTestCase):
-
-    # --------------------------------------------------------------------------
-    # helpers & setuo
-    # --------------------------------------------------------------------------
-
-    def get_service(self):
-        """ Configures and returns content service"""
-
-        # IMPORTANT: we have to make sure the same content db instance is passed
-        # to event service. It is what gets passed to event handlers as db, and
-        # handlers have to have access to content tables
-
-        content_service = ContentService(
-            db=self.db,
-            event_service=EventService(self.db, handlers=content_handlers),
-            schema_service=SchemaService(self.schema_path, self.revisions_path)
-        )
-        return content_service
 
     # --------------------------------------------------------------------------
     # tests
@@ -42,7 +24,7 @@ class ContentServiceTest(BaseTestCase):
 
     def test_create_content_service(self):
         """ Creating content service"""
-        service = self.get_service()
+        service = ContentService()
         self.assertIsInstance(service, ContentService)
 
     def test_get_item(self):
@@ -57,12 +39,12 @@ class ContentServiceTest(BaseTestCase):
         )
 
         # insert
-        items = self.db.tables['items']
-        with self.db.engine.begin() as conn:
+        items = services.db.tables['items']
+        with services.db.engine.begin() as conn:
             conn.execute(items.insert(), **data)
 
         # now get it
-        service = self.get_service()
+        service = services.content
         item = service.get_item(object_id=object_id)
         self.assertIsInstance(item, Item)
 
@@ -78,28 +60,25 @@ class ContentServiceTest(BaseTestCase):
         )
 
         # insert
-        items = self.db.tables['items']
-        with self.db.engine.begin() as conn:
+        items = services.db.tables['items']
+        with services.db.engine.begin() as conn:
             conn.execute(items.insert(), **data)
 
         # now get it
-        service = self.get_service()
         with self.assertRaises(x.UndefinedContentType) as cm:
-            service.get_item(object_id=object_id)
+            services.content.get_item(object_id=object_id)
         err = 'Database contains item (1) of undefined type [nonexistent]'
         self.assertIn(err, str(cm.exception))
 
     @attr('zzz')
     def test_create_content_item(self):
         """ Create a simple content item """
-        service = self.get_service()
+        service = services.content
         type = 'plain_text'
         author = 123
         data = dict(body='   I am a simple content item    ')
         item = service.create_item(author=author, content_type=type, data=data)
         self.assertEquals(1, item.id)
-
-
 
     # def test_created_item_filtered(self):
     #     """ Incoming data is filtered with schema when creeating item """
@@ -111,13 +90,13 @@ class ContentServiceTest(BaseTestCase):
 
     def test_raise_when_creating_an_item_of_undefined_type(self):
         """ Raise when creating content item of undefined type """
-        service = self.get_service()
+        service = services.content
         with self.assertRaises(x.UndefinedContentType) as cm:
             service.create_item(author='123', content_type='BAD!', data={})
 
     def test_creating_item_update_schema(self):
         """ Create schema for content item update """
-        service = self.get_service()
+        service = services.content
         schema = service.item_schema('plain_text', 'update')
         self.assertIsInstance(schema, UpdateItemSchema)
 
@@ -129,7 +108,7 @@ class ContentServiceTest(BaseTestCase):
 
     def test_creating_item_create_schema(self):
         """ Create schema for content item creation """
-        service = self.get_service()
+        service = services.content
         schema = service.item_schema('plain_text', 'create')
         self.assertIsInstance(schema, CreateItemSchema)
 
@@ -141,6 +120,6 @@ class ContentServiceTest(BaseTestCase):
 
     def test_raise_on_requesting_bad_schema_type(self):
         """ Item schema type can be either create or update """
-        service = self.get_service()
+        service = services.content
         with self.assertRaises(x.InvalidItemSchemaType):
             service.item_schema('plain_text', 'BAD')
