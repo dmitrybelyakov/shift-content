@@ -2,7 +2,7 @@ from uuid import uuid1
 from pprint import pprint as pp
 from shiftcontent import exceptions as x
 from shiftcontent.item import Item
-from shiftcontent.item_schema import BaseItemSchema
+from shiftcontent.item_schema import CreateItemSchema, UpdateItemSchema
 from shiftcontent.utils import import_by_name
 
 
@@ -54,16 +54,29 @@ class ContentService:
             item = Item(fields=fields, **dict(result))
             return item
 
-    def create_item_schema(self, content_type):
+    def item_schema(self, content_type, schema_type='update'):
         """
         Creates item filtering and validation schema from content type
-        definition.
+        definition. The schema type can either be 'create' or 'update' where
+        the latter will additionally test for item id being present.
 
         :param content_type: str, content type
+        :param schema_type: str, create or update
         :return: shiftschema.schema.Schema
         """
+
+        # check schema type
+        schema_types = dict(
+            create=CreateItemSchema,
+            update=UpdateItemSchema
+        )
+
+        if schema_type not in schema_types:
+            err = 'Invalid schema type [{}]. Must be "create" or "update"'
+            raise x.InvalidItemSchemaType(err.format(schema_type))
+
         # default schema
-        schema = BaseItemSchema()
+        schema = schema_types[schema_type]()
 
         # add filter/validators defined in schema
         definition = self.schema_service.get_type_schema(content_type)
@@ -94,8 +107,6 @@ class ContentService:
         # and return
         return schema
 
-
-
     def create_item(self, author, content_type, data, parent=None):
         """
         Create item
@@ -109,6 +120,10 @@ class ContentService:
         :param parent: shiftcontent.item.Item, parent item
         :return:
         """
+        item_data = dict(
+
+        )
+
 
         object_id = str(uuid1())
 

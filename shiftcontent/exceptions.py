@@ -20,6 +20,11 @@ class UnableToRegisterSchemaRevision(ContentException, RuntimeError):
     pass
 
 
+class InvalidItemSchemaType(ContentException, RuntimeError):
+    """ Raised when requested creation of item schema with bad type """
+    pass
+
+
 class UndefinedContentType(ContentException, RuntimeError):
     """ Raised when discovered a nonexistent content type  """
     pass

@@ -1,36 +1,36 @@
 from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
-from shiftcontent.item_schema import BaseItemSchema
+from shiftcontent.item_schema import UpdateItemSchema
 from shiftcontent.schema_service import SchemaService
 from pprint import pprint as pp
 
 
 @attr('item', 'schema')
-class DefaultItemSchemaTest(BaseTestCase):
+class ItemSchemaTest(BaseTestCase):
 
     def test_create_default_schema(self):
         """ Creating default content item schema """
-        schema = BaseItemSchema()
-        self.assertIsInstance(schema, BaseItemSchema)
+        schema = UpdateItemSchema()
+        self.assertIsInstance(schema, UpdateItemSchema)
 
     def test_id_field(self):
         """ Default item schema: id field"""
-        schema = BaseItemSchema()
+        schema = UpdateItemSchema()
         result = schema.process(dict())
         self.assertFalse(result)
         self.assertIn('id', result.get_messages())
 
     def test_author_field(self):
         """ Default item schema: author field"""
-        schema = BaseItemSchema()
+        schema = UpdateItemSchema()
         result = schema.process(dict())
         self.assertFalse(result)
         self.assertIn('author', result.get_messages())
 
     def test_type_field(self):
         """ Default item schema: type field"""
-        schema = BaseItemSchema()
+        schema = UpdateItemSchema()
         result = schema.process(dict())
         self.assertFalse(result)
         self.assertIn('type', result.get_messages())
@@ -49,7 +49,7 @@ class DefaultItemSchemaTest(BaseTestCase):
             type='nonexistent'
         )
 
-        schema = BaseItemSchema()
+        schema = UpdateItemSchema()
         result = schema.process(model=data, context=context)
         err = result.get_messages()
         self.assertIn('type', err)
@@ -57,7 +57,7 @@ class DefaultItemSchemaTest(BaseTestCase):
 
     def test_object_id_field(self):
         """ Default item schema: object id field"""
-        schema = BaseItemSchema()
+        schema = UpdateItemSchema()
         result = schema.process(dict())
         self.assertFalse(result)
         self.assertIn('object_id', result.get_messages())

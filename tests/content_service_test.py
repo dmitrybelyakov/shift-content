@@ -11,7 +11,7 @@ from shiftcontent.item import Item
 from shiftcontent import SchemaService
 from shiftevent.event_service import EventService
 from shiftcontent.handlers import content_handlers
-from shiftcontent.item_schema import BaseItemSchema
+from shiftcontent.item_schema import UpdateItemSchema, CreateItemSchema
 from shiftevent.db import Db as EventsDb
 
 
@@ -89,6 +89,7 @@ class ContentServiceTest(BaseTestCase):
         err = 'Database contains item (1) of undefined type [nonexistent]'
         self.assertIn(err, str(cm.exception))
 
+    @attr('zzz')
     def test_create_content_item(self):
         """ Create a simple content item """
         service = self.get_service()
@@ -104,11 +105,11 @@ class ContentServiceTest(BaseTestCase):
         with self.assertRaises(x.UndefinedContentType) as cm:
             service.create_item(author='123', content_type='BAD!', data={})
 
-    def test_creating_item_schema(self):
-        """ Create filtering and validation schema for content item"""
+    def test_creating_item_update_schema(self):
+        """ Create schema for content item update """
         service = self.get_service()
-        schema = service.create_item_schema('plain_text')
-        self.assertIsInstance(schema, BaseItemSchema)
+        schema = service.item_schema('plain_text', 'update')
+        self.assertIsInstance(schema, UpdateItemSchema)
 
         # assert custom filters and validators added to prop
         self.assertIn('body', schema.properties)
@@ -116,3 +117,20 @@ class ContentServiceTest(BaseTestCase):
         self.assertEquals(1, len(prop.filters))
         self.assertEquals(2, len(prop.validators))
 
+    def test_creating_item_create_schema(self):
+        """ Create schema for content item creation """
+        service = self.get_service()
+        schema = service.item_schema('plain_text', 'create')
+        self.assertIsInstance(schema, CreateItemSchema)
+
+        # assert custom filters and validators added to prop
+        self.assertIn('body', schema.properties)
+        prop = getattr(schema, 'body')
+        self.assertEquals(1, len(prop.filters))
+        self.assertEquals(2, len(prop.validators))
+
+    def test_raise_on_requesting_bad_schema_type(self):
+        """ Item schema type can be either create or update """
+        service = self.get_service()
+        with self.assertRaises(x.InvalidItemSchemaType):
+            service.item_schema('plain_text', 'BAD')
