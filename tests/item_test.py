@@ -35,19 +35,20 @@ class ItemTest(BaseTestCase):
     def test_item_gets_creation_date_upon_instantiation(self):
         """ Item gets creation date upon instantiating """
         item = Item(type='plain_text')
-        self.assertIsInstance(item.props['created'], datetime)
+        self.assertIsInstance(item.meta['created'], datetime)
 
     def test_property_access(self):
         """ Can use property access for getting item props"""
-        item = Item(type='plain_text')
+        item = Item(type='plain_text', body='copy')
         self.assertIsInstance(item.created, datetime)
+        self.assertEquals('copy', item.body)
 
     def test_property_access_set(self):
         """ Property access for setting item props"""
         dt = 'datetime!'
         item = Item(type='plain_text')
         item.created = dt
-        self.assertEquals(dt, item.props['created'])
+        self.assertEquals(dt, item.meta['created'])
         item.props = 'something'
         self.assertEquals('something', item.props)
 
@@ -56,8 +57,8 @@ class ItemTest(BaseTestCase):
         item = Item(type='plain_text')
         self.assertFalse(hasattr(item, 'whatever'))
 
-    def test_populate_event_from_dict(self):
-        """ Can populate event from dict """
+    def test_populate_item_from_dict(self):
+        """ Can populate item from dict """
         data = dict(
             path="123/456",
             author='1',
@@ -88,7 +89,6 @@ class ItemTest(BaseTestCase):
         """ Getting event as dict """
         item = Item(type='plain_text', data=dict(prop='value'))
         self.assertTrue(type(item.to_dict()) is dict)
-        self.assertTrue(type(item.to_dict()['fields']) is dict)
 
     def test_get_db_representation(self):
         """ Getting db representation of an item """

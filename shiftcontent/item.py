@@ -3,10 +3,7 @@ import json
 import copy
 from datetime import datetime
 from shiftcontent.services import definition
-
-
-
-# TODO: REFACTOR ME I WANNA BE PRETTY
+from pprint import pprint as pp
 
 
 class Item:
@@ -15,10 +12,14 @@ class Item:
     Represents a projection of a content item
     """
 
+    # metadata fields
+    meta = dict()
 
+    # valid custom fields
+    valid_fields = []
 
-    # item props, initialized at instance level
-    props = dict()
+    # custom fields
+    fields = dict()
 
     def __init__(self, type, **kwargs):
         """
@@ -33,33 +34,33 @@ class Item:
             err = 'Unable to create item. Content type [{}] is undefined'
             raise x.ContentItemError(err.format(type))
 
-        item_fields = (field['handle'] for field in type_definition['fields'])
-        self.props = dict(
+        self.meta = dict(
             id=None,
             created=None,
             type=type,
             path=None,
             author=None,
             object_id=None,
-            fields={field: None for field in item_fields}
+            # version=None,
+            # parent_version=None,
+            # status=None,
+            # lat=None,
+            # long=None,
+            # categories=None,
+            # tags=None,
+            # comments=None,
+            # reactions=None,
+            # upvotes=None,
+            # downvotes=None,
         )
 
+        valid_fields = [f['handle'] for f in type_definition['fields']]
+        self.valid_fields = valid_fields
+        self.fields = {field: None for field in self.valid_fields}
+
         self.from_dict(kwargs)
-        if not self.props['created']:
-            self.props['created'] = datetime.utcnow()
-
-        # todo: version
-        # todo: parent_version
-        # todo: status
-
-        # todo: lat
-        # todo: long
-        # todo: categories
-        # todo: tags
-        # todo: comments
-        # todo: reactions [like]
-        # todo: uvotes
-        # todo: downvotes
+        if not self.meta['created']:
+            self.meta['created'] = datetime.utcnow()
 
     def __repr__(self):
         """ Returns printable representation of item """
@@ -68,23 +69,20 @@ class Item:
 
     def __getattr__(self, item):
         """ Overrides attribute access for getting props and fields  """
-        if item == 'props':
-            return self.props
-        if self.props['fields'] and item in self.props['fields']:
-            return self.props['fields'][item]
-        if item in self.props:
-            return self.props[item]
+        if item in self.meta:
+            return self.meta[item]
+        elif item in self.fields:
+            return self.fields[item]
         return object.__getattribute__(self, item)
 
     def __setattr__(self, key, value):
         """ Overrides attribute access for setting props and fields """
         if key == 'fields':
             self.set_fields(value)
-        elif 'fields' in self.props and key in self.props['fields']:
-            self.props['fields'][key] = value
-        elif key in self.props:
-            self.props[key] = value
-            return self
+        elif key in self.valid_fields:
+            self.fields[key] = value
+        elif key in self.meta:
+            self.meta[key] = value
         else:
             object.__setattr__(self, key, value)
 
@@ -108,13 +106,13 @@ class Item:
             msg = 'Fields must be a dictionary, got {}'
             raise x.ContentItemError(msg.format(type(fields)))
 
-        fields = {k: v for k, v in fields.items() if k in self.props['fields']}
-        self.props['fields'] = fields
-        return self
+        for prop, val in fields.items():
+            if prop in self.valid_fields:
+                self.fields[prop] = val
 
     def to_dict(self):
         """ Returns dictionary representation of the item """
-        return copy.copy(self.props)
+        return {**self.meta, **self.fields}
 
     def to_db(self):
         """
@@ -123,14 +121,15 @@ class Item:
         fields are stringified.
         :return:
         """
-        data = self.to_dict()
-        data['fields'] = json.dumps(data['fields'], ensure_ascii=False)
+        data = copy.copy(self.meta)
+        data['fields'] = json.dumps(self.fields, ensure_ascii=False)
         return data
 
     def from_dict(self, data):
         """ Populates itself from a dictionary """
         for prop, val in data.items():
-            if prop in self.props or prop in self.props['fields']:
+            if prop == 'fields' or prop in self.meta or prop in self.fields:
                 setattr(self, prop, val)
+
         return self
 
