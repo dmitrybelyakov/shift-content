@@ -17,6 +17,11 @@ class ServicesTest(BaseTestCase):
         import shiftcontent.content_service as cs
         self.assertIsInstance(content, cs.ContentService)
 
+    def test_module_level_properties_instantiate_only_once(self):
+        """ Instantiate services once only for module-level property access """
+        from shiftcontent import services
+        self.assertTrue(services.content is services.content)
+
 
 
 
