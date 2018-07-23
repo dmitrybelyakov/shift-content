@@ -7,35 +7,45 @@ from datetime import datetime
 from pprint import pprint as pp
 
 
-
 @attr('item')
 class ItemTest(BaseTestCase):
 
     def test_instantiating_event(self):
         """ Instantiating item """
-        item = Item(fields=['body'])
+        item = Item(type='plain_text')
         self.assertIsInstance(item, Item)
+
+    def test_initialize_item_fields_from_type(self):
+        """ Initializing item fields from type upon creation """
+        item = Item('plain_text')
+        self.assertIn('body', item.data)
+
+    def test_raise_when_creating_item_of_undefined_type(self):
+        """ Raise when creating item of undefined type """
+        with self.assertRaises(x.ContentItemError) as cm:
+            Item('lol')
+        self.assertIn('is undefined', str(cm.exception))
 
     def test_printable_repr(self):
         """ Getting printable representation of an item """
-        item = Item(fields=['body'])
+        item = Item(type='plain_text')
         repr = item.__repr__()
         self.assertIn('<ContentItem', repr)
 
-    def test_event_gets_creation_date_upon_instantiation(self):
-        """ Event gets creation date upon instantiating """
-        item = Item(fields=['body'])
+    def test_item_gets_creation_date_upon_instantiation(self):
+        """ Item gets creation date upon instantiating """
+        item = Item(type='plain_text')
         self.assertIsInstance(item.props['created'], datetime)
 
     def test_property_access(self):
         """ Can use property access for getting item props"""
-        item = Item(fields=['body'])
+        item = Item(type='plain_text')
         self.assertIsInstance(item.created, datetime)
 
     def test_property_access_set(self):
         """ Property access for setting item props"""
         dt = 'datetime!'
-        item = Item(fields=['body'])
+        item = Item(type='plain_text')
         item.created = dt
         self.assertEquals(dt, item.props['created'])
         item.props = 'something'
@@ -43,7 +53,7 @@ class ItemTest(BaseTestCase):
 
     def test_can_check_for_attribute_presence(self):
         """ Can use hasattr to check for prop existence"""
-        item = Item(fields=['body'])
+        item = Item(type='plain_text')
         self.assertFalse(hasattr(item, 'whatever'))
 
     def test_populate_event_from_dict(self):
@@ -55,40 +65,40 @@ class ItemTest(BaseTestCase):
             data={'body': 'some payload'}
         )
 
-        item = Item(fields=['body'], **data)
+        item = Item(type='plain_text', **data)
         for prop in data.keys():
             self.assertEquals(data[prop], getattr(item, prop))
 
     def test_fail_to_set_nonexistent_data_field(self):
         """ Data fields that weren't initialized can't be set """
-        item = Item(fields=['a_field'])
+        item = Item(type='plain_text')
         item.not_initialized = 'some value'
         self.assertNotIn('not_initialized', item.data.keys())
 
     def test_fail_to_set_nonexistent_field_when_bulk_setting_data(self):
         """ Setting data skips uninitialized fields """
-        data = dict(a_field='some_value', undefined='some other vaue')
-        item = Item(fields=['a_field'])
+        data = dict(body='some_value', undefined='some other value')
+        item = Item(type='plain_text')
         item.set_data(data)
-        self.assertIn('a_field', item.data.keys())
-        self.assertEquals(data['a_field'], item.a_field)
+        self.assertIn('body', item.data.keys())
+        self.assertEquals(data['body'], item.body)
         self.assertNotIn('undefined', item.data.keys())
 
     def test_getting_item_as_dict(self):
         """ Getting event as dict """
-        item = Item(fields=['body'], data=dict(prop='value'))
+        item = Item(type='plain_text', data=dict(prop='value'))
         self.assertTrue(type(item.to_dict()) is dict)
         self.assertTrue(type(item.to_dict()['data']) is dict)
 
     def test_get_db_representation(self):
         """ Getting db representation of an item """
-        item = Item(fields=['body'], data=dict(body='value'))
+        item = Item(type='plain_text', data=dict(body='value'))
         result = item.to_db()
         self.assertTrue(type(result['data']) is str)
 
     def test_raise_when_setting_non_dictionary_data(self):
         """ Raise when setting a payload that is not a dict """
-        item = Item(fields=['body'])
+        item = Item(type='plain_text')
         with self.assertRaises(x.ContentItemError) as cm:
             item.data = [123]
 
@@ -96,38 +106,34 @@ class ItemTest(BaseTestCase):
 
     def test_raise_when_fails_to_decode_data_string(self):
         """ Raise when data string can not be decoded """
-        item = Item(fields=['body'])
+        item = Item(type='plain_text')
         with self.assertRaises(x.ContentItemError) as cm:
             item.data = 'no-a-json-string'
         self.assertIn('Failed to decode data string', str(cm.exception))
 
     def test_getting_item_data(self):
         """ Getting event payload """
-        data = dict(body='payload_goes_here')
-        item = Item(fields=['body'], data=data)
+        item = Item(type="plain_text")
         self.assertTrue(type(item.data) is dict)
 
     def test_getting_data_field(self):
         """ Getting data fields directly  """
         data = dict(
             id=1234,
-            type='markdown',
             author='1234',
             object_id='12345-67890',
             data=dict(
-                title='I am a content item',
                 body='I have some body text'
             )
         )
 
-        item = Item(fields=['title', 'body'], **data)
-        self.assertEquals(data['data']['title'], item.title)
+        item = Item(type='plain_text', **data)
         self.assertEquals(data['data']['body'], item.body)
 
     def test_setting_data_field(self):
         """ Setting data fields """
-        item = Item(fields=['a_field'])
-        item.a_field = 'some value'
-        self.assertEquals('some value', item.data['a_field'])
-        self.assertEquals('some value', item.a_field)
+        item = Item(type='plain_text')
+        item.body = 'some value'
+        self.assertEquals('some value', item.data['body'])
+        self.assertEquals('some value', item.body)
 

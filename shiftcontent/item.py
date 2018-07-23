@@ -2,21 +2,11 @@ from shiftcontent import exceptions as x
 import json
 import copy
 from datetime import datetime
+from shiftcontent.services import definition
 
 
 
-# todo: problem - we don not want item to require fields
-# todo: otherwise the list of fields will have to be saved in every event
-# todo: this will cause issues when content definition changes
-# todo: we will have to have globally accessible initialized services
-# todo: so that item can access fields and event handlers access cahe, db, etc
-
-# todo: now how do we do this?
-# todo: it should be importable on module level
-# todo: but then how consumers can redefine these services?
-
-# todo: we can create those globals but then initialize them later with configs
-
+# TODO: REFACTOR ME I WANNA BE PRETTY
 
 
 class Item:
@@ -27,21 +17,28 @@ class Item:
     # item props, initialized at instance level
     props = dict()
 
-    def __init__(self, fields=(), **kwargs):
+    def __init__(self, type, **kwargs):
         """
         Instantiate item
         Can optionally populate itself from kwargs
-        :param fields: list, data fields according to content type
+        :param type: str, content type of the item
         :param kwargs: dict, key-value pairs used to populate the item
         """
+        try:
+            type_definition = definition.get_type_schema(type)
+        except x.UndefinedContentType:
+            err = 'Unable to create item. Content type [{}] is undefined'
+            raise x.ContentItemError(err.format(type))
+
+        item_fields = (field['handle'] for field in type_definition['fields'])
         self.props = dict(
             id=None,
             created=None,
-            type=None,
+            type=type,
             path=None,
             author=None,
             object_id=None,
-            data={field: None for field in fields}
+            data={field: None for field in item_fields}
         )
 
         self.from_dict(kwargs)

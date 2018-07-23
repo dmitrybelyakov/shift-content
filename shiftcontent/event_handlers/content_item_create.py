@@ -18,8 +18,10 @@ class ContentItemCreate(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
+        type = event.payload['type']
+        del event.payload['type']
         item = Item(
-            fields=(),
+            type=type,
             **event.payload
         )
 

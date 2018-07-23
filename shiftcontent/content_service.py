@@ -16,7 +16,6 @@ class ContentService:
     """
 
 
-
     def get_item(self, object_id):
         """
         Get item
@@ -57,7 +56,6 @@ class ContentService:
         :param schema_type: str, create or update
         :return: shiftschema.schema.Schema
         """
-
         # check schema type
         schema_types = dict(
             create=CreateItemSchema,
@@ -73,6 +71,7 @@ class ContentService:
 
         # add filter/validators defined in schema
         definition = services.definition.get_type_schema(content_type)
+
         for field in definition['fields']:
             filters = field['filters'] if field['filters'] else ()
             validators = field['validators'] if field['validators'] else ()
@@ -129,7 +128,7 @@ class ContentService:
         context = dict(definition=services.definition.schema)
         schema = self.item_schema(content_type, 'create')
         result = schema.process(item_data, context)
-        if result is False:
+        if not result:
             return result
 
         # # create event

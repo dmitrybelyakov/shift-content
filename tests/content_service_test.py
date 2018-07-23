@@ -6,12 +6,10 @@ from uuid import uuid1
 from datetime import datetime
 
 from shiftcontent import services
-from shiftschema.schema import Schema
+from shiftschema.schema import Result
 from shiftcontent import exceptions as x
 from shiftcontent.content_service import ContentService
 from shiftcontent.item import Item
-# from shiftcontent.schema_service import SchemaService
-# from shiftevent.event_service import EventService
 from shiftcontent.item_schema import UpdateItemSchema, CreateItemSchema
 
 
@@ -70,23 +68,36 @@ class ContentServiceTest(BaseTestCase):
         err = 'Database contains item (1) of undefined type [nonexistent]'
         self.assertIn(err, str(cm.exception))
 
-    @attr('zzz')
     def test_create_content_item(self):
         """ Create a simple content item """
         service = services.content
         type = 'plain_text'
         author = 123
-        data = dict(body='   I am a simple content item    ')
+        data = dict(body='I am a simple content item')
         item = service.create_item(author=author, content_type=type, data=data)
         self.assertEquals(1, item.id)
 
-    # def test_created_item_filtered(self):
-    #     """ Incoming data is filtered with schema when creeating item """
-    #     self.fail('Implement me!')
-    #
-    # def test_return_validation_result_when_creating_with_invalid_data(self):
-    #     """ Return validation errors when creating item with bad data """
-    #     self.fail('Implement me!')
+    def test_created_item_filtered(self):
+        """ Incoming data is filtered with schema when creeating item """
+        service = services.content
+        type = 'plain_text'
+        author = 123
+        data = dict(body='   I am a simple content item   ')
+        item = service.create_item(author=author, content_type=type, data=data)
+        self.assertEquals('I am a simple content item', item.body)
+
+    def test_return_validation_result_when_creating_with_invalid_data(self):
+        """ Return validation errors when creating item with bad data """
+        # services.content.item_schema(content_type='markdown')
+        service = services.content
+        type = 'plain_text'
+        author = 123
+        data = dict(body='')
+        item = service.create_item(author=author, content_type=type, data=data)
+        self.assertIsInstance(item, Result)
+        err = item.get_messages()
+        self.assertIn('body', err)
+        self.assertEquals(2, len(err['body']))
 
     def test_raise_when_creating_an_item_of_undefined_type(self):
         """ Raise when creating content item of undefined type """
