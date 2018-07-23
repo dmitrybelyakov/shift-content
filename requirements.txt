@@ -24,7 +24,7 @@ Flask-SQLAlchemy==2.2
 alembic==0.9.9
 
 # project
-PyYAML==3.12
+PyYAML==3.13
 shiftmemory==0.0.4
 shiftschema>=0.2.1,<0.3.0
 shiftevent==0.0.4
