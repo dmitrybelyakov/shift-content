@@ -34,6 +34,11 @@ class Item:
             err = 'Unable to create item. Content type [{}] is undefined'
             raise x.ContentItemError(err.format(type))
 
+        # init fields
+        self.valid_fields = [f['handle'] for f in type_definition['fields']]
+        self.fields = {field: None for field in self.valid_fields}
+
+        # init meta
         self.meta = dict(
             id=None,
             created=None,
@@ -54,10 +59,8 @@ class Item:
             # downvotes=None,
         )
 
-        valid_fields = [f['handle'] for f in type_definition['fields']]
-        self.valid_fields = valid_fields
-        self.fields = {field: None for field in self.valid_fields}
 
+        # populate from dict if got kwargs
         self.from_dict(kwargs)
         if not self.meta['created']:
             self.meta['created'] = datetime.utcnow()
