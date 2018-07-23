@@ -1,12 +1,80 @@
-from shiftcontent.content_service import ContentService
-from shiftcontent.schema_service import SchemaService
-from shiftcontent.db.db import Db
-from shiftevent.event_service import EventService
-from shiftcontent.handlers import content_handlers
+from mprop import mproperty
 
-content = ContentService()
-db = Db()
-definition = SchemaService()
-events = EventService(db=db, handlers=content_handlers)
+"""
+Content services
+Here we make use of the mprop library that implements module-level properties.
+Each service is defined via such property to use delayed imports and allows
+us to do imports without causing circular imports. You can easily do this 
+without any issues:
+
+  * from shiftcontent import services
+  * from shiftcontent.services import events
+
+"""
+
+_content = None
+_db = None
+_definition = None
+_events = None
+
+
+def mprop(func):
+    """
+    Method-levelmproperty decorator
+    Wraps around mproperty decorator to hold the reference to instance.
+    This ensures it doesn't get instantiated more than once and on subsequent
+    access we return already instantiated object.
+    :param func: function to wrap
+    :return:
+    """
+    instance = None
+
+    def stateful_wrapper():
+        return instance if instance else mproperty(func)
+    return stateful_wrapper()
+
+
+@mprop
+def content(mod):
+    """ Import and create content service """
+    global _content
+    if not _content:
+        from shiftcontent.content_service import ContentService
+        _content = ContentService()
+    return _content
+
+
+@mproperty
+def db(mod):
+    """ Import and create database """
+    global _db
+    if not _db:
+        from shiftcontent.db.db import Db
+        _db = Db()
+    return _db
+
+
+@mproperty
+def definition(mod):
+    """ Import and create definition service """
+    global _definition
+    if not _definition:
+        from shiftcontent.schema_service import SchemaService
+        _definition = SchemaService()
+    return _definition
+
+
+@mproperty
+def events(mod):
+    """ Import and create event service """
+    global _events
+    if not _events:
+        from shiftevent.event_service import EventService
+        from shiftcontent.handlers import content_handlers
+        _events = EventService(db=mod.db, handlers=content_handlers)
+    return _events
+
+
+
 
 

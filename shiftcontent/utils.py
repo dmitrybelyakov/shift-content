@@ -1,4 +1,5 @@
 from importlib import import_module
+from mprop import mproperty
 
 
 def import_by_name(name):
@@ -27,3 +28,19 @@ def import_by_name(name):
         return getattr(module, obj)
     except AttributeError as e:
         raise ImportError(e)
+
+
+def mprop(func):
+    """
+    Method-levelmproperty decorator
+    Wraps around mproperty decorator to hold the reference to instance.
+    This ensures it doesn't get instantiated more than once and on subsequent
+    access we return already instantiated object.
+    :param func: function to wrap
+    :return:
+    """
+    instance = None
+
+    def stateful_wrapper():
+        return instance if instance else mproperty(func)
+    return stateful_wrapper()

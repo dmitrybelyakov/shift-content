@@ -1,5 +1,6 @@
 from shiftevent.handlers.base import BaseHandler
 from shiftcontent.item import Item
+from shiftcontent.services import db
 
 
 class ContentItemCreate(BaseHandler):
@@ -22,8 +23,8 @@ class ContentItemCreate(BaseHandler):
             **event.payload
         )
 
-        items = self.db.tables['items']
-        with self.db.engine.begin() as conn:
+        items = db.tables['items']
+        with db.engine.begin() as conn:
             result = conn.execute(items.insert(), **item.to_db())
             item.id = result.inserted_primary_key[0]
 
@@ -31,8 +32,8 @@ class ContentItemCreate(BaseHandler):
 
     def rollback(self, event):
         """ Rollback event """
-        items = self.db.tables['items']
-        with self.db.engine.begin() as conn:
+        items = db.tables['items']
+        with db.engine.begin() as conn:
             query = items.delete()\
                 .where(items.c.object_id == event.object_id)
             conn.execute(query)
