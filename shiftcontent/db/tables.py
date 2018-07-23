@@ -25,7 +25,7 @@ def define_tables(meta):
         sa.Column('path', sa.String(256), nullable=True, index=True),
         sa.Column('author', sa.String(256), nullable=False, index=True),
         sa.Column('object_id', sa.String(256), nullable=False, index=True),
-        sa.Column('data', sa.Text),
+        sa.Column('fields', sa.Text),
     )
 
     tables = {**content_tables, **event_tables}

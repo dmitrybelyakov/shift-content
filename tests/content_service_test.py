@@ -33,7 +33,7 @@ class ContentServiceTest(BaseTestCase):
             created= datetime.utcnow(),
             object_id=object_id,
             type='plain_text',
-            data='{"body": "some content"}'
+            fields='{"body": "some content"}'
         )
 
         # insert

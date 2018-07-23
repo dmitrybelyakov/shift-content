@@ -14,6 +14,9 @@ class Item:
     Content item
     Represents a projection of a content item
     """
+
+
+
     # item props, initialized at instance level
     props = dict()
 
@@ -38,7 +41,7 @@ class Item:
             path=None,
             author=None,
             object_id=None,
-            data={field: None for field in item_fields}
+            fields={field: None for field in item_fields}
         )
 
         self.from_dict(kwargs)
@@ -64,21 +67,21 @@ class Item:
         return repr.format(self.id, self.object_id)
 
     def __getattr__(self, item):
-        """ Overrides attribute access for getting props and data fields  """
+        """ Overrides attribute access for getting props and fields  """
         if item == 'props':
             return self.props
-        if self.props['data'] and item in self.props['data']:
-            return self.props['data'][item]
+        if self.props['fields'] and item in self.props['fields']:
+            return self.props['fields'][item]
         if item in self.props:
             return self.props[item]
         return object.__getattribute__(self, item)
 
     def __setattr__(self, key, value):
-        """ Overrides attribute access for setting props and data fields """
-        if key == 'data':
-            self.set_data(value)
-        elif 'data' in self.props and key in self.props['data']:
-            self.props['data'][key] = value
+        """ Overrides attribute access for setting props and fields """
+        if key == 'fields':
+            self.set_fields(value)
+        elif 'fields' in self.props and key in self.props['fields']:
+            self.props['fields'][key] = value
         elif key in self.props:
             self.props[key] = value
             return self
@@ -87,26 +90,26 @@ class Item:
 
         return self
 
-    def set_data(self, data):
+    def set_fields(self, fields):
         """
-        Set data
+        Set fields
         Accepts a dictionary and encodes it into a json string for persistence.
-        Will raise an exception if data is not a dictionary.
-        :param data: dict
+        Will raise an exception if fields is not a dictionary.
+        :param fields: dict
         :return:
         """
-        if type(data) is str:
+        if type(fields) is str:
             try:
-                data = json.loads(data, encoding='utf-8')
+                fields = json.loads(fields, encoding='utf-8')
             except json.JSONDecodeError:
-                raise x.ContentItemError('Failed to decode data string')
+                raise x.ContentItemError('Failed to decode fields string')
 
-        if type(data) is not dict:
-            msg = 'Data must be a dictionary, got {}'
-            raise x.ContentItemError(msg.format(type(data)))
+        if type(fields) is not dict:
+            msg = 'Fields must be a dictionary, got {}'
+            raise x.ContentItemError(msg.format(type(fields)))
 
-        data = {k: v for k, v in data.items() if k in self.props['data']}
-        self.props['data'] = data
+        fields = {k: v for k, v in fields.items() if k in self.props['fields']}
+        self.props['fields'] = fields
         return self
 
     def to_dict(self):
@@ -117,17 +120,17 @@ class Item:
         """
         To db
         Returns database representation for persistence. Same as to_dict but
-        data is stringified.
+        fields are stringified.
         :return:
         """
         data = self.to_dict()
-        data['data'] = json.dumps(data['data'], ensure_ascii=False)
+        data['fields'] = json.dumps(data['fields'], ensure_ascii=False)
         return data
 
     def from_dict(self, data):
         """ Populates itself from a dictionary """
         for prop, val in data.items():
-            if prop in self.props or prop in self.props['data']:
+            if prop in self.props or prop in self.props['fields']:
                 setattr(self, prop, val)
         return self
 

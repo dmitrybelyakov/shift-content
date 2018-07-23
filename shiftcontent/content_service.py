@@ -43,7 +43,7 @@ class ContentService:
                 raise x.UndefinedContentType(msg.format(result.id, result.type))
 
             fields = [field['handle'] for field in content_type['fields']]
-            item = Item(fields=fields, **dict(result))
+            item = Item(**dict(result))
             return item
 
     def item_schema(self, content_type, schema_type='update'):

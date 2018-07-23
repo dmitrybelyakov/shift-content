@@ -18,7 +18,7 @@ class ItemTest(BaseTestCase):
     def test_initialize_item_fields_from_type(self):
         """ Initializing item fields from type upon creation """
         item = Item('plain_text')
-        self.assertIn('body', item.data)
+        self.assertIn('body', item.fields)
 
     def test_raise_when_creating_item_of_undefined_type(self):
         """ Raise when creating item of undefined type """
@@ -62,7 +62,7 @@ class ItemTest(BaseTestCase):
             path="123/456",
             author='1',
             object_id=123,
-            data={'body': 'some payload'}
+            fields={'body': 'some payload'}
         )
 
         item = Item(type='plain_text', **data)
@@ -73,48 +73,48 @@ class ItemTest(BaseTestCase):
         """ Data fields that weren't initialized can't be set """
         item = Item(type='plain_text')
         item.not_initialized = 'some value'
-        self.assertNotIn('not_initialized', item.data.keys())
+        self.assertNotIn('not_initialized', item.fields.keys())
 
     def test_fail_to_set_nonexistent_field_when_bulk_setting_data(self):
         """ Setting data skips uninitialized fields """
-        data = dict(body='some_value', undefined='some other value')
+        fields = dict(body='some_value', undefined='some other value')
         item = Item(type='plain_text')
-        item.set_data(data)
-        self.assertIn('body', item.data.keys())
-        self.assertEquals(data['body'], item.body)
-        self.assertNotIn('undefined', item.data.keys())
+        item.set_fields(fields)
+        self.assertIn('body', item.fields.keys())
+        self.assertEquals(fields['body'], item.body)
+        self.assertNotIn('undefined', item.fields.keys())
 
     def test_getting_item_as_dict(self):
         """ Getting event as dict """
         item = Item(type='plain_text', data=dict(prop='value'))
         self.assertTrue(type(item.to_dict()) is dict)
-        self.assertTrue(type(item.to_dict()['data']) is dict)
+        self.assertTrue(type(item.to_dict()['fields']) is dict)
 
     def test_get_db_representation(self):
         """ Getting db representation of an item """
         item = Item(type='plain_text', data=dict(body='value'))
         result = item.to_db()
-        self.assertTrue(type(result['data']) is str)
+        self.assertTrue(type(result['fields']) is str)
 
     def test_raise_when_setting_non_dictionary_data(self):
         """ Raise when setting a payload that is not a dict """
         item = Item(type='plain_text')
         with self.assertRaises(x.ContentItemError) as cm:
-            item.data = [123]
+            item.fields = [123]
 
-        self.assertIn('Data must be a dictionary', str(cm.exception))
+        self.assertIn('Fields must be a dictionary', str(cm.exception))
 
     def test_raise_when_fails_to_decode_data_string(self):
         """ Raise when data string can not be decoded """
         item = Item(type='plain_text')
         with self.assertRaises(x.ContentItemError) as cm:
-            item.data = 'no-a-json-string'
-        self.assertIn('Failed to decode data string', str(cm.exception))
+            item.fields = 'no-a-json-string'
+        self.assertIn('Failed to decode fields string', str(cm.exception))
 
     def test_getting_item_data(self):
         """ Getting event payload """
         item = Item(type="plain_text")
-        self.assertTrue(type(item.data) is dict)
+        self.assertTrue(type(item.fields) is dict)
 
     def test_getting_data_field(self):
         """ Getting data fields directly  """
@@ -122,18 +122,18 @@ class ItemTest(BaseTestCase):
             id=1234,
             author='1234',
             object_id='12345-67890',
-            data=dict(
+            fields=dict(
                 body='I have some body text'
             )
         )
 
         item = Item(type='plain_text', **data)
-        self.assertEquals(data['data']['body'], item.body)
+        self.assertEquals(data['fields']['body'], item.body)
 
     def test_setting_data_field(self):
         """ Setting data fields """
         item = Item(type='plain_text')
         item.body = 'some value'
-        self.assertEquals('some value', item.data['body'])
+        self.assertEquals('some value', item.fields['body'])
         self.assertEquals('some value', item.body)
 
