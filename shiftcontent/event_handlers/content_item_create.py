@@ -1,7 +1,7 @@
 from shiftevent.handlers.base import BaseHandler
 from shiftcontent.item import Item
-from shiftcontent.services import db
-
+from shiftcontent import db
+from pprint import pprint as pp
 
 class ContentItemCreate(BaseHandler):
     """
@@ -24,6 +24,7 @@ class ContentItemCreate(BaseHandler):
             type=type,
             **event.payload
         )
+
 
         items = db.tables['items']
         with db.engine.begin() as conn:

@@ -6,7 +6,7 @@ import hashlib
 import arrow
 from pprint import pprint as pp
 from shiftcontent import exceptions as x
-from shiftcontent.schema import validator
+
 
 
 # TODO: RENAME SCHEMA SERVICE TO DEFINITION SERVICE
@@ -144,6 +144,8 @@ class SchemaService:
         Loads a definition from a yaml file
         :return: dict
         """
+        from shiftcontent.schema import validator
+
         if not os.path.exists(self.schema_path):
             msg = 'Unable to locate definition file at path [{}]'
             raise x.ConfigurationException(msg.format(self.schema_path))
@@ -164,7 +166,6 @@ class SchemaService:
             return schema
 
         # if changed, validate and persist
-        # todo: trigger schema changed event
         definitions_schema = validator.DefinitionSchema()
         ok = definitions_schema.process(yml)
         if not ok:
@@ -173,6 +174,7 @@ class SchemaService:
         else:
             schema = {t['handle'].lower(): t for t in yml['content']}
 
+        # todo: trigger schema changed event
         # todo: check if fields were removed, field types changed etc
 
         # save schema to backlog

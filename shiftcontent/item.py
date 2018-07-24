@@ -2,9 +2,7 @@ from shiftcontent import exceptions as x
 import json
 import copy
 from datetime import datetime
-from shiftcontent.services import definition
 from pprint import pprint as pp
-
 
 class Item:
     """
@@ -29,6 +27,7 @@ class Item:
         :param kwargs: dict, key-value pairs used to populate the item
         """
         try:
+            from shiftcontent import definition
             type_definition = definition.get_type_schema(type)
         except x.UndefinedContentType:
             err = 'Unable to create item. Content type [{}] is undefined'

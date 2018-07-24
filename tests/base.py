@@ -1,12 +1,6 @@
 import unittest
 import os
 import shutil
-from sqlalchemy import MetaData
-from sqlalchemy import create_engine
-from shiftcontent.db.db import Db
-from shiftevent.db import Db as EventDb
-from shiftcontent import services
-
 
 
 class BaseTestCase(unittest.TestCase):
@@ -27,8 +21,11 @@ class BaseTestCase(unittest.TestCase):
         self.tmp
 
         # init services
-        services.db.init(self.db_url)
-        services.definition.init(self.schema_path, self.revisions_path)
+        from shiftcontent import db
+        from shiftcontent import definition
+        self.db = db
+        self.db.init(self.db_url)
+        definition.init(self.schema_path, self.revisions_path)
 
         # create db now
         self.create_db()
@@ -94,7 +91,7 @@ class BaseTestCase(unittest.TestCase):
             return
 
         # otherwise create
-        services.db.meta.create_all()
+        self.db.meta.create_all()
         shutil.copyfile(self.db_path, self.db_path + '.bak')
 
     def refresh_db(self, force=False):

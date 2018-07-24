@@ -1,11 +1,7 @@
-import json
-from collections import Mapping
 from sqlalchemy import create_engine
 from sqlalchemy import MetaData
-from sqlalchemy import sql
-from sqlalchemy import desc, asc
 from shiftcontent import exceptions as x
-from shiftcontent.db.tables import define_tables
+from shiftcontent.database.tables import define_tables
 
 
 class Db:
