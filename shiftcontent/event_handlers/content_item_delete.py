@@ -19,21 +19,13 @@ class ContentItemDelete(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-        print('DELETE CONTENT ITEM')
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            conn.execute(items.delete().where(
+                items.c.object_id == event.object_id
+            ))
 
-        # type = event.payload['type']
-        # del event.payload['type']
-        # item = Item(
-        #     type=type,
-        #     **event.payload
-        # )
-        #
-        # items = db.tables['items']
-        # with db.engine.begin() as conn:
-        #     result = conn.execute(items.insert(), **item.to_db())
-        #     item.id = result.inserted_primary_key[0]
-        #
-        # return event
+        return event
 
     def rollback(self, event):
         """ Rollback event """

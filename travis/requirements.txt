@@ -12,4 +12,3 @@ arrow==0.12.1
 SQLAlchemy==1.2.6
 shiftevent==0.0.4
 elasticsearch>=6.0.0,<7.0.0
-mprop==0.14

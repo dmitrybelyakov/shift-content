@@ -4,6 +4,7 @@ from nose.plugins.attrib import attr
 from shiftcontent.item import Item
 from shiftcontent import exceptions as x
 from datetime import datetime
+import arrow
 from pprint import pprint as pp
 
 
@@ -56,6 +57,18 @@ class ItemTest(BaseTestCase):
         """ Can use hasattr to check for prop existence"""
         item = Item(type='plain_text')
         self.assertFalse(hasattr(item, 'whatever'))
+
+    def test_get_created_date_as_string(self):
+        """ Getting item creation date as string """
+        item = Item(type='plain_text')
+        self.assertTrue(type(item.created_string) is str)
+
+    def test_set_creation_date_from_string(self):
+        """ Set item creation date from string """
+        created = '2018-07-24 12:00:00'
+        item = Item(type='plain_text')
+        item.created_string = created
+        self.assertEquals(arrow.get(created).datetime, item.created)
 
     def test_populate_item_from_dict(self):
         """ Can populate item from dict """

@@ -25,7 +25,6 @@ class ContentServiceTest(BaseTestCase):
         service = ContentService()
         self.assertIsInstance(service, ContentService)
 
-
     def test_creating_item_update_schema(self):
         """ Create schema for content item update """
         schema = content.item_schema('plain_text', 'update')
@@ -130,8 +129,26 @@ class ContentServiceTest(BaseTestCase):
 
     def test_raise_on_deleting_nonexistent_item(self):
         """ Raise when attempting to delete nonexistent item """
-        self.fail('Implement me!')
+        with self.assertRaises(x.ItemNotFound) as cm:
+            content.delete_item(123, 123)
+        self.assertIn(
+            'Unable to delete nonexistent content item',
+            str(cm.exception)
+        )
 
     def test_deleting_content_item(self):
         """ Deleting content item """
-        self.fail('Implement me!')
+        type = 'plain_text'
+        author = 123
+        data = dict(body='I am a simple content item')
+        item = content.create_item(author=author, content_type=type, data=data)
+        object_id = item.object_id
+        content.delete_item(item.object_id, author)
+
+        with self.db.engine.begin() as conn:
+            items = self.db.tables['items']
+            query = items.select().where(items.c.object_id == object_id)
+            result = conn.execute(query).fetchone()
+            self.assertIsNone(result)
+
+

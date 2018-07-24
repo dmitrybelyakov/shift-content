@@ -154,6 +154,9 @@ class ContentService:
 
         payload=None
         payload_rollback = item.to_dict()
+        payload_rollback['created'] = payload_rollback['created'].strftime(
+            item.date_format
+        )
 
         # create event
         event = events.event(
@@ -164,7 +167,9 @@ class ContentService:
             payload_rollback=payload_rollback
         )
 
-        print(event)
+        # and emit
+        events.emit(event)
+        return self
 
 
 

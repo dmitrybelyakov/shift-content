@@ -1,7 +1,7 @@
 from shiftcontent import exceptions as x
 import json
 import copy
-from datetime import datetime
+import arrow
 from pprint import pprint as pp
 
 
@@ -19,6 +19,9 @@ class Item:
 
     # custom fields
     fields = dict()
+
+    # used when serializing
+    date_format = '%Y-%m-%d %H:%M:%S'
 
     def __init__(self, type, **kwargs):
         """
@@ -62,7 +65,7 @@ class Item:
         # populate from dict if got kwargs
         self.from_dict(kwargs)
         if not self.meta['created']:
-            self.meta['created'] = datetime.utcnow()
+            self.meta['created'] = arrow.utcnow().datetime
 
     def __repr__(self):
         """ Returns printable representation of item """
@@ -89,6 +92,18 @@ class Item:
             object.__setattr__(self, key, value)
 
         return self
+
+    @property
+    def created_string(self):
+        """
+        Returns creation date as a string
+        :return: str
+        """
+        return self.meta['created'].strftime(self.date_format)
+
+    @created_string.setter
+    def created_string(self, value):
+        self.meta['created'] = arrow.get(value).datetime
 
     def set_fields(self, fields):
         """
