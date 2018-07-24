@@ -24,8 +24,10 @@ class ContentItemUpdate(BaseHandler):
         item = Item(type=type, **event.payload)
         item.created_string = item.created
         db_data = item.to_db()
+
         del db_data['object_id']
         del db_data['id']
+        del db_data['type']
 
         items = db.tables['items']
         with db.engine.begin() as conn:

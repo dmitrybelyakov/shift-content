@@ -200,3 +200,67 @@ class ContentServiceTest(BaseTestCase):
         updated = content_service.update_item(author, item)
         self.assertEquals('I am updated body', updated.body)
 
+    @attr('zzz')
+    def test_return_validation_errors_if_updating_with_invalid_data(self):
+        """ Validate data when updating content item """
+        type = 'plain_text'
+        author = 123
+        data = dict(body='I am a simple content item')
+        item = content_service.create_item(
+            author=author,
+            content_type=type,
+            data=data
+        )
+
+        item.body = ''
+        result = content_service.update_item(author, item)
+        pp(result)
+
+
+    def test_raise_on_updating_filed_for_nonexistent_item(self):
+        """ Raise error when updating field on nonexistent item """
+        with self.assertRaises(x.ItemNotFound) as cm:
+            content_service.update_item_field(1, 'NONEXISTENT', 'body', '')
+        self.assertIn('Unable to find item with such id', str(cm.exception))
+
+
+    def test_raise_when_trying_to_update_nonexistent_field(self):
+        """ Raise when updating nonexistent field on an item """
+        type = 'plain_text'
+        author = 123
+        data = dict(body='I am a simple content item')
+        item = content_service.create_item(
+            author=author,
+            content_type=type,
+            data=data
+        )
+        with self.assertRaises(x.ItemError) as cm:
+            content_service.update_item_field(author, item.object_id, 'z', '')
+        self.assertIn('is not allowed for content type', str(cm.exception))
+
+
+
+    def test_return_errors_when_updating_item_field_with_bad_data(self):
+        """ Validate data when updating item field"""
+        self.fail('Implement me!')
+
+    # @attr('zzz')
+    def test_updating_content_item_field(self):
+        type = 'plain_text'
+        author = 123
+        data = dict(body='I am a simple content item')
+        item = content_service.create_item(
+            author=author,
+            content_type=type,
+            data=data
+        )
+
+        new_value = 'NEW BODY VALUE'
+        updated = content_service.update_item_field(
+            author,
+            item.object_id,
+            'body',
+            new_value
+        )
+
+        print(updated)

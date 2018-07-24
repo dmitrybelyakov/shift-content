@@ -8,6 +8,7 @@ from shiftcontent.utils import import_by_name
 from shiftcontent import db
 from shiftcontent import definition_service
 from shiftcontent import event_service
+import copy
 
 
 class ContentService:
@@ -38,8 +39,7 @@ class ContentService:
             msg = 'Database contains item ({}) of undefined type [{}]'
             raise x.UndefinedContentType(msg.format(result.id, result.type))
 
-        item = Item(**dict(result))
-        return item
+        return Item(**dict(result))
 
     def item_schema(self, content_type, schema_type='update'):
         """
@@ -79,6 +79,7 @@ class ContentService:
 
             # add custom filters
             for params in filters:
+                params = {**params}  # copy, unfreeze
                 filter_class = import_by_name(params['type'])
                 del params['type']
                 filter = filter_class(**params)
@@ -86,6 +87,7 @@ class ContentService:
 
             # add custom validators
             for params in field['validators']:
+                params = {**params}  # copy, unfreeze
                 validator_class = import_by_name(params['type'])
                 del params['type']
                 validator = validator_class(**params)
@@ -154,32 +156,49 @@ class ContentService:
             err = "Update function expects shiftcontent.item.Item, got [{}]"
             raise x.ItemError(err.format(type(item)))
 
-        object_id = item.object_id
+        object_id = str(item.object_id)
         new_data = item.to_dict()
         new_data['meta']['created'] = item.created_string
 
-        item = self.get_item(object_id) if object_id else None
-        if not item:
+
+        # todo: as soon as we get item our incoming item is replaced - WTF!
+
+
+        old_item = self.get_item(object_id) if object_id else None
+        if not old_item:
             err = 'Item must be saved first to be updated. We were unable ' \
                   'to find item with such id [{}]'
             raise x.ItemNotFound(err.format(object_id))
 
-        old_data = item.to_dict()
-        old_data['meta']['created'] = item.created_string
+        # validate
+        context = dict(definition=definition_service.definition)
+        schema = self.item_schema(item.type, schema_type='update')
 
-        # create event
-        event = event_service.event(
-            type='CONTENT_ITEM_UPDATE',
-            author=author,
-            object_id=object_id,
-            payload=new_data,
-            payload_rollback=old_data
-        )
 
-        # and emit
-        event = event_service.emit(event)
-        return self.get_item(event.object_id)
+        print('VALIDATING!')
+        pp(item.to_dict())
 
+        ok = schema.process(item, context=context)
+        if not ok:
+            return ok.get_messages()
+        #
+        # # prepare payload
+        # old_data = old_item.to_dict()
+        # old_data['meta']['created'] = item.created_string
+        # new_data['meta']['type'] = old_data['meta']['type']
+        #
+        # # create event
+        # event = event_service.event(
+        #     type='CONTENT_ITEM_UPDATE',
+        #     author=author,
+        #     object_id=object_id,
+        #     payload=new_data,
+        #     payload_rollback=old_data
+        # )
+        #
+        # # and emit
+        # event = event_service.emit(event)
+        # return self.get_item(event.object_id)
 
     def update_item_field(self, author, object_id, field, value):
         """
@@ -191,7 +210,23 @@ class ContentService:
         :param value: str, new value to set
         :return: shiftcontent.itemItem
         """
-        pass
+        print('UPDATING ITEM FIELD')
+
+        item = self.get_item(object_id)
+        if not item:
+            err = 'Unable to find item with such id [{}]'
+            raise x.ItemNotFound(err.format(object_id))
+
+        data = item.to_dict()
+        type = data['meta']['type']
+        del data['meta']['id']
+        del data['meta']['object_id']
+        del data['meta']['type']
+        if field == 'meta' or (field not in data['meta'] and field not in data):
+            err = 'Field [{}] is not allowed for content type [{}]'
+            raise x.ItemError(err.format(field, type))
+
+
 
     def delete_item(self, author, object_id):
         """

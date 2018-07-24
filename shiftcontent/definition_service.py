@@ -186,6 +186,26 @@ class DefinitionService:
 
         # todo: fire an event
 
+        from frozendict import frozendict as fd
+        # freeze definition
+        for type in definition:
+            for index, field in enumerate(definition[type]['fields']):
+
+                if field['filters']:
+                    for fi, filter in enumerate(field['filters']):
+                        definition[type]['fields'][index]['filters'][fi] = fd(filter)
+                if field['validators']:
+                    for vi, validator in enumerate(field['validators']):
+                        definition[type]['fields'][index]['validators'][vi] = fd(validator)
+
+                definition[type]['fields'][index] = fd(definition[type]['fields'][index])
+
+            definition[type] = fd(definition[type])
+
+
+
+
+
         # and return
         return definition
 
