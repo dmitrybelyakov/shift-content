@@ -1,1 +1,0 @@
-from shiftcontent.db.tables import define_tables

@@ -132,10 +132,9 @@ class SchemaServiceTest(BaseTestCase):
         )
 
         try:
-            service.schema
+            schema = service.schema
         except x.InvalidSchema as err:
             print(err.validation_errors)
-
 
         with open(path) as yml:
             text = yml.read()
@@ -153,7 +152,7 @@ class SchemaServiceTest(BaseTestCase):
         )
 
     def test_abort_schema_revision_registering_if_no_file(self):
-        """ Abord adding revision to registry if file not found"""
+        """ Abort adding revision to registry if file not found """
         service = SchemaService()
         service.init(
             schema_path=self.schema_path,

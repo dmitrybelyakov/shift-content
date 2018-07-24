@@ -5,7 +5,9 @@ from shiftcontent.item import Item
 from shiftcontent.item_schema import CreateItemSchema, UpdateItemSchema
 from shiftcontent.utils import import_by_name
 
-from shiftcontent import services
+from shiftcontent import db
+from shiftcontent import definition
+from shiftcontent import events
 
 
 class ContentService:
@@ -23,15 +25,15 @@ class ContentService:
         """
 
         # get from projection table
-        items = services.db.tables['items']
-        with services.db.engine.begin() as conn:
+        items = db.tables['items']
+        with db.engine.begin() as conn:
             query = items.select().where(items.c.object_id == object_id)
             result = conn.execute(query).fetchone()
             if not result:
                 return
 
         try:
-            services.definition.get_type_schema(result.type)
+            definition.get_type_schema(result.type)
         except x.UndefinedContentType:
             msg = 'Database contains item ({}) of undefined type [{}]'
             raise x.UndefinedContentType(msg.format(result.id, result.type))
@@ -63,9 +65,9 @@ class ContentService:
         schema = schema_types[schema_type]()
 
         # add filter/validators defined in schema
-        definition = services.definition.get_type_schema(content_type)
+        type_definition = definition.get_type_schema(content_type)
 
-        for field in definition['fields']:
+        for field in type_definition['fields']:
             filters = field['filters'] if field['filters'] else ()
             validators = field['validators'] if field['validators'] else ()
             if not filters and not validators:
@@ -106,7 +108,7 @@ class ContentService:
         :return:
         """
         # drop nonexistent fields
-        type_definition = services.definition.get_type_schema(content_type)
+        type_definition = definition.get_type_schema(content_type)
         valid_fields = [field['handle'] for field in type_definition['fields']]
         fields = {f: v for f, v in data.items() if f in valid_fields}
 
@@ -118,14 +120,14 @@ class ContentService:
             **fields
         )
 
-        context = dict(definition=services.definition.schema)
+        context = dict(definition=definition.schema)
         schema = self.item_schema(content_type, 'create')
         result = schema.process(item_data, context)
         if not result:
             return result
 
-        # # create event
-        event = services.events.event(
+        # create event
+        event = events.event(
             author=author,
             object_id=item_data['object_id'],
             type='CONTENT_ITEM_CREATE',
@@ -133,7 +135,7 @@ class ContentService:
         )
 
         # and emit
-        event = services.events.emit(event)
+        event = events.emit(event)
         return self.get_item(event.object_id)
 
 

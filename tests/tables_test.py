@@ -1,7 +1,7 @@
 from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
-from shiftcontent.db import define_tables
+from shiftcontent.database.tables import define_tables
 from sqlalchemy import MetaData
 
 

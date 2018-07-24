@@ -1,6 +1,5 @@
-from shiftschema import validators as validator
-from shiftschema import filters as filter
-
+from shiftschema import validators
+from shiftschema import filters
 from shiftcontent.schema import validators as content_validators
 from shiftcontent.schema.base import BaseSchema
 
@@ -19,7 +18,7 @@ class DefinitionSchema(BaseSchema):
     def schema(self):
         self.add_collection('content')
         self.content.schema = TypeSchema()
-        self.content.add_validator(validator.Required(
+        self.content.add_validator(validators.Required(
             message='Content types can\'t be empty'
         ))
 
@@ -37,16 +36,16 @@ class TypeSchema(BaseSchema):
     def schema(self):
         # content type name
         self.add_property('name')
-        self.name.add_filter(filter.Strip())
-        self.name.add_validator(validator.Required(
+        self.name.add_filter(filters.Strip())
+        self.name.add_validator(validators.Required(
             message='Content type must have a name'
         ))
         self.name.add_validator(content_validators.UniqueTypeName())
 
         # content type handle
         self.add_property('handle')
-        self.handle.add_filter(filter.Strip())
-        self.handle.add_validator(validator.Required(
+        self.handle.add_filter(filters.Strip())
+        self.handle.add_validator(validators.Required(
             message='Content type must have a handle'
         ))
         self.handle.add_validator(content_validators.Handle())
@@ -54,14 +53,14 @@ class TypeSchema(BaseSchema):
 
         # content type description
         self.add_property('description')
-        self.description.add_filter(filter.Strip())
-        self.description.add_validator(validator.Required(
+        self.description.add_filter(filters.Strip())
+        self.description.add_validator(validators.Required(
             message='Content type needs a description'
         ))
 
         # content type editor
         self.add_property('editor')
-        self.editor.add_filter(filter.Strip())
+        self.editor.add_filter(filters.Strip())
         self.editor.add_validator(content_validators.Importable(
             message='Content type editor [{name}] is not importable'
         ))
@@ -69,7 +68,7 @@ class TypeSchema(BaseSchema):
         # content type fields
         self.add_collection('fields')
         self.fields.schema = FieldSchema()
-        self.fields.add_validator(validator.Required(
+        self.fields.add_validator(validators.Required(
             message='Content type must have fields'
         ))
 
@@ -83,29 +82,29 @@ class FieldSchema(BaseSchema):
     def schema(self):
         # field name
         self.add_property('name')
-        self.name.add_filter(filter.Strip())
+        self.name.add_filter(filters.Strip())
         self.name.add_validator(content_validators.UniqueFieldName())
-        self.name.add_validator(validator.Required(
+        self.name.add_validator(validators.Required(
             message='Field requires a name'
         ))
 
         # field handle
         self.add_property('handle')
-        self.handle.add_filter(filter.Strip())
+        self.handle.add_filter(filters.Strip())
         self.handle.add_validator(content_validators.Handle())
         self.handle.add_validator(content_validators.UniqueFieldHandle())
-        self.handle.add_validator(validator.Required(
+        self.handle.add_validator(validators.Required(
             message='Field requires a handle'
         ))
 
         # field description
         self.add_property('description')
-        self.description.add_filter(filter.Strip())
+        self.description.add_filter(filters.Strip())
 
         # field type
         self.add_property('type')
-        self.type.add_filter(filter.Strip())
-        self.type.add_validator(validator.Required(
+        self.type.add_filter(filters.Strip())
+        self.type.add_validator(validators.Required(
             message='Field requires a type'
         ))
 
@@ -126,7 +125,7 @@ class FilterSchema(BaseSchema):
     """
     def schema(self):
         self.add_property('type')
-        self.type.add_validator(validator.Required(
+        self.type.add_validator(validators.Required(
             message='Filter requires a type'
         ))
         self.type.add_validator(content_validators.Importable(
@@ -146,7 +145,7 @@ class ValidatorSchema(BaseSchema):
     """
     def schema(self):
         self.add_property('type')
-        self.type.add_validator(validator.Required(
+        self.type.add_validator(validators.Required(
             message='Validator requires a type'
         ))
         self.type.add_validator(content_validators.Importable(

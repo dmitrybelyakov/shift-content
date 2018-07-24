@@ -26,8 +26,8 @@ class Item:
         :param type: str, content type of the item
         :param kwargs: dict, key-value pairs used to populate the item
         """
-        from shiftcontent.services import definition
         try:
+            from shiftcontent import definition
             type_definition = definition.get_type_schema(type)
         except x.UndefinedContentType:
             err = 'Unable to create item. Content type [{}] is undefined'

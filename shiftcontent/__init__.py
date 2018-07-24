@@ -1,2 +1,28 @@
 
+"""
+Initialize content services
+All the services use delayed initialization so that users can inject their
+settings later, but we still have these services globally importable.
+
+The order of definition is important here so that we don't run into circular
+dependencies, so the services with no dependencies are created here first.
+"""
+
+
+# init database (no dependencies)
+from .database.db import Db
+db = Db()
+
+# init schema (no dependencies)
+from .schema_service import SchemaService
+definition = SchemaService()
+
+# init events (needs db)
+from shiftevent.event_service import EventService
+from shiftcontent.handlers import content_handlers
+events = EventService(db=db, handlers=content_handlers)
+
+# init content (needs db and events)
+from .content_service import ContentService
+content = ContentService()
 

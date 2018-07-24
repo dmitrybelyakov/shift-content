@@ -2,8 +2,8 @@ from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
 from uuid import uuid1
-from shiftcontent.events.event import Event
-from shiftcontent.events.handlers import ContentItemCreate
+from shiftevent.event import Event
+from shiftcontent.event_handlers import ContentItemCreate
 
 
 @attr('event', 'handler', 'content_item_create')
@@ -25,7 +25,9 @@ class ContentItemCreateTest(BaseTestCase):
             object_id=object_id,
             payload=dict(
                 type='plain_text',
-                data=dict(body='I am the body field')
+                author=123,
+                object_id=object_id,
+                body='Some body content'
             )
         )
 
@@ -47,9 +49,11 @@ class ContentItemCreateTest(BaseTestCase):
             object_id=object_id,
             payload=dict(
                 type='plain_text',
-                data=dict(body='I am the body field')
+                author=123,
+                object_id=object_id,
+                body='Some body content'
             ),
-            payload_rollback = None
+            payload_rollback=None
         )
 
         # create
