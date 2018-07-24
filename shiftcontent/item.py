@@ -11,11 +11,32 @@ class Item:
     Represents a projection of a content item
     """
 
+    # valid metafields
+    valid_metafields = (
+        'id',
+        'created',
+        'type',
+        'path',
+        'author',
+        'object_id',
+        # 'version',
+        # 'parent_version',
+        # 'status',
+        # 'lat',
+        # 'long',
+        # 'categories',
+        # 'tags',
+        # 'comments',
+        # 'reactions',
+        # 'upvotes',
+        # 'downvotes',
+    )
+
     # metadata fields
     meta = dict()
 
     # valid custom fields
-    valid_fields = []
+    valid_fields = ()
 
     # custom fields
     fields = dict()
@@ -37,30 +58,13 @@ class Item:
             err = 'Unable to create item. Content type [{}] is undefined'
             raise x.ItemError(err.format(type))
 
+        # init meta
+        self.meta = {prop: None for prop in self.valid_metafields}
+        self.meta['type'] = type
+
         # init fields
         self.valid_fields = [f['handle'] for f in type_definition['fields']]
         self.fields = {field: None for field in self.valid_fields}
-
-        # init meta
-        self.meta = dict(
-            id=None,
-            created=None,
-            type=type,
-            path=None,
-            author=None,
-            object_id=None,
-            # version=None,
-            # parent_version=None,
-            # status=None,
-            # lat=None,
-            # long=None,
-            # categories=None,
-            # tags=None,
-            # comments=None,
-            # reactions=None,
-            # upvotes=None,
-            # downvotes=None,
-        )
 
         # populate from dict if got kwargs
         self.from_dict(kwargs)
@@ -73,7 +77,7 @@ class Item:
         return repr.format(self.id, self.object_id)
 
     def __getattr__(self, item):
-        """ Overrides attribute access for getting props and fields  """
+        """ Overrides attribute access for getting props and fields """
         if item in self.meta:
             return self.meta[item]
         elif item in self.fields:
@@ -84,6 +88,8 @@ class Item:
         """ Overrides attribute access for setting props and fields """
         if key == 'fields':
             self.set_fields(value)
+        elif key == 'meta':
+            self.set_meta(value)
         elif key in self.valid_fields:
             self.fields[key] = value
         elif key in self.meta:
@@ -104,6 +110,21 @@ class Item:
     @created_string.setter
     def created_string(self, value):
         self.meta['created'] = arrow.get(value).datetime
+
+    def set_meta(self, meta):
+        """
+        Set meta
+        Accepts a dictionary of meta fields to set.
+        :param meta:
+        :return:
+        """
+        if type(meta) is not dict:
+            msg = 'Meta fields must be a dictionary, got {}'
+            raise x.ItemError(msg.format(type(meta)))
+
+        for prop, val in meta.items():
+            if prop in self.valid_metafields:
+                self.meta[prop] = val
 
     def set_fields(self, fields):
         """
@@ -129,7 +150,9 @@ class Item:
 
     def to_dict(self):
         """ Returns dictionary representation of the item """
-        return {**self.meta, **self.fields}
+        data = copy.copy(self.fields)
+        data['meta'] = copy.copy(self.meta)
+        return data
 
     def to_db(self):
         """
@@ -144,9 +167,9 @@ class Item:
 
     def from_dict(self, data):
         """ Populates itself from a dictionary """
-        for prop, val in data.items():
-            if prop == 'fields' or prop in self.meta or prop in self.fields:
-                setattr(self, prop, val)
+        for p, v in data.items():
+            if p in ['meta', 'fields'] or p in self.meta or p in self.fields:
+                setattr(self, p, v)
 
         return self
 

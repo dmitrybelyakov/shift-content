@@ -98,8 +98,25 @@ class ItemTest(BaseTestCase):
         self.assertEquals(fields['body'], item.body)
         self.assertNotIn('undefined', item.fields.keys())
 
+    def test_bulk_setting_meta_fields(self):
+        """ Bulk-setting item meta fields from a dictionary """
+        meta = dict(
+            id=123,
+            author=456,
+            object_id='lksdjlkjdslkj-kjsdhkjshsdk',
+            ignore_me='please'
+        )
+
+        item = Item(type='plain_text')
+        item.meta = meta
+        self.assertEquals('plain_text', item.meta['type'])
+        self.assertEquals(meta['id'], item.meta['id'])
+        self.assertEquals(meta['author'], item.meta['author'])
+        self.assertEquals(meta['object_id'], item.meta['object_id'])
+        self.assertNotIn('ignore_me', item.meta)
+
     def test_getting_item_as_dict(self):
-        """ Getting event as dict """
+        """ Getting item as dict """
         item = Item(type='plain_text', data=dict(prop='value'))
         self.assertTrue(type(item.to_dict()) is dict)
 

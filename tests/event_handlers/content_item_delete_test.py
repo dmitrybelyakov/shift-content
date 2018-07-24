@@ -61,8 +61,8 @@ class ContentItemDeleteTest(BaseTestCase):
             result = conn.execute(items.insert(), **item.to_db())
             item.id = result.inserted_primary_key[0]
 
-        payload_rollback = item.to_dict()
-        payload_rollback['created'] = payload_rollback['created'].strftime(
+        rollback = item.to_dict()
+        rollback['meta']['created'] = rollback['meta']['created'].strftime(
             item.date_format
         )
 
@@ -72,7 +72,7 @@ class ContentItemDeleteTest(BaseTestCase):
             author=456,
             object_id=object_id,
             payload=None,
-            payload_rollback=payload_rollback
+            payload_rollback=rollback
         )
 
         handler = ContentItemDelete(db=self.db)
