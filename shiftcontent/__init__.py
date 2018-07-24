@@ -24,5 +24,5 @@ events = EventService(db=db, handlers=content_handlers)
 
 # init content (needs db and events)
 from .content_service import ContentService
-content = ContentService()
+content_service = ContentService()
 
