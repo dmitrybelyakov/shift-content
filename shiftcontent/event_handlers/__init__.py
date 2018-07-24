@@ -1,2 +1,6 @@
 from .content_item_create import ContentItemCreate
 from .content_item_delete import ContentItemDelete
+from .content_item_update import ContentItemUpdate
+from .content_item_update_field import ContentItemFieldUpdateField
+
+

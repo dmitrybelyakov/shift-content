@@ -14,8 +14,9 @@ class ContentItemDelete(BaseHandler):
 
     def handle(self, event):
         """
-        Create content item and return an event for further
+        Delete content item and return an event for further
         handler chaining.
+
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """

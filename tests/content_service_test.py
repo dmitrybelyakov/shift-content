@@ -136,7 +136,7 @@ class ContentServiceTest(BaseTestCase):
 
     def test_raise_when_creating_an_item_of_undefined_type(self):
         """ Raise when creating content item of undefined type """
-        with self.assertRaises(x.UndefinedContentType) as cm:
+        with self.assertRaises(x.UndefinedContentType):
             content_service.create_item(
                 author='123',
                 content_type='BAD!',
@@ -163,7 +163,7 @@ class ContentServiceTest(BaseTestCase):
             data=data
         )
         object_id = item.object_id
-        content_service.delete_item(item.object_id, author)
+        content_service.delete_item(author, item.object_id)
 
         with self.db.engine.begin() as conn:
             items = self.db.tables['items']
@@ -171,4 +171,32 @@ class ContentServiceTest(BaseTestCase):
             result = conn.execute(query).fetchone()
             self.assertIsNone(result)
 
+    def test_raise_when_updating_item_of_bad_type(self):
+        """ Fail to update item of bad type """
+        with self.assertRaises(x.ItemError) as cm:
+            content_service.update_item(author='12345', item=dict())
+        self.assertIn('Update function expects', str(cm.exception))
+
+    def test_raise_on_updating_nonexistent_item(self):
+        """ test when trying to update nonexistent item """
+        with self.assertRaises(x.ItemNotFound) as cm:
+            item = Item(type='plain_text', author=123, body='I am a body')
+            content_service.update_item(author=123, item=item)
+
+        self.assertIn('Item must be saved first', str(cm.exception))
+
+    def test_updating_content_item(self):
+        """ Updating content item """
+        type = 'plain_text'
+        author = 123
+        data = dict(body='I am a simple content item')
+        item = content_service.create_item(
+            author=author,
+            content_type=type,
+            data=data
+        )
+
+        item.body = 'I am updated body'
+        updated = content_service.update_item(author, item)
+        self.assertEquals('I am updated body', updated.body)
 

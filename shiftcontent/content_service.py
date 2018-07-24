@@ -94,6 +94,8 @@ class ContentService:
         # and return
         return schema
 
+    # TODO: RENAME DATA TO FIELDS
+
     def create_item(self, author, content_type, data, parent=None):
         """
         Create item
@@ -105,7 +107,7 @@ class ContentService:
         :param content_type: str, content type
         :param data: dict, content item fields
         :param parent: shiftcontent.item.Item, parent item
-        :return:
+        :return: shiftcontent.itemItem
         """
         # drop nonexistent fields
         type_definition = definition_service.get_type(content_type)
@@ -138,13 +140,66 @@ class ContentService:
         event = event_service.emit(event)
         return self.get_item(event.object_id)
 
-    def delete_item(self, object_id, author):
+    def update_item(self, author, item):
+        """
+        Update item
+        Accepts an item object validates it and tries to persist it. Will
+        return validation errors if item is in invalid state, otherwise will
+        emit an event.
+        :param author: str, author id
+        :param item: shiftcontent.item.Item, item object (must be saved first)
+        :return: shiftcontent.item.Item
+        """
+        if not isinstance(item, Item):
+            err = "Update function expects shiftcontent.item.Item, got [{}]"
+            raise x.ItemError(err.format(type(item)))
+
+        object_id = item.object_id
+        new_data = item.to_dict()
+        new_data['meta']['created'] = item.created_string
+
+        item = self.get_item(object_id) if object_id else None
+        if not item:
+            err = 'Item must be saved first to be updated. We were unable ' \
+                  'to find item with such id [{}]'
+            raise x.ItemNotFound(err.format(object_id))
+
+        old_data = item.to_dict()
+        old_data['meta']['created'] = item.created_string
+
+        # create event
+        event = event_service.event(
+            type='CONTENT_ITEM_UPDATE',
+            author=author,
+            object_id=object_id,
+            payload=new_data,
+            payload_rollback=old_data
+        )
+
+        # and emit
+        event = event_service.emit(event)
+        return self.get_item(event.object_id)
+
+
+    def update_item_field(self, author, object_id, field, value):
+        """
+        Update item field
+        Updates single field on an item
+        :param author: str, author id
+        :param object_id: str, object id to update
+        :param field: str, field name
+        :param value: str, new value to set
+        :return: shiftcontent.itemItem
+        """
+        pass
+
+    def delete_item(self, author, object_id):
         """
         Delete content item
         Emits content deletion event.
 
-        :param object_id: str, item object id to delete
         :param author: str or int, author id
+        :param object_id: str, item object id to delete
         :return: shiftcontent.content_service.ContentService
         """
         item = self.get_item(object_id)
