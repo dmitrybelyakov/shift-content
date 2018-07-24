@@ -2,11 +2,11 @@ from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
 from pprint import pprint as pp
-from shiftcontent.schema.validator import DefinitionSchema
-from shiftcontent.schema.validator import TypeSchema
-from shiftcontent.schema.validator import FieldSchema
-from shiftcontent.schema.validator import FilterSchema
-from shiftcontent.schema.validator import ValidatorSchema
+from shiftcontent.definition_schema.schema import DefinitionSchema
+from shiftcontent.definition_schema.schema import TypeSchema
+from shiftcontent.definition_schema.schema import FieldSchema
+from shiftcontent.definition_schema.schema import FilterSchema
+from shiftcontent.definition_schema.schema import ValidatorSchema
 
 
 @attr('schema', 'definition')

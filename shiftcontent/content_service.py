@@ -6,7 +6,7 @@ from shiftcontent.item_schema import CreateItemSchema, UpdateItemSchema
 from shiftcontent.utils import import_by_name
 
 from shiftcontent import db
-from shiftcontent import definition
+from shiftcontent import definition_service
 from shiftcontent import events
 
 
@@ -33,7 +33,7 @@ class ContentService:
                 return
 
         try:
-            definition.get_type_schema(result.type)
+            definition_service.get_type(result.type)
         except x.UndefinedContentType:
             msg = 'Database contains item ({}) of undefined type [{}]'
             raise x.UndefinedContentType(msg.format(result.id, result.type))
@@ -65,7 +65,7 @@ class ContentService:
         schema = schema_types[schema_type]()
 
         # add filter/validators defined in schema
-        type_definition = definition.get_type_schema(content_type)
+        type_definition = definition_service.get_type(content_type)
 
         for field in type_definition['fields']:
             filters = field['filters'] if field['filters'] else ()
@@ -108,7 +108,7 @@ class ContentService:
         :return:
         """
         # drop nonexistent fields
-        type_definition = definition.get_type_schema(content_type)
+        type_definition = definition_service.get_type(content_type)
         valid_fields = [field['handle'] for field in type_definition['fields']]
         fields = {f: v for f, v in data.items() if f in valid_fields}
 
@@ -120,7 +120,7 @@ class ContentService:
             **fields
         )
 
-        context = dict(definition=definition.schema)
+        context = dict(definition=definition_service.definition)
         schema = self.item_schema(content_type, 'create')
         result = schema.process(item_data, context)
         if not result:

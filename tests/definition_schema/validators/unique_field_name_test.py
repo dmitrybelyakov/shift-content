@@ -2,7 +2,7 @@ from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
 
-from shiftcontent.schema.validators import UniqueFieldName
+from shiftcontent.definition_schema.validators import UniqueFieldName
 
 
 @attr('schema', 'validators', 'unique_field_name')

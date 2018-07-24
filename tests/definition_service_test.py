@@ -6,27 +6,27 @@ import hashlib
 import yaml
 import json
 from pprint import pprint as pp
-from shiftcontent.schema_service import SchemaService
+from shiftcontent.definition_service import DefinitionService
 from shiftcontent import exceptions as x
 
 
-@attr('schema', 'service')
-class SchemaServiceTest(BaseTestCase):
+@attr('definition', 'service')
+class DefinitionServiceTest(BaseTestCase):
 
-    def test_create_schema_service(self):
-        """ Creating schema service"""
-        service = SchemaService(
-            schema_path=self.schema_path,
+    def test_create_definition_service(self):
+        """ Creating definition service"""
+        service = DefinitionService(
+            definition_path=self.definition_path,
             revisions_path=self.revisions_path
         )
-        self.assertIsInstance(service, SchemaService)
+        self.assertIsInstance(service, DefinitionService)
 
     def test_create_revisions_directory_on_first_access(self):
-        """ Create directory for schema revisions if does not exist """
+        """ Create directory for definition revisions if does not exist """
         path = self.revisions_path
-        service = SchemaService()
+        service = DefinitionService()
         service.init(
-            schema_path=self.schema_path,
+            definition_path=self.definition_path,
             revisions_path=path
         )
 
@@ -35,27 +35,27 @@ class SchemaServiceTest(BaseTestCase):
 
     def test_registry_is_empty_if_no_file(self):
         """ Return empty dict if registry file does not exist"""
-        service = SchemaService()
+        service = DefinitionService()
         service.init(
-            schema_path=self.schema_path,
+            definition_path=self.definition_path,
             revisions_path=self.revisions_path
         )
 
-        registry = service.schema_revisions
+        registry = service.revisions
         self.assertTrue(type(registry) is dict)
         self.assertFalse(registry)
 
     def test_load_parse_and_return_existing_registry(self):
         """ Existing registry can be loaded successfully into a dict"""
-        service = SchemaService()
+        service = DefinitionService()
         service.init(
-            schema_path=self.schema_path,
+            definition_path=self.definition_path,
             revisions_path=self.revisions_path
         )
 
         registry = {
             '91827219871298': {
-                'schema_file': '102981209821.yml',
+                'definition_file': '102981209821.yml',
                 'date': '2016-04-22 12:45:00'
             }
         }
@@ -65,21 +65,21 @@ class SchemaServiceTest(BaseTestCase):
         with open(registry_file, 'w') as file:
             file.write(registry_json)
 
-        loaded_registry = service.schema_revisions
+        loaded_registry = service.revisions
         self.assertEquals(registry, loaded_registry)
 
-    def test_raise_when_unable_to_find_schema(self):
-        """ Content service raises exception when unable to find schema file"""
-        service = SchemaService()
+    def test_raise_when_unable_to_find_definition(self):
+        """ Raise exception when unable to find definition file"""
+        service = DefinitionService()
         service.init(
-            schema_path='/nothing/here',
+            definition_path='/nothing/here',
             revisions_path=self.revisions_path
         )
         with self.assertRaises(x.ConfigurationException):
             service.load_definition()
 
     def test_raise_when_definition_fails_validation(self):
-        """ Raise exception when schema fails validation"""
+        """ Raise exception when definition fails validation"""
         invalid = {'content': [
             {
                 'name': 'Markdown',
@@ -93,17 +93,17 @@ class SchemaServiceTest(BaseTestCase):
         with open(path, 'w') as stream:
             yaml.dump(invalid, stream)
 
-        service = SchemaService()
+        service = DefinitionService()
         service.init(
-            schema_path=path,
+            definition_path=path,
             revisions_path=self.revisions_path
         )
 
-        with self.assertRaises(x.InvalidSchema):
+        with self.assertRaises(x.InvalidDefinition):
             service.load_definition()
 
-    def test_ingest_valid_schema(self):
-        """ Save schema file to schema revisions backlog """
+    def test_ingest_valid_definition(self):
+        """ Save definition file to revisions backlog """
         valid = {'content': [
             {
                 'name': 'Markdown',
@@ -125,15 +125,15 @@ class SchemaServiceTest(BaseTestCase):
         with open(path, 'w') as stream:
             yaml.dump(valid, stream)
 
-        service = SchemaService()
+        service = DefinitionService()
         service.init(
-            schema_path=path,
+            definition_path=path,
             revisions_path=self.revisions_path
         )
 
         try:
-            schema = service.schema
-        except x.InvalidSchema as err:
+            definition = service.definition
+        except x.InvalidDefinition as err:
             print(err.validation_errors)
 
         with open(path) as yml:
@@ -145,28 +145,28 @@ class SchemaServiceTest(BaseTestCase):
         self.assertTrue(os.path.isfile(target))
 
         # assert saved to registry
-        registry = service.schema_revisions
+        registry = service.revisions
         self.assertEquals(
             hash + '.yml',
-            registry[list(registry.keys())[0]]['schema_file']
+            registry[list(registry.keys())[0]]['definition_file']
         )
 
-    def test_abort_schema_revision_registering_if_no_file(self):
+    def test_abort_definition_revision_registering_if_no_file(self):
         """ Abort adding revision to registry if file not found """
-        service = SchemaService()
+        service = DefinitionService()
         service.init(
-            schema_path=self.schema_path,
+            definition_path=self.definition_path,
             revisions_path=self.revisions_path
         )
 
-        with self.assertRaises(x.UnableToRegisterSchemaRevision):
+        with self.assertRaises(x.UnableToRegisterRevision):
             service.register_revision('nothing.yml')
 
-    def test_can_register_schema_revision(self):
-        """ Registering schema revision"""
-        service = SchemaService()
+    def test_can_register_definition_revision(self):
+        """ Registering definition revision"""
+        service = DefinitionService()
         service.init(
-            schema_path=self.schema_path,
+            definition_path=self.definition_path,
             revisions_path=self.revisions_path
         )
 
@@ -176,33 +176,33 @@ class SchemaServiceTest(BaseTestCase):
             revision.writelines(['revision yaml data'])
 
         service.register_revision('randomhash.yml')
-        registry = service.schema_revisions
+        registry = service.revisions
         self.assertTrue(type(registry) is dict)
         self.assertEquals(1, len(registry.keys()))
         self.assertEquals(
             'randomhash.yml',
-            registry[list(registry.keys())[0]]['schema_file']
+            registry[list(registry.keys())[0]]['definition_file']
         )
 
-    def test_get_content_type_schema_by_handle(self):
-        """ Getting content type schema by handle"""
-        service = SchemaService()
+    def test_get_content_type_definition_by_handle(self):
+        """ Getting content type definition by handle"""
+        service = DefinitionService()
         service.init(
-            schema_path=self.schema_path,
+            definition_path=self.definition_path,
             revisions_path=self.revisions_path
         )
 
-        type_schema = service.get_type_schema('plain_text')
-        self.assertTrue(type_schema)
-        self.assertEquals('plain_text', type_schema['handle'])
+        type_definition = service.get_type('plain_text')
+        self.assertTrue(type_definition)
+        self.assertEquals('plain_text', type_definition['handle'])
 
-    def test_raise_when_getting_type_schema_for_nonexistent_type(self):
-        """ Raise exception when getting type schema for nonexistent type """
-        service = SchemaService()
+    def test_raise_when_getting_type_definition_for_nonexistent_type(self):
+        """ Raise when getting type definition for nonexistent type """
+        service = DefinitionService()
         service.init(
-            schema_path=self.schema_path,
+            definition_path=self.definition_path,
             revisions_path=self.revisions_path
         )
         with self.assertRaises(x.UndefinedContentType) as cm:
-            service.get_type_schema('WOOPS')
+            service.get_type('WOOPS')
         self.assertIn('Unable to find definition', str(cm.exception))

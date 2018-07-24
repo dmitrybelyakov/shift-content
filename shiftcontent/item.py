@@ -4,6 +4,7 @@ import copy
 from datetime import datetime
 from pprint import pprint as pp
 
+
 class Item:
     """
     Content item
@@ -27,8 +28,8 @@ class Item:
         :param kwargs: dict, key-value pairs used to populate the item
         """
         try:
-            from shiftcontent import definition
-            type_definition = definition.get_type_schema(type)
+            from shiftcontent import definition_service
+            type_definition = definition_service.get_type(type)
         except x.UndefinedContentType:
             err = 'Unable to create item. Content type [{}] is undefined'
             raise x.ContentItemError(err.format(type))
@@ -57,7 +58,6 @@ class Item:
             # upvotes=None,
             # downvotes=None,
         )
-
 
         # populate from dict if got kwargs
         self.from_dict(kwargs)

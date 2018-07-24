@@ -2,7 +2,7 @@ from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
 
-from shiftcontent.schema.validators import UniqueTypeHandle
+from shiftcontent.definition_schema.validators import UniqueTypeHandle
 
 
 @attr('schema', 'validators', 'unique_type_handle')

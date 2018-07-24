@@ -14,8 +14,8 @@ from .database.db import Db
 db = Db()
 
 # init schema (no dependencies)
-from .schema_service import SchemaService
-definition = SchemaService()
+from .definition_service import DefinitionService
+definition_service = DefinitionService()
 
 # init events (needs db)
 from shiftevent.event_service import EventService

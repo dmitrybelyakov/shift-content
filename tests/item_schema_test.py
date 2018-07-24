@@ -2,7 +2,7 @@ from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
 from shiftcontent.item_schema import UpdateItemSchema
-from shiftcontent.schema_service import SchemaService
+from shiftcontent.definition_service import DefinitionService
 from pprint import pprint as pp
 
 
@@ -37,9 +37,13 @@ class ItemSchemaTest(BaseTestCase):
 
     def test_type_must_exist(self):
         """ Default item schema: content type must exist """
-        schema_service = SchemaService(self.schema_path, self.revisions_path)
+        definition_service = DefinitionService(
+            self.definition_path,
+            self.revisions_path
+        )
+
         context = dict(
-            definition=schema_service.schema
+            definition=definition_service.definition
         )
 
         data = dict(

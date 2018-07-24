@@ -1,7 +1,7 @@
 from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
-from shiftcontent.schema.validators import Instantiatable
+from shiftcontent.definition_schema.validators import Instantiatable
 
 
 @attr('schema', 'validators', 'instantiatable')

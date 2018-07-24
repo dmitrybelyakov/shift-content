@@ -2,7 +2,7 @@ from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
 from shiftcontent.validators import TypeExists
-from shiftcontent.schema_service import SchemaService
+from shiftcontent.definition_service import DefinitionService
 from pprint import pprint as pp
 
 
@@ -16,16 +16,22 @@ class ContentTypeExistsTest(BaseTestCase):
 
     def test_existing_type_passes(self):
         """ Existing content type passes validation """
-        schema_service = SchemaService(self.schema_path, self.revisions_path)
-        context = dict(definition=schema_service.schema)
+        definition_service = DefinitionService(
+            self.definition_path,
+            self.revisions_path
+        )
+        context = dict(definition=definition_service.definition)
         validator = TypeExists()
         error = validator.validate('markdown', context=context)
         self.assertFalse(error)
 
     def test_nonexistent_type_fails(self):
         """ Nonexistent content type fails validation """
-        schema_service = SchemaService(self.schema_path, self.revisions_path)
-        context = dict(definition=schema_service.schema)
+        definition_service = DefinitionService(
+            self.definition_path,
+            self.revisions_path
+        )
+        context = dict(definition=definition_service.definition)
         validator = TypeExists()
         error = validator.validate('nonexistent', context=context)
         self.assertTrue(error)

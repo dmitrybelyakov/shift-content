@@ -22,10 +22,10 @@ class BaseTestCase(unittest.TestCase):
 
         # init services
         from shiftcontent import db
-        from shiftcontent import definition
+        from shiftcontent import definition_service
         self.db = db
         self.db.init(self.db_url)
-        definition.init(self.schema_path, self.revisions_path)
+        definition_service.init(self.definition_path, self.revisions_path)
 
         # create db now
         self.create_db()
@@ -67,8 +67,8 @@ class BaseTestCase(unittest.TestCase):
         return tmp
 
     @property
-    def schema_path(self):
-        """ Get path to content schema file """
+    def definition_path(self):
+        """ Get path to content definition file """
         path = os.path.join(os.getcwd(), 'tests', '_assets', 'content.yml')
         return path
 

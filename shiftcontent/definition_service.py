@@ -8,40 +8,40 @@ from pprint import pprint as pp
 from shiftcontent import exceptions as x
 
 
-
-# TODO: RENAME SCHEMA SERVICE TO DEFINITION SERVICE
-# TODO: TO AVOID CONFUSION WITH VALIDATION SCHEMAS
-
-class SchemaService:
+class DefinitionService:
     """
-    Schema service
-    Responsible for loading ant tracking schema fefinition file updates.
+    Content definition service
+    Responsible for loading ant tracking definition file updates.
     """
     def __init__(self, *args, **kwargs):
         """
         Init service
         If any parameters are given to constructor, a delayed initializer is
-        called withe these parameters.
+        called with these parameters.
         """
+        self.definition_path = None
+        self._revisions_path = None
+        self._definition = None
+
         if args or kwargs:
             self.init(*args, **kwargs)
 
-    def init(self, schema_path, revisions_path):
+    def init(self, definition_path, revisions_path):
         """
         Delayed service initializer
-        :param schema_path: str, yaml definition file path
-        :param known_path: str, where to store known schemas
+        :param definition_path: str, yaml definition file path
+        :param revisions_path: str, where to store definition revisions
         """
-        self.schema_path = schema_path
+        self.definition_path = definition_path
         self._revisions_path = revisions_path
-        self._schema = None
+        self._definition = None
 
     @property
     def revisions_path(self):
         """
         Revisions path
-        Returns path to directory where we store schema revisions. Will check
-        directory existence and create one if necessary .
+        Returns path to directory where we store definition revisions.
+        Will check directory existence and create one if necessary .
         :return: str
         """
         path = self._revisions_path
@@ -50,14 +50,14 @@ class SchemaService:
         return path
 
     @property
-    def schema_revisions(self):
+    def revisions(self):
         """
-        Schema revisions
+        Definition revisions
         Returns a registry of revision hashes stored in a file under
-        self.known_schemas. Backlog will have following structure:
+        self.revisions_path. Backlog will have following structure:
            backlog = {
                 '128762187612': {
-                    'schema_file': '102981209821.yml',
+                    'revision_file': '102981209821.yml',
                     'date': 'YYYY-MM-DD HH:mm:ss'
                 }
             }
@@ -75,44 +75,45 @@ class SchemaService:
         return text
 
     @property
-    def schema(self):
+    def definition(self):
         """
-        Schema
-        Returns current schema. If none is found will load from a definition.
+        Definition
+        Returns current definition. If none is found will load it from
+        definition file.
         :return: dict
         """
-        if not self._schema:
-            self._schema = self.load_definition()
-        return self._schema
+        if not self._definition:
+            self._definition = self.load_definition()
+        return self._definition
 
-    def get_type_schema(self, content_type):
+    def get_type(self, content_type):
         """
-        Get type schema
+        Get type definition
         Finds content type definition by it's handle and returns that. May
-        raise an error if requesting schema for nonexistent type.
+        raise an error if requesting definition for nonexistent type.
 
         :param content_type: str, content type handle
         :return: dict
         """
-        if content_type not in self.schema:
+        if content_type not in self.definition:
             msg = 'Unable to find definition for content type [{}]'
             raise x.UndefinedContentType(msg.format(content_type))
 
         # otherwise return
-        return self.schema[content_type]
+        return self.definition[content_type]
 
     def register_revision(self, revision_filename):
         """
         Register revision
         Creates a record in revisions registry with a given filename.
-        Will check revision file exisyence and abor if not found.
-        :param revision_filename: str, schema filename
+        Will check revision file existence and abort if not found.
+        :param revision_filename: str, definition filename
         :return: None
         """
         revision_file = os.path.join(self.revisions_path, revision_filename)
         if not os.path.isfile(revision_file):
             err = 'Error registering revision, revision file [{}] not found'
-            raise x.UnableToRegisterSchemaRevision(err.format(revision_file))
+            raise x.UnableToRegisterRevision(err.format(revision_file))
 
         registry_file = os.path.join(self.revisions_path, '_registry.yml')
         registry_tmp = os.path.join(self.revisions_path, '_registry.yml.tmp')
@@ -121,9 +122,9 @@ class SchemaService:
         utc_timestamp = str(dt.timestamp)
         date = dt.format('YYYY-MM-DD HH:mm:ss')
 
-        current_registry = self.schema_revisions
+        current_registry = self.revisions
         current_registry[utc_timestamp] = dict(
-            schema_file=revision_filename,
+            definition_file=revision_filename,
             date=date
         )
 
@@ -144,17 +145,17 @@ class SchemaService:
         Loads a definition from a yaml file
         :return: dict
         """
-        from shiftcontent.schema import validator
+        from shiftcontent.definition_schema import schema
 
-        if not os.path.exists(self.schema_path):
+        if not os.path.exists(self.definition_path):
             msg = 'Unable to locate definition file at path [{}]'
-            raise x.ConfigurationException(msg.format(self.schema_path))
+            raise x.ConfigurationException(msg.format(self.definition_path))
 
         # load yaml
-        with open(self.schema_path) as yml:
+        with open(self.definition_path) as yml:
             text = yml.read()
             yml = yaml.load(text)
-            schema = {t['handle'].lower(): t for t in yml['content']}
+            definition = {t['handle'].lower(): t for t in yml['content']}
 
         # hash to see if changed
         hash = hashlib.md5(str(text).encode('utf-8')).hexdigest()
@@ -163,29 +164,28 @@ class SchemaService:
 
         # return if not changed
         if not changed:
-            return schema
+            return definition
 
         # if changed, validate and persist
-        definitions_schema = validator.DefinitionSchema()
+        definitions_schema = schema.DefinitionSchema()
         ok = definitions_schema.process(yml)
         if not ok:
             errors = ok.get_messages()
-            raise x.InvalidSchema(validation_errors=errors)
+            raise x.InvalidDefinition(validation_errors=errors)
         else:
-            schema = {t['handle'].lower(): t for t in yml['content']}
+            definition = {t['handle'].lower(): t for t in yml['content']}
 
         # todo: trigger schema changed event
         # todo: check if fields were removed, field types changed etc
 
-        # save schema to backlog
-        shutil.copy(self.schema_path, revision_path)
+        # save definition to backlog
+        shutil.copy(self.definition_path, revision_path)
 
         # save to revision registry
         self.register_revision(hash + '.yml')
 
         # todo: fire an event
 
-
-
         # and return
-        return schema
+        return definition
+

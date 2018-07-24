@@ -2,7 +2,7 @@ from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
 
-from shiftcontent.schema.validators import Handle
+from shiftcontent.definition_schema.validators import Handle
 
 
 @attr('schema', 'validators', 'handle')

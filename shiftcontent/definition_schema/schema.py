@@ -1,7 +1,7 @@
 from shiftschema import validators
 from shiftschema import filters
-from shiftcontent.schema import validators as content_validators
-from shiftcontent.schema.base import BaseSchema
+from shiftcontent.definition_schema import validators as content_validators
+from shiftcontent.definition_schema.base import BaseSchema
 
 
 class DefinitionSchema(BaseSchema):

@@ -8,15 +8,15 @@ class ConfigurationException(ContentException, RuntimeError):
     pass
 
 
-class InvalidSchema(ContentException, RuntimeError):
-    """ Raised when loaded schema definition is invalid """
+class InvalidDefinition(ContentException, RuntimeError):
+    """ Raised when loaded definition is invalid """
     def __init__(self, *args, validation_errors=None, **kwargs):
         self.validation_errors = validation_errors
         super().__init__(*args, **kwargs)
 
 
-class UnableToRegisterSchemaRevision(ContentException, RuntimeError):
-    """ Raised when adding a bad schema revision file to regsitry """
+class UnableToRegisterRevision(ContentException, RuntimeError):
+    """ Raised when adding a bad definition revision file to registry """
     pass
 
 
