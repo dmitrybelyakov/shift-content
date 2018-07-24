@@ -25,6 +25,34 @@ class ContentServiceTest(BaseTestCase):
         service = ContentService()
         self.assertIsInstance(service, ContentService)
 
+
+    def test_creating_item_update_schema(self):
+        """ Create schema for content item update """
+        schema = content.item_schema('plain_text', 'update')
+        self.assertIsInstance(schema, UpdateItemSchema)
+
+        # assert custom filters and validators added to prop
+        self.assertIn('body', schema.properties)
+        prop = getattr(schema, 'body')
+        self.assertEquals(1, len(prop.filters))
+        self.assertEquals(2, len(prop.validators))
+
+    def test_creating_item_create_schema(self):
+        """ Create schema for content item creation """
+        schema = content.item_schema('plain_text', 'create')
+        self.assertIsInstance(schema, CreateItemSchema)
+
+        # assert custom filters and validators added to prop
+        self.assertIn('body', schema.properties)
+        prop = getattr(schema, 'body')
+        self.assertEquals(1, len(prop.filters))
+        self.assertEquals(2, len(prop.validators))
+
+    def test_raise_on_requesting_bad_schema_type(self):
+        """ Item schema type can be either create or update """
+        with self.assertRaises(x.InvalidItemSchemaType):
+            content.item_schema('plain_text', 'BAD')
+
     def test_get_item(self):
         """ Getting item by object id """
         object_id = str(uuid1())
@@ -50,7 +78,7 @@ class ContentServiceTest(BaseTestCase):
         object_id = str(uuid1())
         data = dict(
             author=123,
-            created= datetime.utcnow(),
+            created=datetime.utcnow(),
             object_id=object_id,
             type='nonexistent',
             data='{"body": "some content"}'
@@ -100,29 +128,10 @@ class ContentServiceTest(BaseTestCase):
         with self.assertRaises(x.UndefinedContentType) as cm:
             content.create_item(author='123', content_type='BAD!', data={})
 
-    def test_creating_item_update_schema(self):
-        """ Create schema for content item update """
-        schema = content.item_schema('plain_text', 'update')
-        self.assertIsInstance(schema, UpdateItemSchema)
+    def test_raise_on_deleting_nonexistent_item(self):
+        """ Raise when attempting to delete nonexistent item """
+        self.fail('Implement me!')
 
-        # assert custom filters and validators added to prop
-        self.assertIn('body', schema.properties)
-        prop = getattr(schema, 'body')
-        self.assertEquals(1, len(prop.filters))
-        self.assertEquals(2, len(prop.validators))
-
-    def test_creating_item_create_schema(self):
-        """ Create schema for content item creation """
-        schema = content.item_schema('plain_text', 'create')
-        self.assertIsInstance(schema, CreateItemSchema)
-
-        # assert custom filters and validators added to prop
-        self.assertIn('body', schema.properties)
-        prop = getattr(schema, 'body')
-        self.assertEquals(1, len(prop.filters))
-        self.assertEquals(2, len(prop.validators))
-
-    def test_raise_on_requesting_bad_schema_type(self):
-        """ Item schema type can be either create or update """
-        with self.assertRaises(x.InvalidItemSchemaType):
-            content.item_schema('plain_text', 'BAD')
+    def test_deleting_content_item(self):
+        """ Deleting content item """
+        self.fail('Implement me!')

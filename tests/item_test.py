@@ -22,7 +22,7 @@ class ItemTest(BaseTestCase):
 
     def test_raise_when_creating_item_of_undefined_type(self):
         """ Raise when creating item of undefined type """
-        with self.assertRaises(x.ContentItemError) as cm:
+        with self.assertRaises(x.ItemError) as cm:
             Item('lol')
         self.assertIn('is undefined', str(cm.exception))
 
@@ -99,7 +99,7 @@ class ItemTest(BaseTestCase):
     def test_raise_when_setting_non_dictionary_data(self):
         """ Raise when setting a payload that is not a dict """
         item = Item(type='plain_text')
-        with self.assertRaises(x.ContentItemError) as cm:
+        with self.assertRaises(x.ItemError) as cm:
             item.fields = [123]
 
         self.assertIn('Fields must be a dictionary', str(cm.exception))
@@ -107,7 +107,7 @@ class ItemTest(BaseTestCase):
     def test_raise_when_fails_to_decode_data_string(self):
         """ Raise when data string can not be decoded """
         item = Item(type='plain_text')
-        with self.assertRaises(x.ContentItemError) as cm:
+        with self.assertRaises(x.ItemError) as cm:
             item.fields = 'no-a-json-string'
         self.assertIn('Failed to decode fields string', str(cm.exception))
 

@@ -1,2 +1,2 @@
 from .content_item_create import ContentItemCreate
-
+from .content_item_delete import ContentItemDelete

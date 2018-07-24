@@ -128,9 +128,9 @@ class ContentService:
 
         # create event
         event = events.event(
+            type='CONTENT_ITEM_CREATE',
             author=author,
             object_id=item_data['object_id'],
-            type='CONTENT_ITEM_CREATE',
             payload=item_data
         )
 
@@ -138,12 +138,33 @@ class ContentService:
         event = events.emit(event)
         return self.get_item(event.object_id)
 
+    def delete_item(self, object_id, author):
+        """
+        Delete content item
+        Emits content deletion event.
 
-    def save_item(self, content_type, author, data):
-        pass
+        :param object_id: str, item object id to delete
+        :param author: str or int, author id
+        :return: shiftcontent.content_service.ContentService
+        """
+        item = self.get_item(object_id)
+        if not item:
+            err = 'Unable to delete nonexistent content item [{}]'
+            raise x.ItemNotFound(err.format(object_id))
 
-    def delete_item(self, type, author, data):
-        pass
+        payload=None
+        payload_rollback = item.to_dict()
+
+        # create event
+        event = events.event(
+            type='CONTENT_ITEM_DELETE',
+            author=author,
+            object_id=object_id,
+            payload=None,
+            payload_rollback=payload_rollback
+        )
+
+        print(event)
 
 
 

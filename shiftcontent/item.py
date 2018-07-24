@@ -32,7 +32,7 @@ class Item:
             type_definition = definition_service.get_type(type)
         except x.UndefinedContentType:
             err = 'Unable to create item. Content type [{}] is undefined'
-            raise x.ContentItemError(err.format(type))
+            raise x.ItemError(err.format(type))
 
         # init fields
         self.valid_fields = [f['handle'] for f in type_definition['fields']]
@@ -102,11 +102,11 @@ class Item:
             try:
                 fields = json.loads(fields, encoding='utf-8')
             except json.JSONDecodeError:
-                raise x.ContentItemError('Failed to decode fields string')
+                raise x.ItemError('Failed to decode fields string')
 
         if type(fields) is not dict:
             msg = 'Fields must be a dictionary, got {}'
-            raise x.ContentItemError(msg.format(type(fields)))
+            raise x.ItemError(msg.format(type(fields)))
 
         for prop, val in fields.items():
             if prop in self.valid_fields:

@@ -35,8 +35,13 @@ class DatabaseError(ContentException, Exception):
     pass
 
 
-class ContentItemError(DatabaseError, RuntimeError):
+class ItemError(ContentException, RuntimeError):
     """ Raised when there is an issue with content item object """
+    pass
+
+
+class ItemNotFound(ContentException, RuntimeError):
+    """ Raised when performing operations on nonexistent items """
     pass
 
 
