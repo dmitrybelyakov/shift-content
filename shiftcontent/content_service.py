@@ -152,7 +152,6 @@ class ContentService:
             err = 'Unable to delete nonexistent content item [{}]'
             raise x.ItemNotFound(err.format(object_id))
 
-        payload=None
         payload_rollback = item.to_dict()
         payload_rollback['created'] = payload_rollback['created'].strftime(
             item.date_format

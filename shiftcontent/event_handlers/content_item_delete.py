@@ -29,14 +29,19 @@ class ContentItemDelete(BaseHandler):
 
     def rollback(self, event):
         """ Rollback event """
-        print('ROLLBACK ITEM DELETE')
-        # items = db.tables['items']
-        # with db.engine.begin() as conn:
-        #     query = items.delete()\
-        #         .where(items.c.object_id == event.object_id)
-        #     conn.execute(query)
-        #
-        # return event
+        rollback_data = event.payload_rollback
+        if 'id' in rollback_data:
+            del rollback_data['id']
+
+        item = Item(**rollback_data)
+        item.created_string = event.payload_rollback['created']
+
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            result = conn.execute(items.insert(), **item.to_db())
+            item.id = result.inserted_primary_key[0]
+
+        return event
 
 
 
