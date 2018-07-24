@@ -1,12 +1,7 @@
 import unittest
 import os
 import shutil
-from sqlalchemy import MetaData
-from sqlalchemy import create_engine
-from shiftcontent.db.db import Db
-from shiftevent.db import Db as EventDb
 from shiftcontent import services
-
 
 
 class BaseTestCase(unittest.TestCase):
