@@ -20,7 +20,7 @@ definition_service = DefinitionService()
 # init events (needs db)
 from shiftevent.event_service import EventService
 from shiftcontent.handlers import content_handlers
-events = EventService(db=db, handlers=content_handlers)
+event_service = EventService(db=db, handlers=content_handlers)
 
 # init content (needs db and events)
 from .content_service import ContentService

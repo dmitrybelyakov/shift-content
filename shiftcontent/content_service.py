@@ -7,7 +7,7 @@ from shiftcontent.utils import import_by_name
 
 from shiftcontent import db
 from shiftcontent import definition_service
-from shiftcontent import events
+from shiftcontent import event_service
 
 
 class ContentService:
@@ -127,7 +127,7 @@ class ContentService:
             return result
 
         # create event
-        event = events.event(
+        event = event_service.event(
             type='CONTENT_ITEM_CREATE',
             author=author,
             object_id=item_data['object_id'],
@@ -135,7 +135,7 @@ class ContentService:
         )
 
         # and emit
-        event = events.emit(event)
+        event = event_service.emit(event)
         return self.get_item(event.object_id)
 
     def delete_item(self, object_id, author):
@@ -158,7 +158,7 @@ class ContentService:
         )
 
         # create event
-        event = events.event(
+        event = event_service.event(
             type='CONTENT_ITEM_DELETE',
             author=author,
             object_id=object_id,
@@ -167,7 +167,7 @@ class ContentService:
         )
 
         # and emit
-        events.emit(event)
+        event_service.emit(event)
         return self
 
 
