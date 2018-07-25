@@ -5,6 +5,7 @@ import json
 import hashlib
 import arrow
 from pprint import pprint as pp
+from frozendict import frozendict
 from shiftcontent import exceptions as x
 
 
@@ -164,7 +165,7 @@ class DefinitionService:
 
         # return if not changed
         if not changed:
-            return definition
+            return self.freeze_definition(definition)
 
         # if changed, validate and persist
         definitions_schema = schema.DefinitionSchema()
@@ -186,28 +187,36 @@ class DefinitionService:
 
         # todo: fire an event
 
-
-        # TODO: FORMAT ME
-        from frozendict import frozendict as fd
-        # freeze definition
-        for type in definition:
-            for index, field in enumerate(definition[type]['fields']):
-
-                if field['filters']:
-                    for fi, filter in enumerate(field['filters']):
-                        definition[type]['fields'][index]['filters'][fi] = fd(filter)
-                if field['validators']:
-                    for vi, validator in enumerate(field['validators']):
-                        definition[type]['fields'][index]['validators'][vi] = fd(validator)
-
-                definition[type]['fields'][index] = fd(definition[type]['fields'][index])
-
-            definition[type] = fd(definition[type])
-
-
-
-
-
         # and return
-        return definition
+        return self.freeze_definition(definition)
+
+    def freeze_definition(self, definition):
+        """
+        Freeze definition
+        Recursively freezes definition to prevent accidental in-place
+        modifications.
+
+        :param definition:
+        :return:
+        """
+        fd = self.freeze_definition
+
+        branch = dict()
+        for prop, val in definition.items():
+            if type(prop) is dict:
+                branch[prop] = fd(val)
+                continue
+
+            elif type(val) is list:
+                lst = [fd(v) if type(v) is dict else v for v in val]
+                branch[prop] = lst
+                continue
+
+            else:
+                branch[prop] = val
+
+        # freeze and return
+        return frozendict(branch)
+
+
 

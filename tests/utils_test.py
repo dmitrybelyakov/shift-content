@@ -3,7 +3,7 @@ from nose.plugins.attrib import attr
 import shiftschema
 import shiftschema.schema
 from shiftschema.schema import Schema
-
+from pprint import pprint as pp
 from shiftcontent.utils import import_by_name
 
 
@@ -27,4 +27,3 @@ class UtilsTest(BaseTestCase):
         name = 'shiftschema.schema.Schema'
         imported = import_by_name(name)
         self.assertEquals(imported, Schema)
-

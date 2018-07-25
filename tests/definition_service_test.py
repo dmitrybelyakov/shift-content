@@ -6,6 +6,7 @@ import hashlib
 import yaml
 import json
 from pprint import pprint as pp
+from frozendict import frozendict
 from shiftcontent.definition_service import DefinitionService
 from shiftcontent import exceptions as x
 
@@ -139,6 +140,9 @@ class DefinitionServiceTest(BaseTestCase):
         with open(path) as yml:
             text = yml.read()
 
+        # assert returned frozen
+        self.assertIsInstance(definition, frozendict)
+
         # assert saved to backlog
         hash = hashlib.md5(str(text).encode('utf-8')).hexdigest()
         target = os.path.join(self.revisions_path, hash + '.yml')
@@ -206,3 +210,45 @@ class DefinitionServiceTest(BaseTestCase):
         with self.assertRaises(x.UndefinedContentType) as cm:
             service.get_type('WOOPS')
         self.assertIn('Unable to find definition', str(cm.exception))
+
+    def test_freeze_definition(self):
+        """ Freezing content definition """
+        data = {
+            'content': [{
+                'handle': 'markdown',
+                'fields': [{
+                    'handle': 'body',
+                    'filters': [
+                        {
+                            'type': 'shiftcontent.filters.Strip'
+                        },
+                        {
+                            'type': 'shiftcontent.filters.Lowercase'
+                        }
+                    ],
+                    'validators': [{
+                        'type': 'shiftcontent.validators.Required'
+                    }]
+                }]
+            }]
+        }
+
+        service = DefinitionService()
+        frozen = service.freeze_definition(data)
+        self.assertIsInstance(frozen, frozendict)
+        self.assertIsInstance(frozen['content'][0], frozendict)
+        self.assertIsInstance(frozen['content'][0]['fields'][0], frozendict)
+        self.assertIsInstance(
+            frozen['content'][0]['fields'][0]['filters'][0], frozendict
+        )
+        self.assertIsInstance(
+            frozen['content'][0]['fields'][0]['validators'][0], frozendict
+        )
+
+        with self.assertRaises(TypeError) as cm:
+            frozen['content'][0]['fields'][0]['validators'][0]['type'] = 'crap'
+
+        self.assertIn(
+            "frozendict' object does not support item assignment",
+            str(cm.exception)
+        )
