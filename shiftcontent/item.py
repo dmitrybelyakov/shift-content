@@ -111,6 +111,17 @@ class Item:
 
         return self
 
+    def _set(self, property, value):
+        """
+        Internal set
+        Sets a property on itself avoiding overloading magic.
+        :param prop: str, property to set
+        :param val: vaue
+        :return: shiftcontent.content.ContentService
+        """
+        object.__setattr__(self, property, value)
+        return self
+
     def set_meta(self, meta):
         """
         Set meta
@@ -127,17 +138,6 @@ class Item:
                 if prop == 'created' and type(val) is str:
                     val = arrow.get(val).datetime
                 self.meta[prop] = val
-
-    def _set(self, property, value):
-        """
-        Internal set
-        Sets a property on itself avoiding overloading magic.
-        :param prop: str, property to set
-        :param val: vaue
-        :return: shiftcontent.content.ContentService
-        """
-        object.__setattr__(self, property, value)
-        return self
 
     def set_fields(self, fields):
         """
@@ -186,15 +186,24 @@ class Item:
 
         return data
 
-    def to_db(self):
+    def to_db(self, update=True):
         """
         To db
         Returns database representation for persistence. Same as to_dict but
-        fields are stringified.
+        fields are stringified. Additionally will drop fields that are
+        forbidden to change on existing items
         :return:
         """
         data = copy.copy(self.meta)
         data['fields'] = json.dumps(self.fields, ensure_ascii=False)
+
+        # for updates, filter out unchangeable fields
+        if update:
+            del data['type']
+            del data['id']
+            del data['object_id']
+            del data['author']
+
         return data
 
 

@@ -27,7 +27,7 @@ class ContentItemDeleteTest(BaseTestCase):
 
         items = self.db.tables['items']
         with self.db.engine.begin() as conn:
-            result = conn.execute(items.insert(), **item.to_db())
+            result = conn.execute(items.insert(), **item.to_db(update=False))
             item.id = result.inserted_primary_key[0]
 
         event = Event(
@@ -58,7 +58,7 @@ class ContentItemDeleteTest(BaseTestCase):
 
         items = self.db.tables['items']
         with self.db.engine.begin() as conn:
-            result = conn.execute(items.insert(), **item.to_db())
+            result = conn.execute(items.insert(), **item.to_db(update=False))
             item.id = result.inserted_primary_key[0]
 
         rollback = item.to_dict()

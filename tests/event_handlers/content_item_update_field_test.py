@@ -30,7 +30,7 @@ class ContentItemUpdateFieldTest(BaseTestCase):
             body='Initial body'
         ))
         with db.engine.begin() as conn:
-            result = conn.execute(items.insert(), **item.to_db())
+            result = conn.execute(items.insert(), **item.to_db(update=False))
             item.id = result.inserted_primary_key[0]
 
         event = Event(
@@ -72,7 +72,7 @@ class ContentItemUpdateFieldTest(BaseTestCase):
             body='Initial body'
         ))
         with db.engine.begin() as conn:
-            result = conn.execute(items.insert(), **item.to_db())
+            result = conn.execute(items.insert(), **item.to_db(update=False))
             item.id = result.inserted_primary_key[0]
 
         event = Event(
@@ -116,7 +116,7 @@ class ContentItemUpdateFieldTest(BaseTestCase):
             body='Initial body'
         ))
         with db.engine.begin() as conn:
-            result = conn.execute(items.insert(), **item.to_db())
+            result = conn.execute(items.insert(), **item.to_db(update=False))
             item.id = result.inserted_primary_key[0]
 
         event = Event(
@@ -159,7 +159,7 @@ class ContentItemUpdateFieldTest(BaseTestCase):
             body='Initial body'
         ))
         with db.engine.begin() as conn:
-            result = conn.execute(items.insert(), **item.to_db())
+            result = conn.execute(items.insert(), **item.to_db(update=False))
             item.id = result.inserted_primary_key[0]
 
         event = Event(

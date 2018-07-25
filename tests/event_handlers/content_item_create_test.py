@@ -25,9 +25,11 @@ class ContentItemCreateTest(BaseTestCase):
             object_id=object_id,
             payload=dict(
                 type='plain_text',
-                author=123,
-                object_id=object_id,
-                body='Some body content'
+                data=dict(
+                    author=123,
+                    object_id=object_id,
+                    body='Some body content'
+                )
             )
         )
 
@@ -49,9 +51,11 @@ class ContentItemCreateTest(BaseTestCase):
             object_id=object_id,
             payload=dict(
                 type='plain_text',
-                author=123,
-                object_id=object_id,
-                body='Some body content'
+                data=dict(
+                    author=123,
+                    object_id=object_id,
+                    body='Some body content'
+                )
             ),
             payload_rollback=None
         )

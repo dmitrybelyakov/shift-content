@@ -35,7 +35,7 @@ class ContentItemUpdateTest(BaseTestCase):
         old_data = item.to_dict(serialized=True)
 
         with db.engine.begin() as conn:
-            result = conn.execute(items.insert(), **item.to_db())
+            result = conn.execute(items.insert(), **item.to_db(update=False))
             item.id = result.inserted_primary_key[0]
 
         item.body = 'Updated body'
@@ -77,7 +77,7 @@ class ContentItemUpdateTest(BaseTestCase):
         old_data = item.to_dict(serialized=True)
 
         with db.engine.begin() as conn:
-            result = conn.execute(items.insert(), **item.to_db())
+            result = conn.execute(items.insert(), **item.to_db(update=False))
             item.id = result.inserted_primary_key[0]
 
         item.body = 'Updated body'

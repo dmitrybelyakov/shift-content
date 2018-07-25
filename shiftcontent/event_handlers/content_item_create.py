@@ -19,16 +19,11 @@ class ContentItemCreate(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-        type = event.payload['type']
-        del event.payload['type']
-        item = Item(
-            type=type,
-            **event.payload
-        )
+        item = Item(type=event.payload['type'], **event.payload['data'])
 
         items = db.tables['items']
         with db.engine.begin() as conn:
-            result = conn.execute(items.insert(), **item.to_db())
+            result = conn.execute(items.insert(), **item.to_db(update=False))
             item.id = result.inserted_primary_key[0]
 
         return event

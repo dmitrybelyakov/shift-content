@@ -112,11 +112,13 @@ class ContentService:
         valid_fields = [field['handle'] for field in type_definition['fields']]
         fields = {f: v for f, v in fields.items() if f in valid_fields}
 
+        object_id = str(uuid1())
+
         # validate data
         item_data = dict(
             type=content_type,
             author=author,
-            object_id=str(uuid1()),
+            object_id=object_id,
             **fields
         )
 
@@ -130,8 +132,15 @@ class ContentService:
         event = event_service.event(
             type='CONTENT_ITEM_CREATE',
             author=author,
-            object_id=item_data['object_id'],
-            payload=item_data
+            object_id=object_id,
+            payload=dict(
+                type=content_type,
+                data=dict(
+                    author=author,
+                    object_id=object_id,
+                    **{f: v for f, v in item_data.items() if f in valid_fields}
+                )
+            )
         )
 
         # and emit
@@ -203,6 +212,9 @@ class ContentService:
         data = item.to_dict()
         type = data['meta']['type']
 
+
+        # TODO: CHECK IF FIELD IS RESETTABLE (MOVE TO VALIDATOR?)
+
         # todo: not this again
         del data['meta']['id']
         del data['meta']['object_id']
@@ -261,10 +273,7 @@ class ContentService:
             err = 'Unable to delete nonexistent content item [{}]'
             raise x.ItemNotFound(err.format(object_id))
 
-        rollback = item.to_dict()
-        rollback['meta']['created'] = rollback['meta']['created'].strftime(
-            item.date_format
-        )
+        rollback = item.to_dict(serialized=True)
 
         # create event
         event = event_service.event(

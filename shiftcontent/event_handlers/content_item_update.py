@@ -24,11 +24,6 @@ class ContentItemUpdate(BaseHandler):
         item = Item(type=type, **event.payload)
         db_data = item.to_db()
 
-        # todo: come on already
-        del db_data['object_id']
-        del db_data['id']
-        del db_data['type']
-
         items = db.tables['items']
         with db.engine.begin() as conn:
             query = items.update().where(items.c.object_id == event.object_id)
@@ -42,10 +37,6 @@ class ContentItemUpdate(BaseHandler):
         del event.payload_rollback['meta']['type']
         item = Item(type=type, **event.payload_rollback)
         db_data = item.to_db()
-
-        del db_data['object_id']
-        del db_data['id']
-        del db_data['type']
 
         items = db.tables['items']
         with db.engine.begin() as conn:
