@@ -1,5 +1,4 @@
 from importlib import import_module
-from mprop import mproperty
 
 
 def import_by_name(name):
