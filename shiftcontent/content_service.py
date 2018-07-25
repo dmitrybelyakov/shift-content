@@ -209,20 +209,9 @@ class ContentService:
             err = 'Unable to find item with such id [{}]'
             raise x.ItemNotFound(err.format(object_id))
 
-        data = item.to_dict()
-        type = data['meta']['type']
-
-
-        # TODO: CHECK IF FIELD IS RESETTABLE (MOVE TO VALIDATOR?)
-
-        # todo: not this again
-        del data['meta']['id']
-        del data['meta']['object_id']
-        del data['meta']['type']
-
-        if field == 'meta' or (field not in data['meta'] and field not in data):
+        if not item.is_updatable(field):
             err = 'Field [{}] is not allowed for content type [{}]'
-            raise x.ItemError(err.format(field, type))
+            raise x.ItemError(err.format(field, item.type))
 
         # remember old value
         old_value = getattr(item, field)

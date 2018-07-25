@@ -81,6 +81,17 @@ class ItemTest(BaseTestCase):
         item.not_initialized = 'some value'
         self.assertNotIn('not_initialized', item.fields.keys())
 
+    def test_check_field_for_being_updatable(self):
+        """ testing field handles for being updatable """
+        item = Item(type='plain_text')
+        self.assertTrue(item.is_updatable('path'))
+        self.assertTrue(item.is_updatable('body'))
+
+        self.assertFalse(item.is_updatable('id'))
+        self.assertFalse(item.is_updatable('object_id'))
+        self.assertFalse(item.is_updatable('author_id'))
+        self.assertFalse(item.is_updatable('nonexistent'))
+
     def test_fail_to_set_nonexistent_field_when_bulk_setting_data(self):
         """ Setting data skips uninitialized fields """
         fields = dict(body='some_value', undefined='some other value')

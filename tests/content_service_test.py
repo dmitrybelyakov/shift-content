@@ -234,6 +234,7 @@ class ContentServiceTest(BaseTestCase):
         )
         with self.assertRaises(x.ItemError) as cm:
             content_service.update_item_field(author, item.object_id, 'z', '')
+
         self.assertIn('is not allowed for content type', str(cm.exception))
 
     def test_return_errors_when_updating_item_field_with_bad_data(self):

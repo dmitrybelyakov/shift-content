@@ -36,17 +36,23 @@ class Item:
         # 'downvotes',
     )
 
+    # impossible to change after creation
+    frozen_metafields = (
+        'id',
+        'object_id',
+        'author',
+        'type'
+    )
+
     # content type fields
     valid_fields = None
     fields = None
 
-    # TODO: FORBID TO CHANGE THESE PROPERTIES AFTER INITIALLY SET:
-    # TODO: AUTHOR
-    # TODO: TYPE
-    # TODO: ID
-    # TODO: OBJECT_ID
 
-    # TODO: ALLOW TO SET CREATED AS STRING
+    # TODO: RENDER REPRESENTATION AVAILABLE TO CLIENTS
+    # TODO: HOW DO WE DECODE DATA PICKELED IN JESON FOR FIELD TYPES? (DATES)
+    # TODO: WHAT ARE OTHER FIELD TYPES THAT WE HAVE
+
 
 
     def __init__(self, type, **kwargs):
@@ -121,6 +127,20 @@ class Item:
         """
         object.__setattr__(self, property, value)
         return self
+
+    def is_updatable(self, field):
+        """
+        Is updatable
+        Checks if field exists and is allowed to be updated.
+
+        :param field: str, field handle
+        :return:
+        """
+        if field in self.valid_fields or field in self.valid_metafields:
+            if field not in self.frozen_metafields:
+                return True
+
+        return False
 
     def set_meta(self, meta):
         """
