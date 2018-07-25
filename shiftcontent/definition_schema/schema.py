@@ -93,6 +93,7 @@ class FieldSchema(BaseSchema):
         self.handle.add_filter(filters.Strip())
         self.handle.add_validator(content_validators.Handle())
         self.handle.add_validator(content_validators.UniqueFieldHandle())
+        self.handle.add_validator(content_validators.NonMetafieldHandle())
         self.handle.add_validator(validators.Required(
             message='Field requires a handle'
         ))

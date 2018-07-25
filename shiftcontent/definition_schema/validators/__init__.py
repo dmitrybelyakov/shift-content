@@ -5,3 +5,4 @@ from .unique_type_handle import UniqueTypeHandle
 from .importable import Importable
 from .instantiatable import Instantiatable
 from .handle import Handle
+from .non_metafield_handle import NonMetafieldHandle
