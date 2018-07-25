@@ -11,7 +11,11 @@ class Item:
     Represents a projection of a content item
     """
 
-    # valid metafields
+    # datetime format
+    date_format = '%Y-%m-%d %H:%M:%S'
+
+    # metadata fields
+    meta = None
     valid_metafields = (
         'id',
         'created',
@@ -32,17 +36,9 @@ class Item:
         # 'downvotes',
     )
 
-    # metadata fields
-    meta = dict()
-
-    # valid custom fields
-    valid_fields = ()
-
-    # custom fields
+    # content type fields
+    valid_fields = None
     fields = dict()
-
-    # used when serializing
-    date_format = '%Y-%m-%d %H:%M:%S'
 
     def __init__(self, type, **kwargs):
         """
@@ -59,12 +55,17 @@ class Item:
             raise x.ItemError(err.format(type))
 
         # init meta
-        self.meta = {prop: None for prop in self.valid_metafields}
-        self.meta['type'] = type
+        meta = {prop: None for prop in self.valid_metafields}
+        meta['type'] = type
+        object.__setattr__(self, 'meta', meta)
+
+        # init valid type fields
+        valid_fields = [f['handle'] for f in type_definition['fields']]
+        object.__setattr__(self, 'valid_fields', valid_fields)
 
         # init fields
-        self.valid_fields = [f['handle'] for f in type_definition['fields']]
-        self.fields = {field: None for field in self.valid_fields}
+        fields = {field: None for field in self.valid_fields}
+        object.__setattr__(self, 'fields', fields)
 
         # populate from dict if got kwargs
         self.from_dict(kwargs)

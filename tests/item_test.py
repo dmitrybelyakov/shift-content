@@ -109,6 +109,11 @@ class ItemTest(BaseTestCase):
 
         item = Item(type='plain_text')
         item.meta = meta
+
+        # assert not class-level
+        self.assertIsNone(Item.meta)
+
+        # but instance level
         self.assertEquals('plain_text', item.meta['type'])
         self.assertEquals(meta['id'], item.meta['id'])
         self.assertEquals(meta['author'], item.meta['author'])
