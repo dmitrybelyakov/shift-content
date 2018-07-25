@@ -25,6 +25,7 @@ class ContentItemUpdate(BaseHandler):
         item.created_string = item.created
         db_data = item.to_db()
 
+        # todo: come on already
         del db_data['object_id']
         del db_data['id']
         del db_data['type']
@@ -38,24 +39,21 @@ class ContentItemUpdate(BaseHandler):
 
     def rollback(self, event):
         """ Rollback event """
-        print('ROLLBACK CONTENT ITEM UPDATE')
-        pp(event)
-        # rollback_data = event.payload_rollback
-        # if 'id' in rollback_data:
-        #     del rollback_data['id']
-        #
-        # type = rollback_data['meta']['type']
-        # del rollback_data['meta']['type']
-        #
-        # item = Item(type=type, **rollback_data)
-        # item.created_string = event.payload_rollback['meta']['created']
-        #
-        # items = db.tables['items']
-        # with db.engine.begin() as conn:
-        #     result = conn.execute(items.insert(), **item.to_db())
-        #     item.id = result.inserted_primary_key[0]
-        #
-        # return event
+        type = event.payload_rollback['meta']['type']
+        del event.payload_rollback['meta']['type']
+        item = Item(type=type, **event.payload_rollback)
+
+        item.created_string = item.created
+        db_data = item.to_db()
+
+        del db_data['object_id']
+        del db_data['id']
+        del db_data['type']
+
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            query = items.update().where(items.c.object_id == event.object_id)
+            conn.execute(query.values(**db_data))
 
 
 

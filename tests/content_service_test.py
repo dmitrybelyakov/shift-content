@@ -182,7 +182,6 @@ class ContentServiceTest(BaseTestCase):
         with self.assertRaises(x.ItemNotFound) as cm:
             item = Item(type='plain_text', author=123, body='I am a body')
             content_service.update_item(author=123, item=item)
-
         self.assertIn('Item must be saved first', str(cm.exception))
 
     def test_updating_content_item(self):
