@@ -67,6 +67,10 @@ class ItemTest(BaseTestCase):
             fields={'body': 'some payload'}
         )
 
+        # assert not class-level
+        self.assertIsNone(Item.fields)
+        self.assertIsNone(Item.meta)
+
         item = Item(type='plain_text', **data)
         for prop in data.keys():
             self.assertEquals(data[prop], getattr(item, prop))

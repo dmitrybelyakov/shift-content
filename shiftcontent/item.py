@@ -38,7 +38,7 @@ class Item:
 
     # content type fields
     valid_fields = None
-    fields = dict()
+    fields = None
 
     # TODO: FORBID TO CHANGE THESE PROPERTIES AFTER INITIALLY SET:
     # TODO: AUTHOR
