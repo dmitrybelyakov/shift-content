@@ -1,7 +1,7 @@
 from shiftevent.handlers.base import BaseHandler
-from shiftcontent.item import Item
 from shiftcontent import db
 from pprint import pprint as pp
+import json
 
 
 class ContentItemFieldUpdateField(BaseHandler):
@@ -19,15 +19,32 @@ class ContentItemFieldUpdateField(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-        print('UPDATE CONTENT ITEM FIELD')
-        pp(event)
-        # items = db.tables['items']
-        # with db.engine.begin() as conn:
-        #     conn.execute(items.delete().where(
-        #         items.c.object_id == event.object_id
-        #     ))
-        #
-        # return event
+
+        items = db.tables['items']
+
+        field = event.payload['field']
+        value = event.payload['value']
+
+        # update metafield
+        if event.payload['metafield']:
+            values = dict()
+            values[field] = value
+            query = items.update().where(items.c.object_id == event.object_id)
+            with db.engine.begin() as conn:
+                conn.execute(query.values(**values))
+
+        # update custom field
+        if not event.payload['metafield']:
+            select = items.select().where(items.c.object_id == event.object_id)
+            update = items.update().where(items.c.object_id == event.object_id)
+            with db.engine.begin() as conn:
+                item = conn.execute(select).fetchone()
+                fields = json.loads(item.fields, encoding='utf-8')
+                fields[field] = value
+                fields = json.dumps(fields, ensure_ascii=False)
+                conn.execute(update.values(fields=fields))
+
+        return event
 
     def rollback(self, event):
         """ Rollback event """

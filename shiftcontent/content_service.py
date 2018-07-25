@@ -4,11 +4,9 @@ from shiftcontent import exceptions as x
 from shiftcontent.item import Item
 from shiftcontent.item_schema import CreateItemSchema, UpdateItemSchema
 from shiftcontent.utils import import_by_name
-
 from shiftcontent import db
 from shiftcontent import definition_service
 from shiftcontent import event_service
-import copy
 
 
 class ContentService:
@@ -158,11 +156,9 @@ class ContentService:
 
         object_id = str(item.object_id)
         new_data = item.to_dict()
+
+        # todo: this is not pretty
         new_data['meta']['created'] = item.created_string
-
-
-        # todo: as soon as we get item our incoming item is replaced - WTF!
-
 
         old_item = self.get_item(object_id) if object_id else None
         if not old_item:
@@ -173,20 +169,14 @@ class ContentService:
         # validate
         context = dict(definition=definition_service.definition)
         schema = self.item_schema(item.type, schema_type='update')
-
-
-        print('VALIDATING!')
-        pp(item.to_dict())
-
         ok = schema.process(item, context=context)
         if not ok:
-            return ok.get_messages()
+            return ok
 
         # prepare payload
         old_data = old_item.to_dict()
         old_data['meta']['created'] = item.created_string
         new_data['meta']['type'] = old_data['meta']['type']
-        # todo: that's not pretty why do we have to do it all over the place?
 
         # create event
         event = event_service.event(
@@ -211,8 +201,6 @@ class ContentService:
         :param value: str, new value to set
         :return: shiftcontent.itemItem
         """
-        print('UPDATING ITEM FIELD')
-
         item = self.get_item(object_id)
         if not item:
             err = 'Unable to find item with such id [{}]'
@@ -220,14 +208,50 @@ class ContentService:
 
         data = item.to_dict()
         type = data['meta']['type']
+
+        # todo: not this again
         del data['meta']['id']
         del data['meta']['object_id']
         del data['meta']['type']
+
         if field == 'meta' or (field not in data['meta'] and field not in data):
             err = 'Field [{}] is not allowed for content type [{}]'
             raise x.ItemError(err.format(field, type))
 
+        # remember old value
+        old_value = getattr(item, field)
 
+        # validate
+        setattr(item, field, value)
+        context = dict(definition=definition_service.definition)
+        schema = self.item_schema(item.type, schema_type='update')
+        ok = schema.process(item, context=context)
+        if not ok:
+            return ok
+
+        # is this a metafield?
+        is_metafield = field in item.valid_metafields
+
+        # create event
+        event = event_service.event(
+            type='CONTENT_ITEM_UPDATE_FIELD',
+            author=author,
+            object_id=object_id,
+            payload=dict(
+                metafield=is_metafield,
+                field=field,
+                value=value
+            ),
+            payload_rollback=dict(
+                metafield=is_metafield,
+                field=field,
+                value=old_value
+            )
+        )
+
+        # and emit
+        event = event_service.emit(event)
+        return self.get_item(event.object_id)
 
     def delete_item(self, author, object_id):
         """
