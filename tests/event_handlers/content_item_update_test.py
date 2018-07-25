@@ -10,7 +10,7 @@ from shiftcontent import db
 
 
 @attr('event', 'handler', 'content_item_update')
-class ContentItemCreateTest(BaseTestCase):
+class ContentItemUpdateTest(BaseTestCase):
 
     def test_instantiating_handler(self):
         """ Instantiating content item create handler """

@@ -40,6 +40,15 @@ class Item:
     valid_fields = None
     fields = dict()
 
+    # TODO: FORBID TO CHANGE THESE PROPERTIES AFTER INITIALLY SET:
+    # TODO: AUTHOR
+    # TODO: TYPE
+    # TODO: ID
+    # TODO: OBJECT_ID
+
+    # TODO: ALLOW TO SET CREATED AS STRING
+
+
     def __init__(self, type, **kwargs):
         """
         Instantiate item
