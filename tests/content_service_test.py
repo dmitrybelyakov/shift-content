@@ -98,11 +98,11 @@ class ContentServiceTest(BaseTestCase):
         """ Create a simple content item """
         type = 'plain_text'
         author = 123
-        data = dict(body='I am a simple content item')
+        fields = dict(body='I am a simple content item')
         item = content_service.create_item(
             author=author,
             content_type=type,
-            data=data
+            fields=fields
         )
         self.assertEquals(1, item.id)
 
@@ -110,11 +110,11 @@ class ContentServiceTest(BaseTestCase):
         """ Incoming data is filtered with schema when creeating item """
         type = 'plain_text'
         author = 123
-        data = dict(body='   I am a simple content item   ')
+        fields = dict(body='   I am a simple content item   ')
         item = content_service.create_item(
             author=author,
             content_type=type,
-            data=data
+            fields=fields
         )
         self.assertEquals('I am a simple content item', item.body)
 
@@ -123,11 +123,11 @@ class ContentServiceTest(BaseTestCase):
         # services.content.item_schema(content_type='markdown')
         type = 'plain_text'
         author = 123
-        data = dict(body='')
+        fields = dict(body='')
         item = content_service.create_item(
             author=author,
             content_type=type,
-            data=data
+            fields=fields
         )
         self.assertIsInstance(item, Result)
         err = item.get_messages()
@@ -140,7 +140,7 @@ class ContentServiceTest(BaseTestCase):
             content_service.create_item(
                 author='123',
                 content_type='BAD!',
-                data={}
+                fields={}
             )
 
     def test_raise_on_deleting_nonexistent_item(self):
@@ -156,11 +156,11 @@ class ContentServiceTest(BaseTestCase):
         """ Deleting content item """
         type = 'plain_text'
         author = 123
-        data = dict(body='I am a simple content item')
+        fields = dict(body='I am a simple content item')
         item = content_service.create_item(
             author=author,
             content_type=type,
-            data=data
+            fields=fields
         )
         object_id = item.object_id
         content_service.delete_item(author, item.object_id)
@@ -188,11 +188,11 @@ class ContentServiceTest(BaseTestCase):
         """ Updating content item """
         type = 'plain_text'
         author = 123
-        data = dict(body='I am a simple content item')
+        fields = dict(body='I am a simple content item')
         item = content_service.create_item(
             author=author,
             content_type=type,
-            data=data
+            fields=fields
         )
 
         item.body = 'I am updated body'
@@ -203,11 +203,11 @@ class ContentServiceTest(BaseTestCase):
         """ Validate data when updating content item """
         type = 'plain_text'
         author = 123
-        data = dict(body='I am a simple content item')
+        fields = dict(body='I am a simple content item')
         item = content_service.create_item(
             author=author,
             content_type=type,
-            data=data
+            fields=fields
         )
 
         item.body = '0'
@@ -226,11 +226,11 @@ class ContentServiceTest(BaseTestCase):
         """ Raise when updating nonexistent field on an item """
         type = 'plain_text'
         author = 123
-        data = dict(body='I am a simple content item')
+        fields = dict(body='I am a simple content item')
         item = content_service.create_item(
             author=author,
             content_type=type,
-            data=data
+            fields=fields
         )
         with self.assertRaises(x.ItemError) as cm:
             content_service.update_item_field(author, item.object_id, 'z', '')
@@ -240,11 +240,11 @@ class ContentServiceTest(BaseTestCase):
         """ Validate data when updating item field"""
         type = 'plain_text'
         author = 123
-        data = dict(body='I am a simple content item')
+        fields = dict(body='I am a simple content item')
         item = content_service.create_item(
             author=author,
             content_type=type,
-            data=data
+            fields=fields
         )
 
         new_value = '0'
@@ -263,11 +263,11 @@ class ContentServiceTest(BaseTestCase):
         """ Updating single field on content item """
         type = 'plain_text'
         author = 123
-        data = dict(body='I am a simple content item')
+        fields = dict(body='I am a simple content item')
         item = content_service.create_item(
             author=author,
             content_type=type,
-            data=data
+            fields=fields
         )
 
         new_value = 'NEW BODY VALUE'

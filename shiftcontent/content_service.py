@@ -96,7 +96,7 @@ class ContentService:
 
     # TODO: RENAME DATA TO FIELDS
 
-    def create_item(self, author, content_type, data, parent=None):
+    def create_item(self, author, content_type, fields, parent=None):
         """
         Create item
         Validates incoming data and returns validation errors. If data valid,
@@ -105,14 +105,14 @@ class ContentService:
 
         :param author: str, author id
         :param content_type: str, content type
-        :param data: dict, content item fields
+        :param fields: dict, content item fields
         :param parent: shiftcontent.item.Item, parent item
         :return: shiftcontent.itemItem
         """
         # drop nonexistent fields
         type_definition = definition_service.get_type(content_type)
         valid_fields = [field['handle'] for field in type_definition['fields']]
-        fields = {f: v for f, v in data.items() if f in valid_fields}
+        fields = {f: v for f, v in fields.items() if f in valid_fields}
 
         # validate data
         item_data = dict(
