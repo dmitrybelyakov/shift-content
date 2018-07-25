@@ -103,6 +103,8 @@ class Item:
         elif key in self.valid_fields:
             self.fields[key] = value
         elif key in self.meta:
+            if key == 'created' and type(value) is str:
+                value = arrow.get(value).datetime
             self.meta[key] = value
         else:
             self._set(key, value)
@@ -117,10 +119,6 @@ class Item:
         """
         return self.meta['created'].strftime(self.date_format)
 
-    @created_string.setter
-    def created_string(self, value):
-        self.meta['created'] = arrow.get(value).datetime
-
     def set_meta(self, meta):
         """
         Set meta
@@ -134,6 +132,8 @@ class Item:
 
         for prop, val in meta.items():
             if prop in self.valid_metafields:
+                if prop == 'created' and type(val) is str:
+                    val = arrow.get(val).datetime
                 self.meta[prop] = val
 
     def _set(self, property, value):

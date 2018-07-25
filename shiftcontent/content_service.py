@@ -94,8 +94,6 @@ class ContentService:
         # and return
         return schema
 
-    # TODO: RENAME DATA TO FIELDS
-
     def create_item(self, author, content_type, fields, parent=None):
         """
         Create item

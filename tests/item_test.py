@@ -46,12 +46,12 @@ class ItemTest(BaseTestCase):
 
     def test_property_access_set(self):
         """ Property access for setting item props"""
-        dt = 'datetime!'
+        author = '123'
         item = Item(type='plain_text')
-        item.created = dt
-        self.assertEquals(dt, item.meta['created'])
-        item.props = 'something'
-        self.assertEquals('something', item.props)
+        item.author = author
+        self.assertEquals(author, item.meta['author'])
+        item.body = 'something'
+        self.assertEquals('something', item.body)
 
     def test_can_check_for_attribute_presence(self):
         """ Can use hasattr to check for prop existence"""
@@ -62,13 +62,6 @@ class ItemTest(BaseTestCase):
         """ Getting item creation date as string """
         item = Item(type='plain_text')
         self.assertTrue(type(item.created_string) is str)
-
-    def test_set_creation_date_from_string(self):
-        """ Set item creation date from string """
-        created = '2018-07-24 12:00:00'
-        item = Item(type='plain_text')
-        item.created_string = created
-        self.assertEquals(arrow.get(created).datetime, item.created)
 
     def test_populate_item_from_dict(self):
         """ Can populate item from dict """

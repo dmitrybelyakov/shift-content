@@ -22,7 +22,6 @@ class ContentItemUpdate(BaseHandler):
         type = event.payload['meta']['type']
         del event.payload['meta']['type']
         item = Item(type=type, **event.payload)
-        item.created_string = item.created
         db_data = item.to_db()
 
         # todo: come on already
@@ -42,8 +41,6 @@ class ContentItemUpdate(BaseHandler):
         type = event.payload_rollback['meta']['type']
         del event.payload_rollback['meta']['type']
         item = Item(type=type, **event.payload_rollback)
-
-        item.created_string = item.created
         db_data = item.to_db()
 
         del db_data['object_id']
