@@ -186,6 +186,8 @@ class DefinitionService:
 
         # todo: fire an event
 
+
+        # TODO: FORMAT ME
         from frozendict import frozendict as fd
         # freeze definition
         for type in definition:

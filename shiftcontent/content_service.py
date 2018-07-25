@@ -181,24 +181,25 @@ class ContentService:
         ok = schema.process(item, context=context)
         if not ok:
             return ok.get_messages()
-        #
-        # # prepare payload
-        # old_data = old_item.to_dict()
-        # old_data['meta']['created'] = item.created_string
-        # new_data['meta']['type'] = old_data['meta']['type']
-        #
-        # # create event
-        # event = event_service.event(
-        #     type='CONTENT_ITEM_UPDATE',
-        #     author=author,
-        #     object_id=object_id,
-        #     payload=new_data,
-        #     payload_rollback=old_data
-        # )
-        #
-        # # and emit
-        # event = event_service.emit(event)
-        # return self.get_item(event.object_id)
+
+        # prepare payload
+        old_data = old_item.to_dict()
+        old_data['meta']['created'] = item.created_string
+        new_data['meta']['type'] = old_data['meta']['type']
+        # todo: that's not pretty why do we have to do it all over the place?
+
+        # create event
+        event = event_service.event(
+            type='CONTENT_ITEM_UPDATE',
+            author=author,
+            object_id=object_id,
+            payload=new_data,
+            payload_rollback=old_data
+        )
+
+        # and emit
+        event = event_service.emit(event)
+        return self.get_item(event.object_id)
 
     def update_item_field(self, author, object_id, field, value):
         """

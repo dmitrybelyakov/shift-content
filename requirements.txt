@@ -29,3 +29,4 @@ shiftmemory==0.0.4
 shiftschema>=0.2.1,<0.3.0
 shiftevent==0.0.5
 elasticsearch>=6.0.0,<7.0.0
+frozendict==1.2
