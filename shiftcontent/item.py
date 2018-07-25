@@ -66,15 +66,15 @@ class Item:
         # init meta
         meta = {prop: None for prop in self.valid_metafields}
         meta['type'] = type
-        object.__setattr__(self, 'meta', meta)
+        self._set('meta', meta)
 
         # init valid type fields
         valid_fields = [f['handle'] for f in type_definition['fields']]
-        object.__setattr__(self, 'valid_fields', valid_fields)
+        self._set('valid_fields', valid_fields)
 
         # init fields
         fields = {field: None for field in self.valid_fields}
-        object.__setattr__(self, 'fields', fields)
+        self._set('fields', fields)
 
         # populate from dict if got kwargs
         self.from_dict(kwargs)
@@ -105,7 +105,7 @@ class Item:
         elif key in self.meta:
             self.meta[key] = value
         else:
-            object.__setattr__(self, key, value)
+            self._set(key, value)
 
         return self
 
@@ -135,6 +135,17 @@ class Item:
         for prop, val in meta.items():
             if prop in self.valid_metafields:
                 self.meta[prop] = val
+
+    def _set(self, property, value):
+        """
+        Internal set
+        Sets a property on itself avoiding overloading magic.
+        :param prop: str, property to set
+        :param val: vaue
+        :return: shiftcontent.content.ContentService
+        """
+        object.__setattr__(self, property, value)
+        return self
 
     def set_fields(self, fields):
         """
