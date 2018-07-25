@@ -32,16 +32,14 @@ class ContentItemUpdateTest(BaseTestCase):
         ))
 
         # remember old data
-        old_data = item.to_dict()
-        old_data['created'] = item.created_string
+        old_data = item.to_dict(serialized=True)
 
         with db.engine.begin() as conn:
             result = conn.execute(items.insert(), **item.to_db())
             item.id = result.inserted_primary_key[0]
 
         item.body = 'Updated body'
-        new_data = item.to_dict()
-        new_data['created'] = item.created_string
+        new_data = item.to_dict(serialized=True)
 
         # update now
         event = Event(
@@ -76,16 +74,14 @@ class ContentItemUpdateTest(BaseTestCase):
         ))
 
         # remember old data
-        old_data = item.to_dict()
-        old_data['created'] = item.created_string
+        old_data = item.to_dict(serialized=True)
 
         with db.engine.begin() as conn:
             result = conn.execute(items.insert(), **item.to_db())
             item.id = result.inserted_primary_key[0]
 
         item.body = 'Updated body'
-        new_data = item.to_dict()
-        new_data['created'] = item.created_string
+        new_data = item.to_dict(serialized=True)
 
         # update now
         event = Event(

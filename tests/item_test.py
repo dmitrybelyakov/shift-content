@@ -58,11 +58,6 @@ class ItemTest(BaseTestCase):
         item = Item(type='plain_text')
         self.assertFalse(hasattr(item, 'whatever'))
 
-    def test_get_created_date_as_string(self):
-        """ Getting item creation date as string """
-        item = Item(type='plain_text')
-        self.assertTrue(type(item.created_string) is str)
-
     def test_populate_item_from_dict(self):
         """ Can populate item from dict """
         data = dict(
@@ -117,6 +112,12 @@ class ItemTest(BaseTestCase):
         """ Getting item as dict """
         item = Item(type='plain_text', data=dict(prop='value'))
         self.assertTrue(type(item.to_dict()) is dict)
+
+    def test_getting_item_as_serialized_dict(self):
+        """ Getting item as serialized dict """
+        item = Item(type='plain_text', data=dict(prop='value'))
+        data = item.to_dict(serialized=True)
+        self.assertTrue(type(data['meta']['created']) is str)
 
     def test_get_db_representation(self):
         """ Getting db representation of an item """

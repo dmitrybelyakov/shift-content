@@ -153,10 +153,7 @@ class ContentService:
             raise x.ItemError(err.format(type(item)))
 
         object_id = str(item.object_id)
-        new_data = item.to_dict()
-
-        # todo: this is not pretty
-        new_data['meta']['created'] = item.created_string
+        new_data = item.to_dict(serialized=True)
 
         old_item = self.get_item(object_id) if object_id else None
         if not old_item:
@@ -172,8 +169,7 @@ class ContentService:
             return ok
 
         # prepare payload
-        old_data = old_item.to_dict()
-        old_data['meta']['created'] = item.created_string
+        old_data = old_item.to_dict(serialized=True)
         new_data['meta']['type'] = old_data['meta']['type']
 
         # create event

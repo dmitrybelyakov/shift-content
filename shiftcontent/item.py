@@ -111,14 +111,6 @@ class Item:
 
         return self
 
-    @property
-    def created_string(self):
-        """
-        Returns creation date as a string
-        :return: str
-        """
-        return self.meta['created'].strftime(self.date_format)
-
     def set_meta(self, meta):
         """
         Set meta
@@ -169,10 +161,29 @@ class Item:
             if prop in self.valid_fields:
                 self.fields[prop] = val
 
-    def to_dict(self):
-        """ Returns dictionary representation of the item """
+    def from_dict(self, data):
+        """ Populates itself from a dictionary """
+        for p, v in data.items():
+            if p in ['meta', 'fields'] or p in self.meta or p in self.fields:
+                setattr(self, p, v)
+        return self
+
+    def to_dict(self, serialized=False):
+        """
+        Returns dictionary representation of the item. Can optionally
+        serialize fields, e.g. datetimes to strings
+        :param serialized:
+        :return:
+        """
         data = copy.copy(self.fields)
         data['meta'] = copy.copy(self.meta)
+
+        # serialize?
+        if serialized:
+            data['meta']['created'] = data['meta']['created'].strftime(
+                self.date_format
+            )
+
         return data
 
     def to_db(self):
@@ -186,11 +197,5 @@ class Item:
         data['fields'] = json.dumps(self.fields, ensure_ascii=False)
         return data
 
-    def from_dict(self, data):
-        """ Populates itself from a dictionary """
-        for p, v in data.items():
-            if p in ['meta', 'fields'] or p in self.meta or p in self.fields:
-                setattr(self, p, v)
 
-        return self
 
