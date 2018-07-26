@@ -10,14 +10,14 @@ from shiftcontent.search_service import SearchService
 @attr('search', 'service')
 class SearchServiceTest(BaseTestCase):
 
-
     def tearDown(self):
         """ Drop index"""
-        search_service.es.indices.delete(search_service.index_name)
+        search_service.es.indices.delete(
+            search_service.index_name,
+            ignore=404
+        )
         super().tearDown()
 
-
-    @attr('zzz')
     def test_create_search_service(self):
         """ Creating search service"""
         service = SearchService()
@@ -36,9 +36,10 @@ class SearchServiceTest(BaseTestCase):
         self.assertTrue(type(index) is dict)
         self.assertEquals(index['index'], service.index_name)
 
-    # def test_get_index_info(self):
-    #     """ Getting index info """
-    #     service = search_service
-    #     pp(service.index_info)
+    def test_get_index_info(self):
+        """ Getting index info """
+        service = search_service
+        info = service.index_info
+        self.assertTrue(type(info) is dict)
 
 

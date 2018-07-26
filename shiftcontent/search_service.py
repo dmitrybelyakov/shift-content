@@ -49,9 +49,6 @@ class SearchService:
         self.index_name = index_name
         self.doc_type = doc_type
 
-        # get index info
-        # self.index_info
-
         return self
 
     @property
@@ -78,7 +75,6 @@ class SearchService:
             index = self.es.indices.get(self.index_name)
 
         return index
-
 
     def get_index_config(self):
         """
