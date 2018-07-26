@@ -17,6 +17,10 @@ db = Db()
 from .definition_service import DefinitionService
 definition_service = DefinitionService()
 
+# init search service
+from .search_service import SearchService
+search_service = SearchService()
+
 # init events (needs db)
 from shiftevent.event_service import EventService
 from shiftcontent.handlers import content_handlers
