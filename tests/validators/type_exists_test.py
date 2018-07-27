@@ -11,7 +11,7 @@ class ContentTypeExistsTest(BaseTestCase):
 
     def test_creating_validator(self):
         """ Creating content type existence validator """
-        validator = TypeExists()
+        validator = TypeExists(message='Content type [{type}] does not exist.')
         self.assertIsInstance(validator, TypeExists)
 
     def test_existing_type_passes(self):

@@ -50,6 +50,7 @@ class ContentItemDeleteTest(BaseTestCase):
         """ Handler content item delete rolling back changes """
         object_id = str(uuid1())
         item = Item(
+            id=123,
             type='plain_text',
             object_id=object_id,
             author=456,
