@@ -8,6 +8,11 @@ python:
 # link services
 services:
   - redis-server
+  - elasticsearch
+
+# give elasticsearch some time to startup
+before_script:
+  - sleep 10
 
 # install dependencies
 install:

@@ -28,7 +28,7 @@ class BaseTestCase(unittest.TestCase):
         self.db.init(self.db_url)
         definition_service.init(self.definition_path, self.revisions_path)
         search_service.init(
-            hosts=['localhost:9200'],
+            hosts=['127.0.0.1:9200'],
             index_name='content_tests'
         )
 
