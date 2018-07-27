@@ -101,6 +101,13 @@ class ItemTest(BaseTestCase):
         self.assertEquals(fields['body'], item.body)
         self.assertNotIn('undefined', item.fields.keys())
 
+    def test_raise_if_bulk_meta_is_not_a_dict(self):
+        """ Raise when bulk meta passed in is not a dict """
+        item = Item(type='plain_text')
+        with self.assertRaises(x.ItemError) as cm:
+            item.meta = 'crap'
+        self.assertIn('Meta fields must be a dictionary', str(cm.exception))
+
     def test_bulk_setting_meta_fields(self):
         """ Bulk-setting item meta fields from a dictionary """
         meta = dict(
