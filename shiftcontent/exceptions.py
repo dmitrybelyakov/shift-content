@@ -45,11 +45,8 @@ class ItemNotFound(ContentException, RuntimeError):
     pass
 
 
-class InvalidEvent(ContentException, RuntimeError):
-    """ Raised when trying to persist invalid event """
-    def __init__(self, *args, validation_errors=None, **kwargs):
-        self.validation_errors = validation_errors
-        super().__init__(*args, **kwargs)
+
+
 
 
 
