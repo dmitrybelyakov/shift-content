@@ -20,7 +20,7 @@ class SearchServiceTest(BaseTestCase):
 
     def test_create_search_service(self):
         """ Creating search service"""
-        service = SearchService()
+        service = SearchService(hosts=['elasticsearch:9200'])
         self.assertIsInstance(service, SearchService)
 
     def test_can_access_elasticsearch_instance(self):
