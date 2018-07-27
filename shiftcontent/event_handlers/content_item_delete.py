@@ -10,7 +10,9 @@ class ContentItemDelete(BaseHandler):
     This handler deletes existing content items
     """
 
-    EVENT_TYPE = 'CONTENT_ITEM_DELETE'
+    EVENT_TYPES = (
+        'CONTENT_ITEM_DELETE',
+    )
 
     def handle(self, event):
         """

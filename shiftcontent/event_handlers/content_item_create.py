@@ -10,7 +10,9 @@ class ContentItemCreate(BaseHandler):
     This handler creates a new content item entry.
     """
 
-    EVENT_TYPE = 'CONTENT_ITEM_CREATE'
+    EVENT_TYPES = (
+        'CONTENT_ITEM_CREATE',
+    )
 
     def handle(self, event):
         """

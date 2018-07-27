@@ -10,7 +10,9 @@ class ContentItemFieldUpdateField(BaseHandler):
     This handler updates single field on a content item
     """
 
-    EVENT_TYPE = 'CONTENT_ITEM_UPDATE_FIELD'
+    EVENT_TYPES = (
+        'CONTENT_ITEM_UPDATE_FIELD',
+    )
 
     def handle(self, event):
         """

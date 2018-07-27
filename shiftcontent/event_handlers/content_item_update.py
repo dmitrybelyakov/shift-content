@@ -10,7 +10,9 @@ class ContentItemUpdate(BaseHandler):
     This handler saves updates to existing content items
     """
 
-    EVENT_TYPE = 'CONTENT_ITEM_UPDATE'
+    EVENT_TYPES = (
+        'CONTENT_ITEM_UPDATE',
+    )
 
     def handle(self, event):
         """
