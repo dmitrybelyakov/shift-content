@@ -113,7 +113,6 @@ class SearchService:
 
         return item
 
-
     def put_to_index(self, item):
         """
         Put item to index
