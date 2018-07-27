@@ -3,7 +3,9 @@ from elasticsearch.helpers import bulk
 from elasticsearch import exceptions as ex
 from pprint import pprint as pp
 
+from shiftcontent.item import Item
 from shiftcontent import definition_service
+from shiftcontent import exceptions as x
 
 
 class SearchService:
@@ -23,6 +25,7 @@ class SearchService:
 
         # index name
         self.index_name = None
+
         # document type
         self.doc_type = None
 
@@ -74,6 +77,7 @@ class SearchService:
             self.es.indices.create(**self.get_index_config())
             index = self.es.indices.get(self.index_name)
 
+        self.index_exists = True
         return index
 
     def get_index_config(self):
@@ -91,6 +95,57 @@ class SearchService:
         }
 
         return config
+
+    def get(self, object_id):
+        """
+        Get single item from index by its object id
+        :param object_id: str, object id
+        :return:
+        """
+        try:
+            item = self.es.get(
+                index=self.index_name,
+                doc_type=self.doc_type,
+                id=object_id,
+            )
+        except ex.NotFoundError:
+            return None
+
+        return item
+
+
+    def put_to_index(self, item):
+        """
+        Put item to index
+        Gets pickeled representation of item and puts it to index
+        :param item:
+        :return:
+        """
+        if not isinstance(item, Item):
+            err = 'Item must be of type shiftcontent.item.Item to be indexed.' \
+                  ' Got {} instead'
+            raise x.SearchError(err.format(type(item)))
+
+        if not item.id:
+            raise x.SearchError('Item must be saved first to be indexed')
+
+        if not item.object_id:
+            raise x.SearchError('Item must have object_id to be indexed')
+
+        # create index if required
+        self.index_info
+
+        indexable = item.to_search()
+        self.es.index(
+            index=self.index_name,
+            doc_type=self.doc_type,
+            id=item.object_id,
+            body=indexable
+        )
+
+
+
+
 
 
 

@@ -45,6 +45,11 @@ class ItemNotFound(ContentException, RuntimeError):
     pass
 
 
+class SearchError(ContentException, RuntimeError):
+    """ Raised when there are errors with the search engine """
+    pass
+
+
 
 
 

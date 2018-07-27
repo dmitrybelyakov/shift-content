@@ -1,10 +1,13 @@
 from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
+from uuid import uuid1
 from pprint import pprint as pp
 from elasticsearch import Elasticsearch
 from shiftcontent import search_service
 from shiftcontent.search_service import SearchService
+from shiftcontent.item import Item
+from shiftcontent import exceptions as x
 
 
 @attr('search', 'service')
@@ -42,4 +45,68 @@ class SearchServiceTest(BaseTestCase):
         info = service.index_info
         self.assertTrue(type(info) is dict)
 
+    def test_when_trying_to_index_bad_item(self):
+        """ Raise when trying to index something that is not an item """
+        with self.assertRaises(x.SearchError) as cm:
+            search_service.put_to_index('crap')
+        self.assertIn('Item must be of type', str(cm.exception))
 
+    def test_raise_when_indexing_unsaved_item(self):
+        """ Raise when trying to index unsaved item """
+        item = Item(type='plain_text', author=123)
+        with self.assertRaises(x.SearchError) as cm:
+            search_service.put_to_index(item)
+        self.assertIn(
+            'Item must be saved first to be indexed',
+            str(cm.exception)
+        )
+
+    def test_raise_when_indexing_item_without_object_id(self):
+        """ Raise when trying to index item without object id"""
+        item = Item(type='plain_text', author=123, id=123)
+        with self.assertRaises(x.SearchError) as cm:
+            search_service.put_to_index(item)
+        self.assertIn(
+            'Item must have object_id to be indexed',
+            str(cm.exception)
+        )
+
+    def test_indexing_item_creates_index_if_not_found(self):
+        """ Create index if not found when indexing an item """
+
+        # delete first
+        search_service.es.indices.delete(
+            search_service.index_name,
+            ignore=404
+        )
+
+        # put to index
+        object_id = str(uuid1())
+        item = Item(
+            id=123,
+            type='plain_text',
+            object_id=object_id,
+            author=123,
+            body='Here is some body content'
+        )
+
+        search_service.put_to_index(item)
+        info = search_service.es.indices.get(search_service.index_name)
+        self.assertIn(search_service.index_name, info)
+
+    def test_can_index_item(self):
+        """ Putting item to index """
+        # put to index
+        object_id = str(uuid1())
+        item = Item(
+            id=123,
+            type='plain_text',
+            object_id=object_id,
+            author=123,
+            body='Here is some body content'
+        )
+
+        search_service.put_to_index(item)
+        item = search_service.get(object_id)
+        self.assertIsNotNone(item)
+        self.assertEquals(object_id, item['_id'])

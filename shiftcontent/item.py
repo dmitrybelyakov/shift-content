@@ -50,7 +50,7 @@ class Item:
 
 
     # TODO: RENDER REPRESENTATION AVAILABLE TO CLIENTS
-    # TODO: HOW DO WE DECODE DATA PICKELED IN JESON FOR FIELD TYPES? (DATES)
+    # TODO: HOW DO WE DECODE DATA PICKELED IN JSON FOR FIELD TYPES? (DATES)
     # TODO: WHAT ARE OTHER FIELD TYPES THAT WE HAVE
 
 
@@ -181,30 +181,9 @@ class Item:
             if prop in self.valid_fields:
                 self.fields[prop] = val
 
-    def from_dict(self, data):
-        """ Populates itself from a dictionary """
-        for p, v in data.items():
-            if p in ['meta', 'fields'] or p in self.meta or p in self.fields:
-                setattr(self, p, v)
-        return self
-
-    def to_dict(self, serialized=False):
-        """
-        Returns dictionary representation of the item. Can optionally
-        serialize fields, e.g. datetimes to strings
-        :param serialized:
-        :return:
-        """
-        data = copy.copy(self.fields)
-        data['meta'] = copy.copy(self.meta)
-
-        # serialize?
-        if serialized:
-            data['meta']['created'] = data['meta']['created'].strftime(
-                self.date_format
-            )
-
-        return data
+    # --------------------------------------------------------------------------
+    # Representations
+    # --------------------------------------------------------------------------
 
     def to_db(self, update=True):
         """
@@ -225,6 +204,66 @@ class Item:
             del data['author']
 
         return data
+
+    def to_dict(self, serialized=False):
+        """
+        Returns dictionary representation of the item. Can optionally
+        serialize fields, e.g. datetimes to strings
+        :param serialized:
+        :return: dict
+        """
+        data = copy.copy(self.fields)
+        data['meta'] = copy.copy(self.meta)
+
+        # serialize?
+        if serialized:
+            data['meta']['created'] = data['meta']['created'].strftime(
+                self.date_format
+            )
+
+        return data
+
+    def from_dict(self, data):
+        """
+        From dict
+        Populates itself from a dictionary
+        :param data: dict, data to populate from
+        :return: shiftcontent.item.Item
+        """
+        for p, v in data.items():
+            if p in ['meta', 'fields'] or p in self.meta or p in self.fields:
+                setattr(self, p, v)
+        return self
+
+    def to_search(self):
+        """
+        To search
+        Returns representation suitable for putting into the search index.
+        :return: dict
+        """
+
+        # todo: implement this
+        return self.to_dict(serialized=True)
+
+    def serialize(self):
+        """
+        Serialize
+        Returns serialized representation of item suitable for storage in
+        event store or cache
+        :return: dict
+        """
+        raise NotImplemented
+
+    def unserialize(self, data):
+        """
+        Unserialize
+        Accepts serialized data and populates itself from it.
+        :param data: dict
+        :return: shiftcontent.item.Item
+        """
+        raise NotImplemented
+
+
 
 
 
