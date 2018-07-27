@@ -134,6 +134,7 @@ class DefinitionServiceTest(BaseTestCase):
 
         try:
             definition = service.definition
+            definition = service.definition
         except x.InvalidDefinition as err:
             print(err.validation_errors)
 
@@ -142,6 +143,7 @@ class DefinitionServiceTest(BaseTestCase):
 
         # assert returned frozen
         self.assertIsInstance(definition, frozendict)
+        self.assertIsInstance(definition['markdown']['fields'][0], frozendict)
 
         # assert saved to backlog
         hash = hashlib.md5(str(text).encode('utf-8')).hexdigest()

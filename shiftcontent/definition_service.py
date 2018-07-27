@@ -203,7 +203,7 @@ class DefinitionService:
 
         branch = dict()
         for prop, val in definition.items():
-            if type(prop) is dict:
+            if type(val) is dict:
                 branch[prop] = fd(val)
                 continue
 
