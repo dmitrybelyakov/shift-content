@@ -241,9 +241,8 @@ class Item:
         Returns representation suitable for putting into the search index.
         :return: dict
         """
-
-        # todo: implement this
-        return self.to_dict(serialized=True)
+        data = {**self.meta, **self.fields}
+        return data
 
     def serialize(self):
         """

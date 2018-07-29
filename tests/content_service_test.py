@@ -11,6 +11,8 @@ from shiftcontent import exceptions as x
 from shiftcontent.content_service import ContentService
 from shiftcontent.item import Item
 from shiftcontent.item_schema import UpdateItemSchema, CreateItemSchema
+from shiftcontent import search_service
+import time
 
 
 @attr('content', 'service')
@@ -281,3 +283,137 @@ class ContentServiceTest(BaseTestCase):
 
         self.assertEquals(new_value, updated.body)
 
+    def test_creating_content_item_puts_it_to_index(self):
+        """ Creating content item puts it to index"""
+        # init search
+        search_service.init(
+            hosts=['127.0.0.1:9200'],
+            index_name='content_tests'
+        )
+
+        type = 'plain_text'
+        author = 123
+        fields = dict(body='I am a simple content item')
+        item = content_service.create_item(
+            author=author,
+            content_type=type,
+            fields=fields
+        )
+
+        time.sleep(2)  # give it some time
+        es = search_service.es
+        result = es.search(
+            index=search_service.index_name,
+            doc_type=search_service.doc_type,
+            body={
+                'query': {
+                    # 'match_all': {}
+                    'match': {
+                        'object_id': item.object_id
+                    }
+                }
+            },
+        )
+
+        self.assertEquals(1, result['hits']['total'])
+        self.assertEquals(
+            item.object_id,
+            result['hits']['hits'][0]['_source']['object_id']
+        )
+
+        # cleanup
+        search_service.drop_index()
+        search_service.disconnect()
+
+    def test_updating_content_item_updates_index(self):
+        """ Updating content item updates index """
+        # init search
+        search_service.init(
+            hosts=['127.0.0.1:9200'],
+            index_name='content_tests'
+        )
+
+        type = 'plain_text'
+        author = 123
+        fields = dict(body='I am a simple content item')
+        item = content_service.create_item(
+            author=author,
+            content_type=type,
+            fields=fields
+        )
+
+        item.body = 'I am updated body'
+        content_service.update_item(author, item)
+
+        time.sleep(2)  # give it some time
+        es = search_service.es
+        result = es.search(
+            index=search_service.index_name,
+            doc_type=search_service.doc_type,
+            body={
+                'query': {
+                    # 'match_all': {}
+                    'match': {
+                        'object_id': item.object_id
+                    }
+                }
+            },
+        )
+
+        self.assertEquals(
+            'I am updated body',
+            result['hits']['hits'][0]['_source']['body']
+        )
+
+        # cleanup
+        search_service.drop_index()
+        search_service.disconnect()
+
+    def test_updating_content_item_filed_updates_index(self):
+        """ Updating content item field updates index """
+        # init search
+        search_service.init(
+            hosts=['127.0.0.1:9200'],
+            index_name='content_tests'
+        )
+
+        type = 'plain_text'
+        author = 123
+        fields = dict(body='I am a simple content item')
+        item = content_service.create_item(
+            author=author,
+            content_type=type,
+            fields=fields
+        )
+
+        new_value = 'NEW BODY VALUE'
+        content_service.update_item_field(
+            author,
+            item.object_id,
+            'body',
+            new_value
+        )
+
+        time.sleep(2)  # give it some time
+        es = search_service.es
+        result = es.search(
+            index=search_service.index_name,
+            doc_type=search_service.doc_type,
+            body={
+                'query': {
+                    # 'match_all': {}
+                    'match': {
+                        'object_id': item.object_id
+                    }
+                }
+            },
+        )
+
+        self.assertEquals(
+            new_value,
+            result['hits']['hits'][0]['_source']['body']
+        )
+
+        # cleanup
+        search_service.drop_index()
+        search_service.disconnect()

@@ -18,7 +18,7 @@ class SearchService:
         """
 
         # es connection [host:port]
-        self.hosts = []
+        self.hosts = ()
 
         # es instance
         self._es = None
@@ -29,6 +29,8 @@ class SearchService:
         # document type
         self.doc_type = None
 
+        self.sniff = True
+
         if kwargs:
             self.init(**kwargs)
 
@@ -37,7 +39,8 @@ class SearchService:
         *,
         hosts=('localhost:9002',),
         index_name=None,
-        doc_type='content'):
+        doc_type='content',
+        sniff=True):
         """
         Delayed service initializer. Called either by constructor if args
         passed in, or later in userland code to configure the service.
@@ -46,12 +49,13 @@ class SearchService:
         :param port: int, elasticsearch port
         :param index_name: str, index name
         :param doc_type: str, document type
+        :param sniff: bool, whether to sniff on start
         :return: shiftcontent.search_service.SearchService
         """
         self.hosts = hosts
         self.index_name = index_name
         self.doc_type = doc_type
-
+        self.sniff = sniff
         return self
 
     @property
@@ -61,7 +65,7 @@ class SearchService:
         :return:
         """
         if not self._es:
-            self._es = Elasticsearch(self.hosts)
+            self._es = Elasticsearch(self.hosts, sniff_on_start=self.sniff)
         return self._es
 
     @property
@@ -77,8 +81,27 @@ class SearchService:
             self.es.indices.create(**self.get_index_config())
             index = self.es.indices.get(self.index_name)
 
-        self.index_exists = True
         return index
+
+    def disconnect(self):
+        """
+        Disconnect
+        Erase credentials and drop the client. This is mostly used in testing
+        environment.
+        :return: shiftcontent.search_service.SearchService
+        """
+        self.hosts = ()
+        self._es = None
+        return self
+
+    def drop_index(self):
+        """
+        Drop index
+        Deletes index and all the documents in it.
+        :return: shiftcontent.search_service.SearchService
+        """
+        self.es.indices.delete(self.index_name, ignore=404)
+        return self
 
     def get_index_config(self):
         """

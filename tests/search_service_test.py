@@ -13,12 +13,17 @@ from shiftcontent import exceptions as x
 @attr('search', 'service')
 class SearchServiceTest(BaseTestCase):
 
-    def tearDown(self):
-        """ Drop index"""
-        search_service.es.indices.delete(
-            search_service.index_name,
-            ignore=404
+    def setUp(self):
+        super().setUp()
+        search_service.init(
+            hosts=['127.0.0.1:9200'],
+            index_name='content_tests'
         )
+
+    def tearDown(self):
+        """ Clean up """
+        search_service.drop_index()
+        search_service.disconnect()
         super().tearDown()
 
     def test_create_search_service(self):

@@ -27,10 +27,6 @@ class BaseTestCase(unittest.TestCase):
         self.db = db
         self.db.init(self.db_url)
         definition_service.init(self.definition_path, self.revisions_path)
-        search_service.init(
-            hosts=['127.0.0.1:9200'],
-            index_name='content_tests'
-        )
 
         # create db now
         self.create_db()
