@@ -13,7 +13,7 @@ from shiftcontent import db
 class ContentItemUpdateFieldTest(BaseTestCase):
 
     def test_instantiating_handler(self):
-        """ Instantiating content item create handler """
+        """ Instantiating content item update field handler """
         handler = ContentItemFieldUpdateField(db=self.db)
         self.assertIsInstance(handler, ContentItemFieldUpdateField)
 

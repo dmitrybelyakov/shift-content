@@ -15,7 +15,7 @@ from shiftcontent.event_handlers import ContentItemIndex
 class ContentItemIndexTest(BaseTestCase):
 
     def test_instantiating_handler(self):
-        """ Instantiating content item create handler """
+        """ Instantiating content item index handler """
         handler = ContentItemIndex(db=self.db)
         self.assertIsInstance(handler, ContentItemIndex)
 

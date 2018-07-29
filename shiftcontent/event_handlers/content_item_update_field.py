@@ -16,6 +16,7 @@ class ContentItemFieldUpdateField(BaseHandler):
 
     def handle(self, event):
         """
+        Handle event
         Update content item and return an event for further
         handler chaining.
         :param event: shiftcontent.events.event.Event
@@ -49,7 +50,12 @@ class ContentItemFieldUpdateField(BaseHandler):
         return event
 
     def rollback(self, event):
-        """ Rollback event """
+        """
+        Rollback event
+        Reverts changes to field using before-update data stored in payload.
+        :param event: shiftcontent.events.event.Event
+        :return: shiftcontent.events.event.Event
+        """
         items = db.tables['items']
 
         field = event.payload_rollback['field']

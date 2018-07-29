@@ -11,7 +11,7 @@ from shiftcontent.item import Item
 class ContentItemDeleteTest(BaseTestCase):
 
     def test_instantiating_handler(self):
-        """ Instantiating content item create handler """
+        """ Instantiating content item delete handler """
         handler = ContentItemDelete(db=self.db)
         self.assertIsInstance(handler, ContentItemDelete)
 

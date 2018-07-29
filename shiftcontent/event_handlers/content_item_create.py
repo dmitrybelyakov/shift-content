@@ -16,6 +16,7 @@ class ContentItemCreate(BaseHandler):
 
     def handle(self, event):
         """
+        Handle event
         Create content item and return an event for further
         handler chaining.
         :param event: shiftcontent.events.event.Event
@@ -31,7 +32,12 @@ class ContentItemCreate(BaseHandler):
         return event
 
     def rollback(self, event):
-        """ Rollback event """
+        """
+        Rollback event
+        Removes created content item
+        :param event: shiftcontent.events.event.Event
+        :return: shiftcontent.events.event.Event
+        """
         items = db.tables['items']
         with db.engine.begin() as conn:
             query = items.delete()\

@@ -16,6 +16,7 @@ class ContentItemUpdate(BaseHandler):
 
     def handle(self, event):
         """
+        Handle event
         Update content item and return an event for further
         handler chaining.
         :param event: shiftcontent.events.event.Event
@@ -34,7 +35,12 @@ class ContentItemUpdate(BaseHandler):
         return event
 
     def rollback(self, event):
-        """ Rollback event """
+        """
+        Rollback event
+        Rollback changes using before-update dta save in payload.
+        :param event: shiftcontent.events.event.Event
+        :return: shiftcontent.events.event.Event
+        """
         type = event.payload_rollback['meta']['type']
         del event.payload_rollback['meta']['type']
         item = Item(type=type, **event.payload_rollback)

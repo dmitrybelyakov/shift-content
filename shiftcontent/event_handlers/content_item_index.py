@@ -20,8 +20,12 @@ class ContentItemIndex(BaseHandler):
 
     def handle(self, event):
         """
-        Create content item and return an event for further
-        handler chaining.
+        Handle event
+        Add content item to index and return an event for further handler
+        chaining. We do need to get item from database here because some events,
+        e.g. field update, don't carry enough payload to create full item index.
+        This makes this handler more universal.
+
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
@@ -34,7 +38,7 @@ class ContentItemIndex(BaseHandler):
             if data:
                 item = Item(**data)
             else:
-                return event
+                return event  # skip if not found
 
         # index
         try:
@@ -46,7 +50,12 @@ class ContentItemIndex(BaseHandler):
         return event
 
     def rollback(self, event):
-        """ Rollback event () """
+        """
+        Rollback event
+        Simply re-indexes content item.
+        :param event: shiftcontent.events.event.Event
+        :return: shiftcontent.events.event.Event
+        """
 
         # simply reindex here
         return self.handle(event)

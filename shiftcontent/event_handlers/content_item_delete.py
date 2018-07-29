@@ -16,9 +16,9 @@ class ContentItemDelete(BaseHandler):
 
     def handle(self, event):
         """
+        Handle event
         Delete content item and return an event for further
         handler chaining.
-
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
@@ -31,7 +31,12 @@ class ContentItemDelete(BaseHandler):
         return event
 
     def rollback(self, event):
-        """ Rollback event """
+        """
+        Rollback event
+        Re-creates content item in the database
+        :param event: shiftcontent.events.event.Event
+        :return: shiftcontent.events.event.Event
+        """
         rollback_data = event.payload_rollback
         if 'id' in rollback_data:
             del rollback_data['id']
