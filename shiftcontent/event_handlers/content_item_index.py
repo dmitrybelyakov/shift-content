@@ -46,9 +46,10 @@ class ContentItemIndex(BaseHandler):
         return event
 
     def rollback(self, event):
-        """ Rollback event """
-        print('RE-INDEX CONTENT ITEM')
-        return event
+        """ Rollback event () """
+
+        # simply reindex here
+        return self.handle(event)
 
 
 
