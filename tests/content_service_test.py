@@ -417,3 +417,45 @@ class ContentServiceTest(BaseTestCase):
         # cleanup
         search_service.drop_index()
         search_service.disconnect()
+
+    def test_deleting_content_item_removes_it_from_index(self):
+        """ Deleting content item removes it from index """
+
+        # init search
+        search_service.init(
+            hosts=['127.0.0.1:9200'],
+            index_name='content_tests'
+        )
+
+        type = 'plain_text'
+        author = 123
+        fields = dict(body='I am a simple content item')
+        item = content_service.create_item(
+            author=author,
+            content_type=type,
+            fields=fields
+        )
+
+        object_id = item.object_id
+        content_service.delete_item(author, item.object_id)
+
+        time.sleep(2)  # give it some time
+        es = search_service.es
+        result = es.search(
+            index=search_service.index_name,
+            doc_type=search_service.doc_type,
+            body={
+                'query': {
+                    # 'match_all': {}
+                    'match': {
+                        'object_id': object_id
+                    }
+                }
+            },
+        )
+
+        self.assertEquals(0, result['hits']['total'])
+
+        # cleanup
+        search_service.drop_index()
+        search_service.disconnect()

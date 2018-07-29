@@ -136,6 +136,21 @@ class SearchService:
 
         return item
 
+    def delete(self, object_id):
+        """
+        Delete
+        Removes item from index by object_id
+        :param object_id: str, object id
+        :return: shiftcontent.search_service
+        """
+        self.es.delete(
+            index=self.index_name,
+            doc_type=self.doc_type,
+            id=object_id
+        )
+
+        return self
+
     def put_to_index(self, item):
         """
         Put item to index
