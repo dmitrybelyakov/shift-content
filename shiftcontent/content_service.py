@@ -66,8 +66,8 @@ class ContentService:
         type_definition = definition_service.get_type(content_type)
 
         for field in type_definition['fields']:
-            filters = field['filters'] if field['filters'] else ()
-            validators = field['validators'] if field['validators'] else ()
+            filters = field['filters'] if 'filters' in field else ()
+            validators = field['validators'] if 'validators' in field else ()
             if not filters and not validators:
                 continue
 

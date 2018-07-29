@@ -33,4 +33,40 @@ content:
               max: 40
 
 
+  - name: BlogPost
+    handle: blog_post
+    description: Blog post with some content
+    editor: shiftcontent.editor.Editor
+    fields:
+        - name: Author name
+          handle: author_name
+          description: Full name of the author
+          type: text
+          default_value: None
+
+        - name: Publication date
+          handle: published
+          description: Article publication date
+          type: text
+          default_value: None
+
+        - name: URL
+          handle: url
+          description: Original article URL
+          type: text
+          default_value: None
+
+        - name: Title
+          handle: title
+          description: Full article title
+          type: text
+          default_value: None
+
+        - name: Body copy
+          handle: body
+          description: Article content body
+          type: text
+          default_value: None
+
+
 

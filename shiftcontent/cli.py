@@ -3,6 +3,10 @@ from boiler.cli.colors import *
 import json
 import os
 from pprint import pprint as pp
+from boiler.cli import get_app
+from shiftcontent import content_service
+from shiftcontent import event_service
+import time
 
 # -----------------------------------------------------------------------------
 # Group setup
@@ -18,9 +22,10 @@ def cli():
 # Commands
 # -----------------------------------------------------------------------------
 
+
 @cli.command(name='ingest-data')
 @click.argument('path')
-def test(path):
+def ingest_data(path):
     """ Parse a directory to ingest sample content (see notes) """
 
     # This will ingest a directory of sample blog posts in json format. You
@@ -35,11 +40,13 @@ def test(path):
 
     i = 0
     for file in os.listdir(path):
-        with open(os.path.join(path, file)) as fp:
-            data = json.load(fp)
-
         i += 1
-        print(green('{}. Ingested: {}'.format(i, file)))
+
+        time.sleep(0.1)
+
+        filepath = os.path.join(path, file)
+        with open(filepath) as fp:
+            data = json.load(fp)
 
         preapared = dict(
             author_name=data['author'],
@@ -49,9 +56,20 @@ def test(path):
             body=data['text'],
         )
 
-        # pp(preapared)
-        # break
+        with get_app().app_context() as ctx:
+            try:
+                content_service.create_item(
+                    content_type='blog_post',
+                    author=1,
+                    fields=preapared
+                )
+            except Exception as x:
+                print(red('Error in file: {}: ({})'.format(filepath, str(x))))
+                raise x
+                pass
 
-
+        msg = '{}. Ingested: {} ({})'
+        print(green(msg.format(i, file, preapared['title'])))
 
     print()
+

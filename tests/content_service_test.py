@@ -100,12 +100,13 @@ class ContentServiceTest(BaseTestCase):
         """ Create a simple content item """
         type = 'plain_text'
         author = 123
-        fields = dict(body='I am a simple content item')
+        fields = dict(body='I am a simple content item 😂😂😂😂')
         item = content_service.create_item(
             author=author,
             content_type=type,
             fields=fields
         )
+
         self.assertEquals(1, item.id)
 
     def test_created_item_filtered(self):
@@ -369,7 +370,7 @@ class ContentServiceTest(BaseTestCase):
         search_service.drop_index()
         search_service.disconnect()
 
-    def test_updating_content_item_filed_updates_index(self):
+    def test_updating_content_item_field_updates_index(self):
         """ Updating content item field updates index """
         # init search
         search_service.init(
