@@ -8,6 +8,7 @@ from shiftcontent import search_service
 from shiftcontent.search_service import SearchService
 from shiftcontent.item import Item
 from shiftcontent import exceptions as x
+import time
 
 
 @attr('search', 'service')
@@ -115,3 +116,32 @@ class SearchServiceTest(BaseTestCase):
         item = search_service.get(object_id)
         self.assertIsNotNone(item)
         self.assertEquals(object_id, item['_id'])
+
+    def test_subsequent_indexing_reindexes(self):
+        """ Subsequent calls to index don't result in multiple documents """
+        object_id = str(uuid1())
+        item = Item(
+            id=123,
+            type='plain_text',
+            object_id=object_id,
+            author=123,
+            body='Here is some body content'
+        )
+
+        search_service.put_to_index(item)
+        search_service.put_to_index(item)
+
+        time.sleep(2)  # give it some time
+        es = search_service.es
+        result = es.search(
+            index=search_service.index_name,
+            doc_type=search_service.doc_type,
+            body={
+                'query': {
+                    'match': {
+                        'object_id': item.object_id
+                    }
+                }
+            },
+        )
+        self.assertEquals(1, result['hits']['total'])
