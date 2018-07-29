@@ -143,11 +143,14 @@ class SearchService:
         :param object_id: str, object id
         :return: shiftcontent.search_service
         """
-        self.es.delete(
-            index=self.index_name,
-            doc_type=self.doc_type,
-            id=object_id
-        )
+        try:
+            self.es.delete(
+                index=self.index_name,
+                doc_type=self.doc_type,
+                id=object_id
+            )
+        except ex.NotFoundError:
+            pass
 
         return self
 

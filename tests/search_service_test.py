@@ -145,3 +145,46 @@ class SearchServiceTest(BaseTestCase):
             },
         )
         self.assertEquals(1, result['hits']['total'])
+
+    def test_getting_item_by_id(self):
+        """ Search service can get item by id """
+        object_id = str(uuid1())
+        item = Item(
+            id=123,
+            type='plain_text',
+            object_id=object_id,
+            author=123,
+            body='Here is some body content'
+        )
+
+        search_service.put_to_index(item)
+        time.sleep(1)
+        found = search_service.get(object_id)
+        self.assertEquals(object_id, found['_source']['object_id'])
+
+    def test_getting_nonexistent_item(self):
+        """ Getting nonexistent item returns None instead of exception"""
+        self.assertIsNone(search_service.get('nonexistent'))
+
+    def test_deleting_item_by_id(self):
+        """ Search service can delete item by id """
+        object_id = str(uuid1())
+        item = Item(
+            id=123,
+            type='plain_text',
+            object_id=object_id,
+            author=123,
+            body='Here is some body content'
+        )
+
+        search_service.put_to_index(item)
+        time.sleep(1)
+
+        search_service.delete(object_id)
+        time.sleep(1)
+        self.assertIsNone(search_service.get(object_id))
+
+    def test_deleting_nonexistent_item(self):
+        """ Deleting nonexistent item does not trow an exception"""
+        result = search_service.delete('nonexistent')
+        self.assertIsInstance(result, SearchService)
