@@ -5,7 +5,6 @@ import os
 from pprint import pprint as pp
 from boiler.cli import get_app
 from shiftcontent import content_service
-from shiftcontent import event_service
 import time
 
 # -----------------------------------------------------------------------------
@@ -26,7 +25,7 @@ def cli():
 @cli.command(name='ingest-data')
 @click.argument('path')
 def ingest_data(path):
-    """ Parse a directory to ingest sample content (see notes) """
+    """ Parse a directory to ingest sample content """
 
     # This will ingest a directory of sample blog posts in json format. You
     # can download sample data from: https://webhose.io/datasets/
@@ -42,7 +41,7 @@ def ingest_data(path):
     for file in os.listdir(path):
         i += 1
 
-        time.sleep(0.1)
+        time.sleep(0.05)
 
         filepath = os.path.join(path, file)
         with open(filepath) as fp:
@@ -70,6 +69,7 @@ def ingest_data(path):
 
         msg = '{}. Ingested: {} ({})'
         print(green(msg.format(i, file, preapared['title'])))
+        return
 
     print()
 

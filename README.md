@@ -4,8 +4,35 @@
 # shift-content
 Lightweight headless CMF. Not ready for use yet.
 
+## Configuration
+
+### Using MySQL? Explicitly define a dialect.
+
+**Note:** this is not required for other database engines like PostgreSQL, or SQLite.
+
+Because mysql has a limited size `TEXT` column that becomes event smaller if you use UTF8 multi-byte (see mysql unicode issues in troubleshooting section) it is sometimes not enough to to storer large articles.
+
+For this reason you have to explicitly tel shiftcontent tables that you are using MySQL, so it can switch column type to mysql-specific `LONGTEXT` format:
+
+
+```python
+from shiftcontent import db
+
+db.init(db_url='...', dialect='mysql')
+```
+
+To integrate with Alembic migrations, update your `migrations/env.py` file to include:
+
+```python
+from shiftcontent.database import define_tables
+
+define_tables(context.config.meta, dialect='mysql')
+```
+
+
 
 ## Troubleshooting
+
 
 ### Mysql Unicode Issues
 

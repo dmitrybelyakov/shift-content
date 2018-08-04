@@ -20,7 +20,14 @@ class Db:
         if args or kwargs:
             self.init(*args, **kwargs)
 
-    def init(self, db_url=None, engine=None, meta=None, **db_params):
+    def init(
+        self,
+        db_url=None,
+        engine=None,
+        meta=None,
+        dialect=None,
+        **db_params
+    ):
         """
         Delayed initializer
         Accepts database URL to connect to the engine  and a dict of db engine
@@ -37,7 +44,9 @@ class Db:
 
         :param db_url: str, database url
         :param engine: sqalchemy engine
-        :param echo: bool, whether to print queries to console
+        :param meta: metadata object to attach to
+        :param dialect: str, only required for mysql
+        :param db_params: dict, params to pass to engine
         """
         if not db_url and not engine:
             msg = 'Can\'t instantiate database:db_url or engine required'
@@ -47,7 +56,7 @@ class Db:
         self.db_params = db_params
         self._engine = engine
         self._meta = meta
-        self.tables = define_tables(self.meta)
+        self.tables = define_tables(self.meta, dialect=dialect)
 
     @property
     def engine(self):
