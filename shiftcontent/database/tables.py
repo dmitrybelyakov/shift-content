@@ -16,7 +16,7 @@ def define_tables(meta, dialect=None):
     """
 
     # event store tables
-    event_tables = define_event_tables(meta)
+    event_tables = define_event_tables(meta, dialect=dialect)
 
     # mysql dialect requires longtext column for fields
     fields_type = sa.Text() if dialect != 'mysql' else mysql.LONGTEXT()

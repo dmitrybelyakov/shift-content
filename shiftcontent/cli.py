@@ -69,7 +69,6 @@ def ingest_data(path):
 
         msg = '{}. Ingested: {} ({})'
         print(green(msg.format(i, file, preapared['title'])))
-        return
 
     print()
 
