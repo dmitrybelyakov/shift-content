@@ -41,7 +41,7 @@ def ingest_data(path):
     for file in os.listdir(path):
         i += 1
 
-        time.sleep(0.05)
+        time.sleep(0.5)
 
         filepath = os.path.join(path, file)
         with open(filepath) as fp:

@@ -13,9 +13,13 @@ dependencies, so the services with no dependencies are created here first.
 from .database.db import Db
 db = Db()
 
+
 # init schema (no dependencies)
 from .definition_service import DefinitionService
 definition_service = DefinitionService()
+
+# init cache service
+from shiftmemory import memory
 
 # init search service
 from .search_service import SearchService
