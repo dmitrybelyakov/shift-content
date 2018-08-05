@@ -13,6 +13,19 @@ from shiftcontent.event_handlers import ContentItemCache
 @attr('event', 'handler', 'content_cache_cache')
 class ContentItemCacheTest(BaseTestCase):
 
+    def setUp(self):
+        cache_service.init()
+        super().setUp()
+
+    def tearDown(self):
+        cache_service.delete_all()
+        cache_service.disconnect()
+        super().tearDown()
+
+    # --------------------------------------------------------------------------
+    # tests
+    # --------------------------------------------------------------------------
+
     def test_instantiating_handler(self):
         """ Instantiating content item cache handler """
         handler = ContentItemCache(db=self.db)
@@ -20,8 +33,6 @@ class ContentItemCacheTest(BaseTestCase):
 
     def test_handle_event(self):
         """ Handler content item cache handles event"""
-        cache_service.init()
-
         # create item
         object_id = str(uuid1())
         item = Item(
@@ -52,14 +63,8 @@ class ContentItemCacheTest(BaseTestCase):
         self.assertEquals(item.object_id, cached.object_id)
         self.assertEquals(item.body, cached.body)
 
-        # cleanup
-        cache_service.delete_all()
-        cache_service.disconnect()
-
     def test_rollback_event(self):
         """ Handler content item cache rolling back changes """
-        cache_service.init()
-
         # create item
         object_id = str(uuid1())
         item = Item(
@@ -89,7 +94,3 @@ class ContentItemCacheTest(BaseTestCase):
         cached = cache_service.get(object_id)
         self.assertEquals(item.object_id, cached.object_id)
         self.assertEquals(item.body, cached.body)
-
-        # cleanup
-        cache_service.delete_all()
-        cache_service.disconnect()

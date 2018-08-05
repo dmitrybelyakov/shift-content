@@ -13,6 +13,19 @@ from shiftcontent.event_handlers import ContentItemRemoveFromCache
 @attr('event', 'handler', 'content_item_remove_from_cache')
 class ContentItemRemoveFromCacheTest(BaseTestCase):
 
+    def setUp(self):
+        cache_service.init()
+        super().setUp()
+
+    def tearDown(self):
+        cache_service.delete_all()
+        cache_service.disconnect()
+        super().tearDown()
+
+    # --------------------------------------------------------------------------
+    # tests
+    # --------------------------------------------------------------------------
+
     def test_instantiating_handler(self):
         """ Instantiating content item removefrom index handler """
         handler = ContentItemRemoveFromCache(db=self.db)
@@ -20,8 +33,6 @@ class ContentItemRemoveFromCacheTest(BaseTestCase):
 
     def test_handle_event(self):
         """ Handler content item remove from cache handles event"""
-        cache_service.init()
-
         # cache first
         object_id = str(uuid1())
         item = Item(
@@ -48,14 +59,8 @@ class ContentItemRemoveFromCacheTest(BaseTestCase):
         cached = cache_service.get(object_id)
         self.assertIsNone(cached)
 
-        # cleanup
-        cache_service.delete_all()
-        cache_service.disconnect()
-
     def test_rollback_event(self):
         """ Handler content item remove from cache rolling back changes """
-        cache_service.init()
-
         # prepare data for rollback
         object_id = str(uuid1())
         item = Item(
@@ -82,7 +87,3 @@ class ContentItemRemoveFromCacheTest(BaseTestCase):
 
         # assert cached after rollback
         self.assertIsNotNone(cache_service.get(object_id))
-
-        # cleanup
-        cache_service.delete_all()
-        cache_service.disconnect()
