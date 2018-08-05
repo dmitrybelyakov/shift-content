@@ -2,14 +2,73 @@ from shiftmemory import Memory
 import json
 from shiftcontent.item import Item
 
+# TODO: MUST BE A BETTER WAY TO CONFIGURE CACHE SERVICE
+# TODO: SINCE WE ARE WORKING WITH MEMORY INDIRECTLY ANYWAYS
+# TODO: BETTER NOT PASS DOWN ADAPTERS AND CACHES
+
+
 class CacheService(Memory):
     """
     Cache service
-    Extends cache service from shiftmemory to provide convenience methods
-    to disconnect from cache. Mostly used during testing
+    Wraps around shiftmemory to provide additional functionality and easier
+    configuration for adapters and caches.
     """
 
     cache_name = 'content'
+
+    def init(
+        self,
+        cache_name='content',
+        default_ttl=44640,
+        host='localhost',
+        port=6379,
+        db=0,
+        **kwargs
+    ):
+        """
+        Delayed initializer
+        This overrides initializer from  shiftmemory to provides easier
+        configuration. We do not need to supply the whole list of adapters and
+        caches since we are only using redis adapter and one cache for content
+        items.
+
+        :param cache_name: str, cache name for content items
+        :param default_ttl: int, ttl in minutes defaults to a month
+        :param host: str, redis host, defaults to localhost
+        :param port: int, redis port defaults to 6379
+        :param db: int, redis database id to use, defaults to 0
+        :param kwargs: additional config params to pass to redis adapter
+        :return: shiftcontent.cache_service.CacheService
+        """
+
+        self.cache_name = cache_name
+
+        # cache adapters (only using redis)
+        adapters = dict(
+            redis_adapter=dict(
+                type='redis',
+                config=dict(
+                    host=host,
+                    port=port,
+                    db=db,
+                    **kwargs
+                )
+            )
+        )
+
+        # caches
+        caches = dict()
+        caches[self.cache_name] = dict(
+            adapter='redis_adapter',
+            ttl=default_ttl
+        )
+
+        # configure memory
+        super().init(adapters=adapters, caches=caches)
+        return self
+
+
+
 
     @property
     def cache(self):
@@ -17,7 +76,7 @@ class CacheService(Memory):
         Direct access to cache adapter
         :return:
         """
-        return self.get_cache(self.cache_name)
+        return self.get_cache('content')
 
     def disconnect(self):
         """

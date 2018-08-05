@@ -465,16 +465,7 @@ class ContentServiceTest(BaseTestCase):
     def test_creating_content_item_puts_it_to_cache(self):
         """ Creating content item puts it to cache """
         # init cache
-        cache_service.init(
-            adapters=dict(redis=dict(
-                type='redis',
-                config={}
-            )),
-            caches=dict(content=dict(
-                adapter='redis',
-                ttl=1000
-            ))
-        )
+        cache_service.init()
 
         # create item
         content_type = 'plain_text'
@@ -496,16 +487,7 @@ class ContentServiceTest(BaseTestCase):
     def test_updating_content_item_updates_cache(self):
         """ Updating content item updates cache """
         # init cache
-        cache_service.init(
-            adapters=dict(redis=dict(
-                type='redis',
-                config={}
-            )),
-            caches=dict(content=dict(
-                adapter='redis',
-                ttl=1000
-            ))
-        )
+        cache_service.init()
 
         # create item
         content_type = 'plain_text'
@@ -531,16 +513,7 @@ class ContentServiceTest(BaseTestCase):
     def test_updating_content_item_field_updates_cache(self):
         """ Updating content item field updates cache """
         # init cache
-        cache_service.init(
-            adapters=dict(redis=dict(
-                type='redis',
-                config={}
-            )),
-            caches=dict(content=dict(
-                adapter='redis',
-                ttl=1000
-            ))
-        )
+        cache_service.init()
 
         # create item
         content_type = 'plain_text'
@@ -571,16 +544,7 @@ class ContentServiceTest(BaseTestCase):
     def test_deleting_content_item_removes_it_from_cache(self):
         """ Deleting content item removes it from cache """
         # init cache
-        cache_service.init(
-            adapters=dict(redis=dict(
-                type='redis',
-                config={}
-            )),
-            caches=dict(content=dict(
-                adapter='redis',
-                ttl=1000
-            ))
-        )
+        cache_service.init()
 
         # create item
         content_type = 'plain_text'
