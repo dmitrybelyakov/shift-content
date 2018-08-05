@@ -6,10 +6,10 @@ from elasticsearch import exceptions as ex
 from pprint import pprint as pp
 
 
-class ContentItemIndex(BaseHandler):
+class ContentItemCache(BaseHandler):
     """
-    Index content item
-    Puts content item to index
+    Cache content item
+    Puts content item into cache
     """
 
     EVENT_TYPES = (
@@ -21,9 +21,9 @@ class ContentItemIndex(BaseHandler):
     def handle(self, event):
         """
         Handle event
-        Add content item to index and return an event for further handler
+        Add content item to cache and return an event for further handler
         chaining. We do need to get item from database here because some events,
-        e.g. field update, don't carry enough payload to create full item index.
+        e.g. field update, don't carry enough payload to create full item.
         This makes this handler more universal.
 
         :param event: shiftcontent.events.event.Event
@@ -41,11 +41,8 @@ class ContentItemIndex(BaseHandler):
             else:
                 return event  # skip if not found (e.g. rolling back creation)
 
-        # index
-        try:
-            search_service.put_to_index(item)
-        except ex.ImproperlyConfigured:
-            pass
+
+        print('PUT ITEM TO CACHE NOW')
 
         # and return
         return event
@@ -53,12 +50,13 @@ class ContentItemIndex(BaseHandler):
     def rollback(self, event):
         """
         Rollback event
-        Simply re-indexes content item. This will get run later in the handlers
+        Simply recreates item cache. This will get run later in the handlers
         chain, thus we can assume item was properly rolled back at this point.
 
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
+        print('ROLLBACK CACHE ITEM')
         return self.handle(event)
 
 

@@ -4,6 +4,8 @@ from .content_item_update import ContentItemUpdate
 from .content_item_update_field import ContentItemFieldUpdateField
 from .content_item_index import ContentItemIndex
 from .content_item_remove_from_index import ContentItemRemoveFromIndex
+from .content_item_cache import ContentItemCache
+from .content_item_remove_from_cache import ContentItemRemoveFromCache
 
 
 
