@@ -14,8 +14,8 @@ from .database.db import Db
 db = Db()
 
 # init cache service
-from shiftmemory import Memory
-cache_service = Memory()
+from .cache_service import CacheService
+cache_service = CacheService()
 
 # init schema (no dependencies)
 from .definition_service import DefinitionService

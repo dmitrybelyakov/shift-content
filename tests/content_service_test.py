@@ -12,6 +12,7 @@ from shiftcontent.content_service import ContentService
 from shiftcontent.item import Item
 from shiftcontent.item_schema import UpdateItemSchema, CreateItemSchema
 from shiftcontent import search_service
+from shiftcontent import cache_service
 import time
 
 
@@ -460,3 +461,144 @@ class ContentServiceTest(BaseTestCase):
         # cleanup
         search_service.drop_index()
         search_service.disconnect()
+
+    def test_creating_content_item_puts_it_to_cache(self):
+        """ Creating content item puts it to cache """
+        # init cache
+        cache_service.init(
+            adapters=dict(redis=dict(
+                type='redis',
+                config={}
+            )),
+            caches=dict(content=dict(
+                adapter='redis',
+                ttl=1000
+            ))
+        )
+
+        # create item
+        content_type = 'plain_text'
+        author = 123
+        fields = dict(body='I am a simple content item')
+        item = content_service.create_item(
+            author=author,
+            content_type=content_type,
+            fields=fields
+        )
+
+        cached = cache_service.get(item.object_id)
+        self.assertEquals(item.body, cached.body)
+
+        # cleanup
+        cache_service.delete_all()
+        cache_service.disconnect()
+
+    def test_updating_content_item_updates_cache(self):
+        """ Updating content item updates cache """
+        # init cache
+        cache_service.init(
+            adapters=dict(redis=dict(
+                type='redis',
+                config={}
+            )),
+            caches=dict(content=dict(
+                adapter='redis',
+                ttl=1000
+            ))
+        )
+
+        # create item
+        content_type = 'plain_text'
+        author = 123
+        fields = dict(body='I am a simple content item')
+        item = content_service.create_item(
+            author=author,
+            content_type=content_type,
+            fields=fields
+        )
+
+        # then update
+        item.body = 'I am updated body'
+        content_service.update_item(author, item)
+
+        cached = cache_service.get(item.object_id)
+        self.assertEquals('I am updated body', cached.body)
+
+        # cleanup
+        cache_service.delete_all()
+        cache_service.disconnect()
+
+    def test_updating_content_item_field_updates_cache(self):
+        """ Updating content item field updates cache """
+        # init cache
+        cache_service.init(
+            adapters=dict(redis=dict(
+                type='redis',
+                config={}
+            )),
+            caches=dict(content=dict(
+                adapter='redis',
+                ttl=1000
+            ))
+        )
+
+        # create item
+        content_type = 'plain_text'
+        author = 123
+        fields = dict(body='I am a simple content item')
+        item = content_service.create_item(
+            author=author,
+            content_type=content_type,
+            fields=fields
+        )
+
+        # update field
+        new_value = 'NEW BODY VALUE'
+        content_service.update_item_field(
+            author,
+            item.object_id,
+            'body',
+            new_value
+        )
+
+        cached = cache_service.get(item.object_id)
+        self.assertEquals(new_value, cached.body)
+
+        # cleanup
+        cache_service.delete_all()
+        cache_service.disconnect()
+
+    def test_deleting_content_item_removes_it_from_cache(self):
+        """ Deleting content item removes it from cache """
+        # init cache
+        cache_service.init(
+            adapters=dict(redis=dict(
+                type='redis',
+                config={}
+            )),
+            caches=dict(content=dict(
+                adapter='redis',
+                ttl=1000
+            ))
+        )
+
+        # create item
+        content_type = 'plain_text'
+        author = 123
+        fields = dict(body='I am a simple content item')
+        item = content_service.create_item(
+            author=author,
+            content_type=content_type,
+            fields=fields
+        )
+
+        # and delete
+        object_id = item.object_id
+        content_service.delete_item(author=author, object_id=object_id)
+
+        cached = cache_service.get(item.object_id)
+        self.assertIsNone(cached)
+
+        # cleanup
+        cache_service.delete_all()
+        cache_service.disconnect()

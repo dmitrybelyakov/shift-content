@@ -1,7 +1,7 @@
 from shiftevent.handlers.base import BaseHandler
 from shiftcontent.item import Item
-from shiftcontent import search_service
-from elasticsearch import exceptions as ex
+from shiftcontent import cache_service
+from shiftmemory import exceptions as cx
 from pprint import pprint as pp
 
 
@@ -23,12 +23,10 @@ class ContentItemRemoveFromCache(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-        # try:
-        #     search_service.delete(event.object_id)
-        # except ex.ImproperlyConfigured:
-        #     pass
-
-        print('REMOVE CONTENT ITEM FROM CACHE')
+        try:
+            cache_service.delete(event.object_id)
+        except cx.ConfigurationException:
+            pass
 
         return event
 

@@ -54,6 +54,8 @@ class Item:
     # TODO: WHAT ARE OTHER FIELD TYPES THAT WE HAVE
 
 
+    # TODO: HOW TO RESTORE ITEM FROM CACHE WHITHOUT KNOWING TYPE UPFRONT?
+
 
     def __init__(self, type, **kwargs):
         """
@@ -242,25 +244,21 @@ class Item:
         :return: dict
         """
         data = {**self.meta, **self.fields}
+        full_text = ('{}: {}\n'.format(f, v) for f, v in data.items())
+        data['full_text'] = ''.join(full_text)
         return data
 
-    def serialize(self):
+    def to_cache(self):
         """
-        Serialize
-        Returns serialized representation of item suitable for storage in
-        event store or cache
-        :return: dict
+        To cache
+        Returns serialized representation as json string suitable for
+        storing in cache.
+        :return: str
         """
-        raise NotImplemented
+        data = self.to_dict(serialized=True)
+        serialized = json.dumps(data, ensure_ascii=False)
+        return serialized
 
-    def unserialize(self, data):
-        """
-        Unserialize
-        Accepts serialized data and populates itself from it.
-        :param data: dict
-        :return: shiftcontent.item.Item
-        """
-        raise NotImplemented
 
 
 

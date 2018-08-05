@@ -4,7 +4,7 @@ from nose.plugins.attrib import attr
 from shiftcontent.item import Item
 from shiftcontent import exceptions as x
 from datetime import datetime
-import arrow
+import json
 from pprint import pprint as pp
 
 
@@ -188,3 +188,36 @@ class ItemTest(BaseTestCase):
         self.assertEquals('some value', item.fields['body'])
         self.assertEquals('some value', item.body)
 
+    def test_getting_search_representation_of_item(self):
+        """ Getting search representation of item """
+        data = dict(
+            id=1234,
+            author='1234',
+            object_id='12345-67890',
+            fields=dict(
+                body='I have some body text'
+            )
+        )
+
+        item = Item(type='plain_text', **data)
+        search_data = item.to_search()
+        self.assertTrue(type(search_data) is dict)
+        self.assertTrue(type(search_data['full_text']) is str)
+
+    def test_getting_cache_representation(self):
+        """ Getting cache representation of item """
+        data = dict(
+            id=1234,
+            author='1234',
+            object_id='12345-67890',
+            fields=dict(
+                body='I have some body text'
+            )
+        )
+
+        item = Item(type='plain_text', **data)
+        serialized = item.to_cache()
+        unserialized = json.loads(serialized)
+        self.assertTrue(type(serialized) is str)
+        self.assertTrue(type(unserialized) is dict)
+        self.assertEquals(item.body, unserialized['body'])

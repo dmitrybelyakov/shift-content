@@ -23,6 +23,9 @@ class ContentService:
         :return: shiftcontent.ite.Item
         """
 
+        # todo: get from cache first
+        # todo: cache if not found in caches
+
         # get from projection table
         items = db.tables['items']
         with db.engine.begin() as conn:

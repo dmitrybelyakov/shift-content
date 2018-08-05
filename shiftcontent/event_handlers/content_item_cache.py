@@ -1,8 +1,8 @@
 from shiftevent.handlers.base import BaseHandler
 from shiftcontent.item import Item
 from shiftcontent import db
-from shiftcontent import search_service
-from elasticsearch import exceptions as ex
+from shiftcontent import cache_service
+from shiftmemory import exceptions as cx
 from pprint import pprint as pp
 
 
@@ -41,8 +41,11 @@ class ContentItemCache(BaseHandler):
             else:
                 return event  # skip if not found (e.g. rolling back creation)
 
-
-        print('PUT ITEM TO CACHE NOW')
+        # cache
+        try:
+            cache_service.set(item)
+        except cx.ConfigurationException:
+            pass
 
         # and return
         return event
@@ -56,7 +59,6 @@ class ContentItemCache(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-        print('ROLLBACK CACHE ITEM')
         return self.handle(event)
 
 
