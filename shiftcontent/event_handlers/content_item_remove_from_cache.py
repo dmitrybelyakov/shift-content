@@ -43,7 +43,12 @@ class ContentItemRemoveFromCache(BaseHandler):
             **event.payload_rollback
         )
 
-        print('ROLLBACK DELETE BY ADDING ITEM TO CACHE')
+        try:
+            cache_service.set(item)
+        except cx.ConfigurationException:
+            pass
+
+        return event
 
 
 
