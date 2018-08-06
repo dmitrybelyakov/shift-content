@@ -13,6 +13,7 @@ from shiftcontent.item import Item
 from shiftcontent.item_schema import UpdateItemSchema, CreateItemSchema
 from shiftcontent import search_service
 from shiftcontent import cache_service
+from shiftmemory import exceptions as cx
 import time
 
 
@@ -24,8 +25,12 @@ class ContentServiceTest(BaseTestCase):
         super().setUp()
 
     def tearDown(self):
-        cache_service.delete_all()
-        cache_service.disconnect()
+        try:
+            cache_service.delete_all()
+            cache_service.disconnect()
+        except cx.ConfigurationException:
+            pass
+
         super().tearDown()
 
     # --------------------------------------------------------------------------
@@ -83,6 +88,77 @@ class ContentServiceTest(BaseTestCase):
         # now get it
         item = content_service.get_item(object_id=object_id)
         self.assertIsInstance(item, Item)
+
+    def test_getting_item_puts_it_to_cache(self):
+        """ Getting content item pts it to cache """
+        object_id = str(uuid1())
+        data = dict(
+            author=123,
+            created= datetime.utcnow(),
+            object_id=object_id,
+            type='plain_text',
+            fields='{"body": "some content"}'
+        )
+
+        # insert
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            conn.execute(items.insert(), **data)
+
+        # now get it
+        content_service.get_item(object_id)
+
+        # assert put in cache
+        cached = cache_service.get(object_id)
+        self.assertIsNotNone(cached)
+
+    def test_skip_putting_to_cache_if_not_configured(self):
+        """ Content service skips putting item to cache if not configured """
+        object_id = str(uuid1())
+        data = dict(
+            author=123,
+            created= datetime.utcnow(),
+            object_id=object_id,
+            type='plain_text',
+            fields='{"body": "some content"}'
+        )
+
+        # insert
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            conn.execute(items.insert(), **data)
+
+        cache_service.disconnect()
+        item = content_service.get_item(object_id)
+        self.assertIsNotNone(item)
+
+    def test_getting_item_from_cache(self):
+        """ Getting item from cache"""
+        object_id = str(uuid1())
+        data = dict(
+            author=123,
+            created= datetime.utcnow(),
+            object_id=object_id,
+            type='plain_text',
+            fields='{"body": "some content"}'
+        )
+
+        # insert
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            conn.execute(items.insert(), **data)
+
+        # now get it
+        item = content_service.get_item(object_id)
+
+        # modify what's in cache
+        new_value = 'UPDATED'
+        item.body = new_value
+        cache_service.set(item)
+
+        # now get from content service
+        cached = content_service.get_item(object_id)
+        self.assertEquals(new_value, cached.body)
 
     def test_fail_to_initialize_an_item_from_database_if_type_is_unknown(self):
         """ Fail to initialize item from database if type not in schema """
@@ -528,7 +604,6 @@ class ContentServiceTest(BaseTestCase):
 
         cached = cache_service.get(item.object_id)
         self.assertEquals(new_value, cached.body)
-
 
     def test_deleting_content_item_removes_it_from_cache(self):
         """ Deleting content item removes it from cache """

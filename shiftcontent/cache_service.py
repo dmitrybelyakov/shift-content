@@ -1,10 +1,7 @@
 from shiftmemory import Memory
 import json
 from shiftcontent.item import Item
-
-# TODO: MUST BE A BETTER WAY TO CONFIGURE CACHE SERVICE
-# TODO: SINCE WE ARE WORKING WITH MEMORY INDIRECTLY ANYWAYS
-# TODO: BETTER NOT PASS DOWN ADAPTERS AND CACHES
+from shiftmemory import exceptions as cx
 
 
 class CacheService(Memory):
@@ -19,7 +16,7 @@ class CacheService(Memory):
     def init(
         self,
         cache_name='content',
-        default_ttl=44640,
+        default_ttl=2628000,  # a month
         host='localhost',
         port=6379,
         db=0,
@@ -67,16 +64,19 @@ class CacheService(Memory):
         super().init(adapters=adapters, caches=caches)
         return self
 
-
-
-
     @property
     def cache(self):
         """
         Direct access to cache adapter
         :return:
         """
-        return self.get_cache('content')
+        cache = None
+        try:
+            cache = self.get_cache('content')
+        except cx.ConfigurationException:
+            pass
+
+        return cache
 
     def disconnect(self):
         """
@@ -95,16 +95,23 @@ class CacheService(Memory):
         :param kwargs: keyword arguments to pass to cache adapter
         :return: shiftcontent.cache_service.CacheService
         """
+        if not self.cache:
+            return self
+
         data = item.to_cache()
         self.cache.set(item.object_id, data, **kwargs)
+        return self
 
     def get(self, object_id):
         """
         Get
         Retrieves item from cache
         :param object_id: str, object id
-        :return:
+        :return: shiftcontent.item.Item
         """
+        if not self.cache:
+            return
+
         data = self.cache.get(object_id)
         if not data:
             return
@@ -122,7 +129,11 @@ class CacheService(Memory):
         :param kwargs: keyword arguments to pass to cache adapter
         :return: shiftcontent.cache_service.CacheService
         """
+        if not self.cache:
+            return
+
         self.cache.delete(object_id, **kwargs)
+        return self
 
     def delete_all(self):
         """
@@ -130,7 +141,11 @@ class CacheService(Memory):
         Removes all caches
         :return: shiftcontent.cache_service.CacheService
         """
+        if not self.cache:
+            return
+
         self.cache.delete_all()
+        return self
 
 
 

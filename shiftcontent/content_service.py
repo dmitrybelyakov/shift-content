@@ -7,6 +7,7 @@ from shiftcontent.utils import import_by_name
 from shiftcontent import db
 from shiftcontent import definition_service
 from shiftcontent import event_service
+from shiftcontent import cache_service
 
 
 class ContentService:
@@ -23,8 +24,12 @@ class ContentService:
         :return: shiftcontent.ite.Item
         """
 
-        # todo: get from cache first
-        # todo: cache if not found in caches
+        object_id = str(object_id)
+
+        # try getting from cache first
+        item = cache_service.get(object_id)
+        if item:
+            return item
 
         # get from projection table
         items = db.tables['items']
@@ -40,7 +45,12 @@ class ContentService:
             msg = 'Database contains item ({}) of undefined type [{}]'
             raise x.UndefinedContentType(msg.format(result.id, result.type))
 
-        return Item(**dict(result))
+        # put to cache
+        item = Item(**dict(result))
+        cache_service.set(item)
+
+        # and return
+        return item
 
     def item_schema(self, content_type, schema_type='update'):
         """
