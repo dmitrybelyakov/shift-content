@@ -2,6 +2,7 @@ from shiftmemory import Memory
 import json
 from shiftcontent.item import Item
 from shiftmemory import exceptions as cx
+from pprint import pprint as pp
 
 
 class CacheService(Memory):
@@ -98,7 +99,7 @@ class CacheService(Memory):
         if not self.cache:
             return self
 
-        data = item.to_cache()
+        data = item.to_json()
         self.cache.set(item.object_id, data, **kwargs)
         return self
 
@@ -116,9 +117,8 @@ class CacheService(Memory):
         if not data:
             return
 
-        data = json.loads(data)
-        content_type = data['meta']['type']
-        item = Item(type=content_type, **data)
+        item = Item()
+        item.from_json(data)
         return item
 
     def delete(self, object_id, **kwargs):

@@ -22,7 +22,7 @@ class ContentItemCreate(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-        item = Item(type=event.payload['type'], **event.payload['data'])
+        item = Item(**event.payload)
 
         items = db.tables['items']
         with db.engine.begin() as conn:

@@ -24,11 +24,12 @@ class ContentItemUpdateFieldTest(BaseTestCase):
         author = '123'
         object_id = str(uuid1())
 
-        item = Item('plain_text', **dict(
+        item = Item(
+            type='plain_text',
             author=author,
             object_id=object_id,
             body='Initial body'
-        ))
+        )
         with db.engine.begin() as conn:
             result = conn.execute(items.insert(), **item.to_db(update=False))
             item.id = result.inserted_primary_key[0]
@@ -56,7 +57,8 @@ class ContentItemUpdateFieldTest(BaseTestCase):
         with self.db.engine.begin() as conn:
             query = items.select().where(items.c.object_id == object_id)
             record = conn.execute(query).fetchone()
-            updated = Item(**record)
+            updated = Item()
+            updated.from_db(record)
             self.assertEquals('Updated body', updated.body)
 
     def test_rollback_field(self):
@@ -66,11 +68,12 @@ class ContentItemUpdateFieldTest(BaseTestCase):
         author = '123'
         object_id = str(uuid1())
 
-        item = Item('plain_text', **dict(
+        item = Item(
+            type='plain_text',
             author=author,
             object_id=object_id,
             body='Initial body'
-        ))
+        )
         with db.engine.begin() as conn:
             result = conn.execute(items.insert(), **item.to_db(update=False))
             item.id = result.inserted_primary_key[0]
@@ -99,7 +102,8 @@ class ContentItemUpdateFieldTest(BaseTestCase):
         with self.db.engine.begin() as conn:
             query = items.select().where(items.c.object_id == object_id)
             record = conn.execute(query).fetchone()
-            updated = Item(**record)
+            updated = Item()
+            updated.from_db(record)
             self.assertEquals('Initial body', updated.body)
 
     def test_handle_metafield(self):
@@ -110,11 +114,12 @@ class ContentItemUpdateFieldTest(BaseTestCase):
         new_author = '456'
         object_id = str(uuid1())
 
-        item = Item('plain_text', **dict(
+        item = Item(
+            type='plain_text',
             author=author,
             object_id=object_id,
             body='Initial body'
-        ))
+        )
         with db.engine.begin() as conn:
             result = conn.execute(items.insert(), **item.to_db(update=False))
             item.id = result.inserted_primary_key[0]
@@ -142,7 +147,8 @@ class ContentItemUpdateFieldTest(BaseTestCase):
         with self.db.engine.begin() as conn:
             query = items.select().where(items.c.object_id == object_id)
             record = conn.execute(query).fetchone()
-            updated = Item(**record)
+            updated = Item()
+            updated.from_db(record)
             self.assertEquals(new_author, updated.author)
 
     def test_rollback_metafield(self):
@@ -153,11 +159,12 @@ class ContentItemUpdateFieldTest(BaseTestCase):
         new_author = '456'
         object_id = str(uuid1())
 
-        item = Item('plain_text', **dict(
+        item = Item(
+            type='plain_text',
             author=author,
             object_id=object_id,
             body='Initial body'
-        ))
+        )
         with db.engine.begin() as conn:
             result = conn.execute(items.insert(), **item.to_db(update=False))
             item.id = result.inserted_primary_key[0]
@@ -186,7 +193,8 @@ class ContentItemUpdateFieldTest(BaseTestCase):
         with self.db.engine.begin() as conn:
             query = items.select().where(items.c.object_id == object_id)
             record = conn.execute(query).fetchone()
-            updated = Item(**record)
+            updated = Item()
+            updated.from_db(record)
             self.assertEquals(author, updated.author)
 
 

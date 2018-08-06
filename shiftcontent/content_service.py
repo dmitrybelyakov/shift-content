@@ -46,7 +46,8 @@ class ContentService:
             raise x.UndefinedContentType(msg.format(result.id, result.type))
 
         # put to cache
-        item = Item(**dict(result))
+        item = Item()
+        item.from_db(result)
         cache_service.set(item)
 
         # and return
@@ -146,14 +147,7 @@ class ContentService:
             type='CONTENT_ITEM_CREATE',
             author=author,
             object_id=object_id,
-            payload=dict(
-                type=content_type,
-                data=dict(
-                    author=author,
-                    object_id=object_id,
-                    **{f: v for f, v in item_data.items() if f in valid_fields}
-                )
-            )
+            payload=item_data
         )
 
         # and emit
@@ -192,7 +186,7 @@ class ContentService:
 
         # prepare payload
         old_data = old_item.to_dict(serialized=True)
-        new_data['meta']['type'] = old_data['meta']['type']
+        new_data['type'] = old_data['type']
 
         # create event
         event = event_service.event(

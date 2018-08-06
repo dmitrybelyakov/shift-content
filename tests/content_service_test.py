@@ -94,7 +94,7 @@ class ContentServiceTest(BaseTestCase):
         object_id = str(uuid1())
         data = dict(
             author=123,
-            created= datetime.utcnow(),
+            created=datetime.utcnow(),
             object_id=object_id,
             type='plain_text',
             fields='{"body": "some content"}'
@@ -377,6 +377,7 @@ class ContentServiceTest(BaseTestCase):
             hosts=['127.0.0.1:9200'],
             index_name='content_tests'
         )
+        search_service.drop_index()
 
         type = 'plain_text'
         author = 123
@@ -420,6 +421,7 @@ class ContentServiceTest(BaseTestCase):
             index_name='content_tests'
         )
 
+        # create first
         type = 'plain_text'
         author = 123
         fields = dict(body='I am a simple content item')
@@ -429,6 +431,7 @@ class ContentServiceTest(BaseTestCase):
             fields=fields
         )
 
+        # then update
         item.body = 'I am updated body'
         content_service.update_item(author, item)
 

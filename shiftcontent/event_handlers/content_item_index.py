@@ -29,7 +29,6 @@ class ContentItemIndex(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-
         # get item
         object_id = event.object_id
         items = db.tables['items']
@@ -37,7 +36,8 @@ class ContentItemIndex(BaseHandler):
             query = items.select().where(items.c.object_id == object_id)
             data = conn.execute(query).fetchone()
             if data:
-                item = Item(**data)
+                item = Item()
+                item.from_db(data)
             else:
                 return event  # skip if not found (e.g. rolling back creation)
 

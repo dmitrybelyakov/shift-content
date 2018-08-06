@@ -179,13 +179,21 @@ class Item:
     # Representations
     # --------------------------------------------------------------------------
 
-    def to_dict(self):
+    def to_dict(self, serialized=False):
         """
         To dict
-        Returns dictionary representation of an item
+        Returns dictionary representation of an item. Can optionally serialize
+        values to strings
+        :param serialized: bool, whether to serialize values
         :return: dict
         """
-        return self.fields
+        data = copy.copy(self.fields)
+        if serialized:
+            for field, value in data.items():
+                if type(value) is datetime:
+                    data[field] = value.strftime(self.date_format)
+
+        return data
 
     def from_dict(self, data, initial=False):
         """
@@ -245,7 +253,7 @@ class Item:
         :param data: dict, data from the database
         :return: shiftcontent.itemItem
         """
-        data = copy.copy(data)
+        data = {**data}
         fields = json.loads(data['fields'])
         del data['fields']
         for field, value in fields.items():
@@ -274,12 +282,7 @@ class Item:
         :param as_string: bool, strinify or return as dict
         :return: str | dict
         """
-        data = copy.copy(self.fields)
-        serialized = dict()
-        for field, value in data.items():
-            if isinstance(value, datetime):
-                value = value.strftime(self.date_format)
-            serialized[field] = value
+        serialized = self.to_dict(serialized=True)
 
         # return dict to jsonify later?
         if not as_string:

@@ -36,10 +36,7 @@ class ContentItemRemoveFromIndex(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-        item = Item(
-            type=event.payload_rollback['meta']['type'],
-            **event.payload_rollback
-        )
+        item = Item(**event.payload_rollback)
 
         # index
         try:

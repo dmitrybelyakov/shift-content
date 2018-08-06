@@ -41,10 +41,7 @@ class ContentItemDelete(BaseHandler):
         if 'id' in rollback_data:
             del rollback_data['id']
 
-        type = rollback_data['meta']['type']
-        del rollback_data['meta']['type']
-
-        item = Item(type=type, **rollback_data)
+        item = Item(**rollback_data)
 
         items = db.tables['items']
         with db.engine.begin() as conn:

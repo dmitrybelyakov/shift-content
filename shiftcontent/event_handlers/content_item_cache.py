@@ -37,7 +37,8 @@ class ContentItemCache(BaseHandler):
             query = items.select().where(items.c.object_id == object_id)
             data = conn.execute(query).fetchone()
             if data:
-                item = Item(**data)
+                item = Item()
+                item.from_db(data)
             else:
                 return event  # skip if not found (e.g. rolling back creation)
 

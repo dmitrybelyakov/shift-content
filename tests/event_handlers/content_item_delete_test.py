@@ -62,10 +62,7 @@ class ContentItemDeleteTest(BaseTestCase):
             result = conn.execute(items.insert(), **item.to_db(update=False))
             item.id = result.inserted_primary_key[0]
 
-        rollback = item.to_dict()
-        rollback['meta']['created'] = rollback['meta']['created'].strftime(
-            item.date_format
-        )
+        rollback = item.to_dict(serialized=True)
 
         event = Event(
             id=123,

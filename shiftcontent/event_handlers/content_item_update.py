@@ -22,11 +22,8 @@ class ContentItemUpdate(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-        type = event.payload['meta']['type']
-        del event.payload['meta']['type']
-        item = Item(type=type, **event.payload)
+        item = Item(**event.payload)
         db_data = item.to_db()
-
         items = db.tables['items']
         with db.engine.begin() as conn:
             query = items.update().where(items.c.object_id == event.object_id)
@@ -41,9 +38,7 @@ class ContentItemUpdate(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-        type = event.payload_rollback['meta']['type']
-        del event.payload_rollback['meta']['type']
-        item = Item(type=type, **event.payload_rollback)
+        item = Item(**event.payload_rollback)
         db_data = item.to_db()
 
         items = db.tables['items']

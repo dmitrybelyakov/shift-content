@@ -25,11 +25,12 @@ class ContentItemUpdateTest(BaseTestCase):
         author = 123
         object_id = str(uuid1())
 
-        item = Item('plain_text', **dict(
+        item = Item(
+            type='plain_text',
             author=author,
             object_id=object_id,
             body='Initial body'
-        ))
+        )
 
         # remember old data
         old_data = item.to_dict(serialized=True)
@@ -57,7 +58,8 @@ class ContentItemUpdateTest(BaseTestCase):
         with self.db.engine.begin() as conn:
             query = items.select().where(items.c.object_id == object_id)
             record = conn.execute(query).fetchone()
-            updated = Item(**record)
+            updated = Item()
+            updated.from_db(record)
             self.assertEquals('Updated body', updated.body)
 
     def test_rollback_event(self):
@@ -67,11 +69,12 @@ class ContentItemUpdateTest(BaseTestCase):
         author = 123
         object_id = str(uuid1())
 
-        item = Item('plain_text', **dict(
+        item = Item(
+            type='plain_text',
             author=author,
             object_id=object_id,
             body='Initial body'
-        ))
+        )
 
         # remember old data
         old_data = item.to_dict(serialized=True)
@@ -102,7 +105,8 @@ class ContentItemUpdateTest(BaseTestCase):
         with self.db.engine.begin() as conn:
             query = items.select().where(items.c.object_id == object_id)
             record = conn.execute(query).fetchone()
-            rolled_back = Item(**record)
+            rolled_back = Item()
+            rolled_back.from_db(record)
             self.assertEquals('Initial body', rolled_back.body)
 
 
