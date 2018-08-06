@@ -2,20 +2,22 @@ from shiftcontent import exceptions as x
 import json
 import copy
 import arrow
+from datetime import datetime
 from pprint import pprint as pp
 
 
 class Item:
     """
     Content item
-    Represents a projection of a content item
+    This is a dto model for a content item. It holds a few generic metafields
+    and a set of configured custom fields. In addition provides representations
+    for viewing, caching and searching.
     """
 
     # datetime format
     date_format = '%Y-%m-%d %H:%M:%S'
 
     # metadata fields
-    meta = None
     valid_metafields = (
         'id',
         'created',
@@ -41,53 +43,47 @@ class Item:
         'id',
         'object_id',
         'author',
-        'type'
+        'type',
+        'created'
     )
 
-    # content type fields
-    valid_fields = None
+    # meta fields + custom fields
     fields = None
 
-
-    # TODO: RENDER REPRESENTATION AVAILABLE TO CLIENTS
-    # TODO: HOW DO WE DECODE DATA PICKELED IN JSON FOR FIELD TYPES? (DATES)
-    # TODO: WHAT ARE OTHER FIELD TYPES THAT WE HAVE
-
-
-    # TODO: HOW TO RESTORE ITEM FROM CACHE WHITHOUT KNOWING TYPE UPFRONT?
-
-
-    def __init__(self, type, **kwargs):
+    def __init__(self, *_, **kwargs):
         """
         Instantiate item
-        Can optionally populate itself from kwargs
+        Can optionally populate itself from keyword arguments
         :param type: str, content type of the item
         :param kwargs: dict, key-value pairs used to populate the item
         """
+
+        # init metafields
+        self.fields = {prop: None for prop in self.valid_metafields}
+
+        # populate from kwargs
+        if kwargs:
+            self.from_dict(kwargs, initial=True)
+
+        # set creation date
+        if not self.fields['created']:
+            self.fields['created'] = arrow.utcnow().datetime
+
+    @property
+    def definition(self):
+        """
+        Definition
+        Returns content type definition based on content type property or
+        throws an exception if not found.
+        :return: dict
+        """
         try:
             from shiftcontent import definition_service
-            type_definition = definition_service.get_type(type)
+            type_definition = definition_service.get_type(self.type)
+            return type_definition
         except x.UndefinedContentType:
-            err = 'Unable to create item. Content type [{}] is undefined'
-            raise x.ItemError(err.format(type))
-
-        # init meta
-        meta = {prop: None for prop in self.valid_metafields}
-        meta['type'] = type
-        self._set('meta', meta)
-
-        # init valid type fields
-        valid_fields = [f['handle'] for f in type_definition['fields']]
-        self._set('valid_fields', valid_fields)
-
-        # init fields
-        fields = {field: None for field in self.valid_fields}
-        self._set('fields', fields)
-
-        # populate from dict if got kwargs
-        self.from_dict(kwargs)
-        if not self.meta['created']:
-            self.meta['created'] = arrow.utcnow().datetime
+            err = 'Unable to set content type: [{}] is undefined'
+            raise x.ItemError(err.format(self.type))
 
     def __repr__(self):
         """ Returns printable representation of item """
@@ -95,169 +91,217 @@ class Item:
         return repr.format(self.id, self.object_id)
 
     def __getattr__(self, item):
-        """ Overrides attribute access for getting props and fields """
-        if item in self.meta:
-            return self.meta[item]
-        elif item in self.fields:
+        """
+        Get attribute
+        Overrides attribute access for getting props and fields
+        :param item: str, property name
+        :return:
+        """
+        if item in self.fields:
             return self.fields[item]
         return object.__getattribute__(self, item)
 
     def __setattr__(self, key, value):
-        """ Overrides attribute access for setting props and fields """
-        if key == 'fields':
-            self.set_fields(value)
-        elif key == 'meta':
-            self.set_meta(value)
-        elif key in self.valid_fields:
-            self.fields[key] = value
-        elif key in self.meta:
-            if key == 'created' and type(value) is str:
-                value = arrow.get(value).datetime
-            self.meta[key] = value
+        """
+        Set attribute
+        Overrides attribute access for setting props and fields
+        :param key: str, property name
+        :param value: value to set
+        :return: shiftcontent.item.Item
+        """
+        if self.fields and key in self.fields:
+            self.set_field(key, value)
         else:
-            self._set(key, value)
+            object.__setattr__(self, key, value)
 
+    def init_fields(self):
+        """
+        Initialize fields
+        Retrieves content type definition schema ant initializes the
+        fields.
+        :return: shiftcontent.item.Item
+        """
+        for field in self.definition['fields']:
+            handle = field['handle']
+            if handle not in self.fields:
+                self.fields[handle] = None
         return self
 
-    def _set(self, property, value):
+    def set_field(self, field, value, initial=False):
         """
-        Internal set
-        Sets a property on itself avoiding overloading magic.
-        :param prop: str, property to set
-        :param val: vaue
-        :return: shiftcontent.content.ContentService
+        Set field
+        Inspects content type definition for field type and converts field
+        value to this specific type (int, datetime, bool, etc).
+
+        Will silently ignore fields that can't be set after initial
+        initialization (frozen metafields), unless initial flag is set to True
+
+        :param field: str, field name
+        :param value: str, value to set
+        :param initial: bool, is this initial instantiation?
+        :return: shiftcontent.item.Item
         """
-        object.__setattr__(self, property, value)
+
+        # skip frozen unless initial set
+        if field in self.frozen_metafields and not initial:
+            return self
+
+        # init custom fields on first set
+        if field == 'type':
+            self.fields['type'] = value
+            self.init_fields()
+
+        if field not in self.fields.keys():
+            return
+
+        # set metafields
+        if field in self.valid_metafields:
+            if field == 'created' and type(value) is str:
+                self.fields['created'] = arrow.get(value).datetime
+                return
+
+        # todo: do type conversion here
+
+        # set custom fields
+        self.fields[field] = value
         return self
 
     def is_updatable(self, field):
         """
         Is updatable
         Checks if field exists and is allowed to be updated.
-
         :param field: str, field handle
         :return:
         """
-        if field in self.valid_fields or field in self.valid_metafields:
-            if field not in self.frozen_metafields:
-                return True
-
-        return False
-
-    def set_meta(self, meta):
-        """
-        Set meta
-        Accepts a dictionary of meta fields to set.
-        :param meta:
-        :return:
-        """
-        if type(meta) is not dict:
-            msg = 'Meta fields must be a dictionary, got {}'
-            raise x.ItemError(msg.format(type(meta)))
-
-        for prop, val in meta.items():
-            if prop in self.valid_metafields:
-                if prop == 'created' and type(val) is str:
-                    val = arrow.get(val).datetime
-                self.meta[prop] = val
-
-    def set_fields(self, fields):
-        """
-        Set fields
-        Accepts a dictionary and encodes it into a json string for persistence.
-        Will raise an exception if fields is not a dictionary.
-        :param fields: dict
-        :return:
-        """
-        if type(fields) is str:
-            try:
-                fields = json.loads(fields, encoding='utf-8')
-            except json.JSONDecodeError:
-                raise x.ItemError('Failed to decode fields string')
-
-        if type(fields) is not dict:
-            msg = 'Fields must be a dictionary, got {}'
-            raise x.ItemError(msg.format(type(fields)))
-
-        for prop, val in fields.items():
-            if prop in self.valid_fields:
-                self.fields[prop] = val
+        return field in self.fields and field not in self.frozen_metafields
 
     # --------------------------------------------------------------------------
     # Representations
     # --------------------------------------------------------------------------
 
+    def to_dict(self):
+        """
+        To dict
+        Returns dictionary representation of an item
+        :return: dict
+        """
+        return self.fields
+
+    def from_dict(self, data, initial=False):
+        """
+        From dict
+        Populates itself from a dictionary. Will ignore fields that can't be
+        updated after being initially set, unless initial is switched to True.
+
+        :param data: dict, fields:values to set
+        :param initial: bool, whether this is an initial field set
+        :return: shiftcontent.item.Item
+        """
+        data = copy.copy(data)
+
+        # set type fom dict (initializes custom fields)
+        if initial and 'type' in data:
+            self.set_field('type', data['type'], initial)
+            del data['type']
+
+        # set the rest of the fields
+        for field, value in data.items():
+            self.set_field(field, value, initial=initial)
+        return self
+
     def to_db(self, update=True):
         """
         To db
-        Returns database representation for persistence. Same as to_dict but
-        fields are stringified. Additionally will drop fields that are
-        forbidden to change on existing items
-        :return:
+        Returns database representation of item ready to be persisted in
+        content items table. Additionally will drop fields that are forbidden
+        to be updated unles update flag is set to False
+        :param update: bool, is it an update or initial insert?
+        :return: dict
         """
-        data = copy.copy(self.meta)
-        data['fields'] = json.dumps(self.fields, ensure_ascii=False)
+        data = dict()
+        fields = dict()
+        for field, value in self.fields.items():
+            if field not in self.valid_metafields:
+                fields[field] = value
+            else:
+                data[field] = value
+
+        # jsonify custom fields
+        data['fields'] = json.dumps(fields, ensure_ascii=False)
 
         # for updates, filter out unchangeable fields
         if update:
-            del data['type']
-            del data['id']
-            del data['object_id']
-            del data['author']
+            for frozen in self.frozen_metafields:
+                del data[frozen]
 
+        # and return
         return data
 
-    def to_dict(self, serialized=False):
+    def from_db(self, data):
         """
-        Returns dictionary representation of the item. Can optionally
-        serialize fields, e.g. datetimes to strings
-        :param serialized:
-        :return: dict
+        From db
+        Populates itself back from data stored in database and decodes
+        json fields
+        :param data: dict, data from the database
+        :return: shiftcontent.itemItem
         """
-        data = copy.copy(self.fields)
-        data['meta'] = copy.copy(self.meta)
+        data = copy.copy(data)
+        fields = json.loads(data['fields'])
+        del data['fields']
+        for field, value in fields.items():
+            data[field] = value
 
-        # serialize?
-        if serialized:
-            data['meta']['created'] = data['meta']['created'].strftime(
-                self.date_format
-            )
-
-        return data
-
-    def from_dict(self, data):
-        """
-        From dict
-        Populates itself from a dictionary
-        :param data: dict, data to populate from
-        :return: shiftcontent.item.Item
-        """
-        for p, v in data.items():
-            if p in ['meta', 'fields'] or p in self.meta or p in self.fields:
-                setattr(self, p, v)
+        self.from_dict(data, initial=True)
         return self
 
     def to_search(self):
         """
         To search
-        Returns representation suitable for putting into the search index.
+        Returns representation sutable for putting to search index
         :return: dict
         """
-        data = {**self.meta, **self.fields}
+        data = copy.copy(self.fields)
         full_text = ('{}: {}\n'.format(f, v) for f, v in data.items())
         data['full_text'] = ''.join(full_text)
         return data
 
-    def to_cache(self):
+    def to_json(self, as_string=True):
         """
-        To cache
-        Returns serialized representation as json string suitable for
-        storing in cache.
-        :return: str
+        To json
+        Returns json representation of the item. This useful for putting
+        to cache. Has an optional flag indicating whether a string should
+        be returned or just a dict with all values stringified.
+        :param as_string: bool, strinify or return as dict
+        :return: str | dict
         """
-        data = self.to_dict(serialized=True)
-        serialized = json.dumps(data, ensure_ascii=False)
-        return serialized
+        data = copy.copy(self.fields)
+        serialized = dict()
+        for field, value in data.items():
+            if isinstance(value, datetime):
+                value = value.strftime(self.date_format)
+            serialized[field] = value
+
+        # return dict to jsonify later?
+        if not as_string:
+            return serialized
+
+        jsonified = json.dumps(serialized, ensure_ascii=True)
+        return jsonified
+
+    def from_json(self, json_data):
+        """
+        From json
+        Populates itself from a json string
+        :param json_data: str, json string
+        :return: shiftcontent.item.Item
+        """
+        try:
+            data = json.loads(json_data, encoding='utf-8')
+        except json.JSONDecodeError:
+            raise x.ItemError('Failed to decode fields string')
+
+        self.from_dict(data, initial=True)
+        return self
 
 
 
