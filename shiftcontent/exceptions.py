@@ -25,6 +25,13 @@ class InvalidItemSchemaType(ContentException, RuntimeError):
     pass
 
 
+class BreakingSchemaChanges(ContentException, RuntimeError):
+    """ Raised when applying new schema revision with breaking changes """
+    def __init__(self, *args, breaking_changes=None, **kwargs):
+        self.breaking_changes = breaking_changes
+        super().__init__(*args, **kwargs)
+
+
 class UndefinedContentType(ContentException, RuntimeError):
     """ Raised when discovered a nonexistent content type  """
     pass

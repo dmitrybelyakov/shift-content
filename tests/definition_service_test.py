@@ -5,10 +5,13 @@ import os
 import hashlib
 import yaml
 import json
+import copy
+import time
 from pprint import pprint as pp
 from frozendict import frozendict
 from shiftcontent.definition_service import DefinitionService
 from shiftcontent import exceptions as x
+
 
 
 @attr('definition', 'service')
@@ -254,3 +257,117 @@ class DefinitionServiceTest(BaseTestCase):
             "frozendict' object does not support item assignment",
             str(cm.exception)
         )
+
+    def test_abort_if_detected_breaking_changes(self):
+        """ Detect breaking changes in new revisions and abort """
+        definition = {'content': [
+            {
+                'name': 'Markdown',
+                'handle': 'markdown',
+                'description': 'This is a markdown type',
+                'editor': 'shiftcontent.editor.Editor',
+                'fields': [
+                    {
+                        'name': 'Title',
+                        'handle': 'title',
+                        'description': 'Title copy',
+                        'type': 'text',
+                    },
+                    {
+                        'name': 'Body',
+                        'handle': 'body',
+                        'description': 'body text',
+                        'type': 'text',
+                    }
+                ]
+            },
+            {
+                'name': 'Plain Text',
+                'handle': 'plain_text',
+                'description': 'This is a markdown type',
+                'editor': 'shiftcontent.editor.Editor',
+                'fields': [
+                    {
+                        'name': 'Title',
+                        'handle': 'title',
+                        'description': 'Title copy',
+                        'type': 'text',
+                    },
+                    {
+                        'name': 'Body',
+                        'handle': 'body',
+                        'description': 'body text',
+                        'type': 'text',
+                    }
+                ]
+            },
+        ]}
+
+        service = DefinitionService()
+
+        # ingest first revision
+        valid1 = copy.deepcopy(definition)
+        del valid1['content'][1]
+        valid1_path = os.path.join(self.tmp, 'valid1.yml')
+        with open(valid1_path, 'w') as stream:
+            yaml.dump(valid1, stream)
+
+        service.init(
+            definition_path=valid1_path,
+            revisions_path=self.revisions_path
+        )
+        service.definition
+        time.sleep(1)
+
+        # ingest second revision
+        valid2 = copy.deepcopy(definition)
+        valid2_path = os.path.join(self.tmp, 'valid2.yml')
+        with open(valid2_path, 'w') as stream:
+            yaml.dump(valid2, stream)
+
+        service.init(
+            definition_path=valid2_path,
+            revisions_path=self.revisions_path
+        )
+        service.definition
+        time.sleep(1)
+
+        # ingest third revision (breaking changes!)
+        valid3 = copy.deepcopy(definition)
+        del valid3['content'][0]  # drop type
+        del valid3['content'][0]['fields'][0] # drop field
+        valid3['content'][0]['fields'][0]['type'] = 'bool'  # change field type
+
+        valid3_path = os.path.join(self.tmp, 'valid3.yml')
+        with open(valid3_path, 'w') as stream:
+            yaml.dump(valid3, stream)
+
+        service.init(
+            definition_path=valid3_path,
+            revisions_path=self.revisions_path
+        )
+        with self.assertRaises(x.BreakingSchemaChanges) as cm:
+            service.definition
+
+        err = cm.exception
+        breaks = err.breaking_changes
+
+        self.assertIn('missing_types', breaks)
+        self.assertIn('Markdown', breaks['missing_types'][0])
+
+        self.assertIn('missing_fields', breaks)
+        self.assertIn('Plain Text: Title', breaks['missing_fields'][0])
+
+        self.assertIn('field_type_changes', err.breaking_changes)
+        self.assertIn('Plain Text: Body', breaks['field_type_changes'][0])
+
+
+
+
+
+
+
+
+
+
+

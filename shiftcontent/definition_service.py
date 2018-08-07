@@ -4,6 +4,7 @@ import yaml
 import json
 import hashlib
 import arrow
+import time
 from pprint import pprint as pp
 from frozendict import frozendict
 from shiftcontent import exceptions as x
@@ -36,6 +37,7 @@ class DefinitionService:
         self.definition_path = definition_path
         self._revisions_path = revisions_path
         self._definition = None
+        return self
 
     @property
     def revisions_path(self):
@@ -140,10 +142,16 @@ class DefinitionService:
         shutil.copy(registry_tmp, registry_file)
         os.remove(registry_tmp)
 
-    def load_definition(self):
+    def load_definition(self, force=False):
         """
         Load definition
-        Loads a definition from a yaml file
+        Loads a definition from a yaml file. Will check if changed since
+        previous version and if so validate and persist. Additionally checks
+        if new revision introduced breaking changes, i.g. deleted fields or
+        changed field types and aborts persistence with an exception, unless
+        force flag is set to True
+
+        :param force: bool, whether to force-load on breaking changes
         :return: dict
         """
         from shiftcontent.definition_schema import schema
@@ -176,8 +184,19 @@ class DefinitionService:
         else:
             definition = {t['handle'].lower(): t for t in yml['content']}
 
-        # todo: trigger schema changed event
-        # todo: check if fields were removed, field types changed etc
+        # check for breaking changes
+        if self.revisions:
+            max_index = max((key for key in self.revisions.keys()))
+            latest = self.revisions.get(str(max_index))['definition_file']
+            latest_path = os.path.join(self.revisions_path, latest)
+            with open(latest_path) as prev:
+                prev = yaml.load(prev.read())
+                content = prev['content']
+                previous_revision = {t['handle'].lower(): t for t in content}
+                self.detect_breaking_changes(
+                    old_version=previous_revision,
+                    new_version=definition
+                )
 
         # save definition to backlog
         shutil.copy(self.definition_path, revision_path)
@@ -185,10 +204,89 @@ class DefinitionService:
         # save to revision registry
         self.register_revision(hash + '.yml')
 
-        # todo: fire an event
-
         # and return
         return self.freeze_definition(definition)
+
+    def detect_breaking_changes(self, old_version, new_version):
+        """
+        Detect breaking changes
+        Accepts to definitions to compare new_version against old_version for
+        breaking changes, e.g. field deletions or field type changes.
+
+        :param old_version: dict, old (current) definition
+        :param new_version: dict, new definition to be applied
+        :return: shiftcontent.definition_service.DefinitionService
+        """
+
+        # errors
+        errors = dict(
+            missing_types=[],
+            missing_fields=[],
+            field_type_changes=[]
+        )
+
+        for content_type, type_def in old_version.items():
+            # check for content type deletions
+            if content_type not in new_version:
+                errors['missing_types'].append(type_def['name'])
+                continue
+
+            for field in type_def['fields']:
+                found = list(filter(
+                    lambda x: x['handle'] == field['handle'],
+                    new_version[content_type]['fields']
+                ))
+
+                # check for missing fields
+                if not found:
+                    errors['missing_fields'].append('{}: {}'.format(
+                        type_def['name'],
+                        field['name']
+                    ))
+                    continue
+
+                # check for field type changes
+                found = found[0]
+                if field['type'] != found['type']:
+                    err = '{}: {} ({} -> {})'
+                    errors['field_type_changes'].append(err.format(
+                        type_def['name'],
+                        field['name'],
+                        field['type'],
+                        found['type']
+                    ))
+                    continue
+
+        has_errors = False
+        for key in errors.keys():
+            if errors[key]:
+                has_errors = True
+
+        # return on success
+        if not has_errors:
+            return self
+
+        # otherwise raise exception
+        err = 'Unable to load new definition: breaking changes detected:\n'
+        for key in errors.keys():
+            if not errors[key]:
+                continue
+
+            if key == 'missing_types':
+                err += 'Content types deleted: {}\n'.format(
+                    ' '.join(errors[key])
+                )
+            if key == 'missing_fields':
+                err += 'Fields deleted: {}\n'.format(
+                    ' '.join(errors[key])
+                )
+            if key == 'field_type_changes':
+                err += 'Fields types changed: {}\n'.format(
+                    ', '.join(errors[key])
+                )
+
+        # raise
+        raise x.BreakingSchemaChanges(err, breaking_changes=errors)
 
     def freeze_definition(self, definition):
         """
