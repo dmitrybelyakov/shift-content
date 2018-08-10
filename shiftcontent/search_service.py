@@ -29,6 +29,7 @@ class SearchService:
         # document type
         self.doc_type = None
 
+        # sniff nodes
         self.sniff = True
 
         if kwargs:
