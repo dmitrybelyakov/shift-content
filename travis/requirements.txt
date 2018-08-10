@@ -4,7 +4,7 @@ coveralls==0.5
 
 # project
 blinker==1.4
-shiftschema>=0.2.2,<0.3.0
+shiftschema>=0.2.3,<0.3.0
 shiftmemory==0.0.6
 PyYAML==3.12
 click==6.6

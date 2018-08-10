@@ -50,57 +50,84 @@ def validate_definition(path):
         print(green('Definition file is valid!\n'))
         return
 
-    print(red('DEFINITION INVALID:\n'))
-    errors = ok.get_messages()
+    def print_type(index, data):
+        """ Print content type errors"""
+        print(green('Content type "{}": '.format(index)))
 
+        for field, errors in data.items():
+            print(yellow('{} * {}:'.format(' ' * 4, field)))
+
+            if type(errors) is list:
+                for type_field_err in errors:
+                    print('{} - {}'.format(' ' * 8, type_field_err))
+
+            if type(errors) is dict and 'direct' in errors:
+                for type_field_err in errors['direct']:
+                    print('{} - {}'.format(' ' * 8, type_field_err))
+
+            if type(errors) is dict and 'collection' in errors:
+                for field_index, field_errors in errors['collection'].items():
+                    print_field(field_index, field_errors)
+                print()
+
+    def print_field(index, data):
+        """ Print field errors"""
+        print(magenta('{} - Field "{}":'.format(' ' * 8, index)))
+
+        for field, errors in data.items():
+            print(cyan('{} * {}:'.format(' ' * 12, field)))
+
+            if type(errors) is list:
+                for field_err in errors:
+                    print('{} - {}'.format(' ' * 16, field_err))
+
+            if type(errors) is dict and 'direct' in errors:
+                for type_field_err in errors['direct']:
+                    print('{} - {}'.format(' ' * 16, type_field_err))
+
+            if type(errors) is dict and 'collection' in errors:
+                for field_index, field_errors in errors['collection'].items():
+                    print_filer_or_validator(
+                        field_index,
+                        field_errors,
+                        'Filter' if field == 'filters' else 'Validator'
+                    )
+
+    def print_filer_or_validator(index, data, object_type=None):
+        """ Print filter/validator errors"""
+        if not object_type:
+            object_type = 'Filter/Validator'
+
+        print(green('{} - {} "{}":'.format(' ' * 16, object_type, index)))
+        for prop, errors in data.items():
+            print(yellow('{} * {}:'.format(' ' * 20, prop)))
+            for error in errors:
+                print('{} - {}'.format(' ' * 24, error))
+
+    from tests._assets.definition_errors import errors
     # pp(errors)
 
-    # content
-    if 'content' in errors and 'direct' in errors['content']:
-        print(green('Content (root element): \n'))
-        for direct in errors['content']['direct']:
-            print(red(direct + '\n'))
+    content = errors['content']
+    if 'direct' in content:
+        print(red('Content types:'))
+        for err in content['direct']:
+            print('{} * {}'.format(' ' * 4, err))
+        print()
 
-    types = errors['content']['collection']
-    pp(types)
+    # got types?
+    if 'collection' not in content:
+        print()
+        return
 
-    for index, type_errors in types.items():
-        print(green('Content type #{}: \n'.format(index)))
-        for field, field_errors in type_errors.items():
-            print(yellow('{}:'.format(field)))
-
-            if type(field_errors) is list:
-                for field_error in field_errors:
-                    print('{} * {} \n'.format(' ' * 4, field_error))
-
-            if type(field_errors) is dict and 'direct' in field_errors:
-                for field_error in field_errors['direct']:
-                    print('{} * {} \n'.format(' ' * 4, field_error))
-
-            if type(field_errors) is dict and 'collection' in field_errors:
-                collection_errors = field_errors['collection']
-                for subfield, subfield_errors in collection_errors.items():
-                    print(magenta('{} * Field {}:\n'.format(' ' * 4, subfield)))
-
-                    print(subfield_errors)
-
-                    # if type(subfield_errors) is list:
-                    #     for subfield_error in subfield_errors:
-                    #         print('{} * {}'.format(tab, subfield_error))
+    types = content['collection']
+    for index, content_type in types.items():
+        print_type(index, content_type)
+        print()
 
 
 
-
-
-        # print()
-
-
-
-
-
-
-
-
+    # done
+    return
 
 
 @cli.command(name='load')

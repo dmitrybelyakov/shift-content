@@ -1,6 +1,6 @@
 content:
   - something: something else
-  - someoter:
+  - something:
     - crap
   - name: Markdown
     handle: markdown
@@ -13,8 +13,17 @@ content:
           description: Contains long blob of text
           type: text
           default_value: None
+          filters:
+            - 123
+          validators:
+            - crap
         - name: Body
           handle: body
-          description: Contains long blob of text
           type: text
           default_value: None
+          filters:
+            - type: shiftschema.filters.Strip2
+          validators:
+            - type: shiftschema.validators.Length
+              min: 2
+              max: 40

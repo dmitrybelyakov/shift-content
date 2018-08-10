@@ -1,7 +1,5 @@
 content:
 
-  # what do we create from this definition
-  # @todo: add filters and validators to content field
   - name: Markdown
     handle: markdown
     description: This is a very simple markdown text container

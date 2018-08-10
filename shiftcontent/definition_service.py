@@ -217,6 +217,34 @@ class DefinitionService:
         # and return
         return self.freeze_definition(definition)
 
+    def freeze_definition(self, definition):
+        """
+        Freeze definition
+        Recursively freezes definition to prevent accidental in-place
+        modifications.
+
+        :param definition:
+        :return:
+        """
+        fd = self.freeze_definition
+
+        branch = dict()
+        for prop, val in definition.items():
+            if type(val) is dict:
+                branch[prop] = fd(val)
+                continue
+
+            elif type(val) is list:
+                lst = [fd(v) if type(v) is dict else v for v in val]
+                branch[prop] = lst
+                continue
+
+            else:
+                branch[prop] = val
+
+        # freeze and return
+        return frozendict(branch)
+
     def detect_breaking_changes(self, old_version, new_version):
         """
         Detect breaking changes
@@ -298,33 +326,7 @@ class DefinitionService:
         # raise
         raise x.BreakingSchemaChanges(err, breaking_changes=errors)
 
-    def freeze_definition(self, definition):
-        """
-        Freeze definition
-        Recursively freezes definition to prevent accidental in-place
-        modifications.
 
-        :param definition:
-        :return:
-        """
-        fd = self.freeze_definition
-
-        branch = dict()
-        for prop, val in definition.items():
-            if type(val) is dict:
-                branch[prop] = fd(val)
-                continue
-
-            elif type(val) is list:
-                lst = [fd(v) if type(v) is dict else v for v in val]
-                branch[prop] = lst
-                continue
-
-            else:
-                branch[prop] = val
-
-        # freeze and return
-        return frozendict(branch)
 
 
 
