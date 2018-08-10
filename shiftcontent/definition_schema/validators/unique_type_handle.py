@@ -33,8 +33,9 @@ class UniqueTypeHandle(AbstractValidator):
         count = 0
         types = context['content'] if context and 'content' in context else None
         if types:
+            val = value
             count = reduce(
-                lambda a, c: a + 1 if c['handle'] == value else a,
+                lambda a, c: a+1 if 'handle' in c and c['handle'] == val else a,
                 types,
                 0
             )

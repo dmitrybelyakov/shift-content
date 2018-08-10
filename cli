@@ -8,8 +8,8 @@ cli = kernel.cli
 from boiler.cli import db
 cli.add_command(db.cli, name='db')
 
-from shiftcontent.cli import cli as project_cli
-cli.add_command(project_cli, name='content')
+from shiftcontent.cli import cli as content
+cli.add_command(content, name='content')
 
 # and run
 cli()

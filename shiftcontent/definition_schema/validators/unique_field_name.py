@@ -32,7 +32,7 @@ class UniqueFieldName(AbstractValidator):
         """
         fields = context['fields'] if context and 'fields' in context else ()
         count = reduce(
-            lambda a, c: a + 1 if c['name'] == value else a,
+            lambda a, c: a + 1 if 'name' in c and c['name'] == value else a,
             fields,
             0
         )

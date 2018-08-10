@@ -32,7 +32,7 @@ class UniqueFieldHandle(AbstractValidator):
         """
         fields = context['fields'] if context and 'fields' in context else ()
         count = reduce(
-            lambda a, c: a + 1 if c['handle'] == value else a,
+            lambda a, c: a + 1 if 'handle' in c and c['handle'] == value else a,
             fields,
             0
         )

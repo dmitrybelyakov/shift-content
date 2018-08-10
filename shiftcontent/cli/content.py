@@ -1,5 +1,5 @@
 import click, os, sys, shutil
-from boiler.cli.colors import *
+from shiftcontent.cli.colours import *
 import json
 import os
 from pprint import pprint as pp
@@ -12,7 +12,7 @@ import time
 # -----------------------------------------------------------------------------
 
 
-@click.group(help=yellow('ShiftContent CLI'))
+@click.group(help=yellow('Content commands'))
 def cli():
     pass
 

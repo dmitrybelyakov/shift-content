@@ -26,7 +26,7 @@ alembic==0.9.9
 # project
 PyYAML==3.13
 shiftmemory==0.0.6
-shiftschema>=0.2.1,<0.3.0
+shiftschema>=0.2.2,<0.3.0
 shiftevent==0.0.7
 elasticsearch>=6.0.0,<7.0.0
 frozendict==1.2

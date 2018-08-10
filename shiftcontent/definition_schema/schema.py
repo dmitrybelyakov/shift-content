@@ -21,6 +21,9 @@ class DefinitionSchema(BaseSchema):
         self.content.add_validator(validators.Required(
             message='Content types can\'t be empty'
         ))
+        self.content.add_validator(content_validators.IsList(
+            message='Content types collection must be a list, got [{type}]'
+        ))
 
 
 class TypeSchema(BaseSchema):

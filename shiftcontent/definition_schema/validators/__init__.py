@@ -6,3 +6,4 @@ from .importable import Importable
 from .instantiatable import Instantiatable
 from .handle import Handle
 from .non_metafield_handle import NonMetafieldHandle
+from .is_list import IsList

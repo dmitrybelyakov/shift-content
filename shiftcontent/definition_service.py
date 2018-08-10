@@ -8,6 +8,7 @@ import time
 from pprint import pprint as pp
 from frozendict import frozendict
 from shiftcontent import exceptions as x
+from shiftcontent.definition_schema.schema import DefinitionSchema
 
 
 class DefinitionService:
@@ -105,6 +106,18 @@ class DefinitionService:
         # otherwise return
         return self.definition[content_type]
 
+    def validate_definition(self, definition):
+        """
+        Validate definition
+        Applies filres and validators to incoming definition dict and returns
+        a validation result object (with errors or empty)
+        :param definition: dict, definition to validate
+        :return: shiftschema.result.Result
+        """
+        schema = DefinitionSchema()
+        result = schema.process(definition)
+        return result
+
     def register_revision(self, revision_filename):
         """
         Register revision
@@ -154,8 +167,6 @@ class DefinitionService:
         :param force: bool, whether to force-load on breaking changes
         :return: dict
         """
-        from shiftcontent.definition_schema import schema
-
         if not os.path.exists(self.definition_path):
             msg = 'Unable to locate definition file at path [{}]'
             raise x.ConfigurationException(msg.format(self.definition_path))
@@ -176,8 +187,7 @@ class DefinitionService:
             return self.freeze_definition(definition)
 
         # if changed, validate and persist
-        definitions_schema = schema.DefinitionSchema()
-        ok = definitions_schema.process(yml)
+        ok = self.validate_definition(yml)
         if not ok:
             errors = ok.get_messages()
             raise x.InvalidDefinition(validation_errors=errors)

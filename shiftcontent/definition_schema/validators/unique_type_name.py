@@ -33,8 +33,9 @@ class UniqueTypeName(AbstractValidator):
         count = 0
         types = context['content'] if context and 'content' in context else None
         if types:
+
             count = reduce(
-                lambda a, c: a + 1 if c['name'] == value else a,
+                lambda a, c: a + 1 if 'name' in c and c['name'] == value else a,
                 types,
                 0
             )

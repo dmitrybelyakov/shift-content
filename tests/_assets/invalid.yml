@@ -1,0 +1,20 @@
+content:
+  - something: something else
+  - someoter:
+    - crap
+  - name: Markdown
+    handle: markdown
+    description: This is a very simple markdown text container
+    editor: shiftcontent.editor.Editor
+    fields:
+        - crap: yes
+        - name: Body
+          handle: body
+          description: Contains long blob of text
+          type: text
+          default_value: None
+        - name: Body
+          handle: body
+          description: Contains long blob of text
+          type: text
+          default_value: None
