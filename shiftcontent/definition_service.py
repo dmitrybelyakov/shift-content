@@ -195,18 +195,12 @@ class DefinitionService:
             definition = {t['handle'].lower(): t for t in yml['content']}
 
         # check for breaking changes
-        if self.revisions:
-            max_index = max((key for key in self.revisions.keys()))
-            latest = self.revisions.get(str(max_index))['definition_file']
-            latest_path = os.path.join(self.revisions_path, latest)
-            with open(latest_path) as prev:
-                prev = yaml.load(prev.read())
-                content = prev['content']
-                previous_revision = {t['handle'].lower(): t for t in content}
-                self.detect_breaking_changes(
-                    old_version=previous_revision,
-                    new_version=definition
-                )
+        latest_revision = self.get_latest_revision()
+        if latest_revision:
+            self.detect_breaking_changes(
+                old_version=latest_revision,
+                new_version=definition
+            )
 
         # save definition to backlog
         shutil.copy(self.definition_path, revision_path)
@@ -244,6 +238,23 @@ class DefinitionService:
 
         # freeze and return
         return frozendict(branch)
+
+    def get_latest_revision(self):
+        """
+        Get latest revision
+        Retrieves latest definition revision (if any)
+        :return: dict
+        """
+        latest_revision = None
+        if self.revisions:
+            max_index = max((key for key in self.revisions.keys()))
+            latest = self.revisions.get(str(max_index))['definition_file']
+            latest_path = os.path.join(self.revisions_path, latest)
+            with open(latest_path) as prev:
+                prev = yaml.load(prev.read())
+                content = prev['content']
+                latest_revision = {t['handle'].lower(): t for t in content}
+        return latest_revision
 
     def detect_breaking_changes(self, old_version, new_version):
         """

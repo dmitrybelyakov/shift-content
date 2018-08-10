@@ -53,9 +53,7 @@ def validate_definition(path):
     def print_type(index, data):
         """ Print content type errors"""
         print(green('Content type "{}": '.format(index)))
-
         for field, errors in data.items():
-
             if type(errors) is list:
                 for type_field_err in errors:
                     print('{} - {}'.format(' ' * 4, type_field_err))
@@ -107,25 +105,21 @@ def validate_definition(path):
                 print('{} - {}'.format(' ' * 24, error))
 
     errors = ok.get_messages()
-    
-    content = errors['content']
-    if 'direct' in content:
+    if 'direct' in errors['content']:
         print(red('Content types:'))
-        for err in content['direct']:
+        for err in errors['content']['direct']:
             print('{} * {}'.format(' ' * 4, err))
         print()
 
     # got types?
-    if 'collection' not in content:
+    if 'collection' not in errors['content']:
         print()
         return
 
-    types = content['collection']
+    types = errors['content']['collection']
     for index, content_type in types.items():
         print_type(index, content_type)
         print()
-
-
 
     # done
     return
