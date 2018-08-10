@@ -3,7 +3,6 @@ from shiftcontent.cli.colours import *
 import yaml
 import os
 from pprint import pprint as pp
-from boiler.cli import get_app
 from shiftcontent import definition_service
 import time
 
