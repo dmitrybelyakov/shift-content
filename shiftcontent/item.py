@@ -301,7 +301,7 @@ class Item:
         try:
             data = json.loads(json_data, encoding='utf-8')
         except json.JSONDecodeError:
-            raise x.ItemError('Failed to decode fields string')
+            raise x.ItemError('Failed to decode json')
 
         self.from_dict(data, initial=True)
         return self

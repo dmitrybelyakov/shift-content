@@ -193,6 +193,7 @@ class DefinitionServiceTest(BaseTestCase):
             registry[list(registry.keys())[0]]['definition_file']
         )
 
+
     def test_get_content_type_definition_by_handle(self):
         """ Getting content type definition by handle"""
         service = DefinitionService()

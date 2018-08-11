@@ -30,6 +30,13 @@ class ItemTest(BaseTestCase):
         for metafield in item.valid_metafields:
             self.assertIn(metafield, item.fields)
 
+    def test_setting_fields(self):
+        """ Setting fields on an item """
+        item = Item()
+        item.path = 123
+        item.nonexistent = 'silently pass'
+        self.assertEquals(123, item.path)
+
     def test_set_creation_date_on_creation(self):
         """ Setting creation date on item instantiation """
         item = Item()
@@ -239,3 +246,12 @@ class ItemTest(BaseTestCase):
         self.assertEquals(item.id, restored.id)
         self.assertEquals(item.type, restored.type)
         self.assertEquals(item.body, restored.body)
+
+    def test_raise_when_populating_from_bad_json(self):
+        """ Raise error if json decode fails when populating from json"""
+        item = Item()
+        with self.assertRaises(x.ItemError) as cm:
+            item.from_json('bad json data')
+        self.assertIn('Failed to decode json', str(cm.exception))
+
+
