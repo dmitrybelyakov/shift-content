@@ -33,11 +33,17 @@ def content_feature(app):
     # init cache
     if cfg.get('SHIFTCONTENT_CACHE_SUPPORT'):
         shiftcontent.cache_service.init(
-            cache_name='content',
+            cache_name='content_items_search',
             host='localhost',
             port=6379,
             db=1,
-            params=dict()
+            params={
+                'query': {
+                    'match_phrase': {
+                        'full_text': 'horror'
+                    }
+                }
+            }
         )
 
     # init search
@@ -46,7 +52,7 @@ def content_feature(app):
             hosts=('localhost:9200', ),
             index_name='content',
             doc_type='content',
-            params=dict()
+            # params=dict()
         )
 
 
