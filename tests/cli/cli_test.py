@@ -5,9 +5,12 @@ from click.testing import CliRunner
 from shiftcontent.cli import cli
 
 
-
 @attr('cli')
 class CliTest(BaseTestCase):
+    """
+    CLI tests
+    For testing CLI commands see: http://click.pocoo.org/5/testing/
+    """
 
     def test_run_cli(self):
         """ Running content cli """
