@@ -1,14 +1,7 @@
 from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
 
-from uuid import uuid1
-from pprint import pprint as pp
-from elasticsearch import Elasticsearch
-from shiftcontent import search_service
 from shiftcontent.cache_service import CacheService
-from shiftcontent.item import Item
-from shiftcontent import exceptions as x
-import time
 
 
 @attr('cache', 'service')
@@ -57,3 +50,29 @@ class CacheServiceTest(BaseTestCase):
         service.disconnect()
         self.assertFalse(service.adapters)
         self.assertFalse(service.caches)
+
+    def test_return_none_for_cache_if_redis_not_configured(self):
+        """ Cache service returns None for cache if no Redis"""
+        service = CacheService()
+        service.disconnect()
+        self.assertIsNone(service.cache)
+
+    def test_return_none_when_getting_item_if_no_redis(self):
+        """ Cache servcie returns none for an item if no Redis"""
+        service = CacheService()
+        service.disconnect()
+        self.assertIsNone(service.get('something'))
+
+    def test_return_none_when_deleting_item_if_no_redis(self):
+        """ Cache servcie returns none when deleting item if no Redis"""
+        service = CacheService()
+        service.disconnect()
+        self.assertIsNone(service.delete('something'))
+
+    def test_return_none_when_deleting_all_if_no_redis(self):
+        """ Cache servcie returns none when deleting all if no Redis"""
+        service = CacheService()
+        service.disconnect()
+        self.assertIsNone(service.delete_all())
+
+
