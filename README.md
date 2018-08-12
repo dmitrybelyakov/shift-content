@@ -59,27 +59,27 @@ content_feature(app)
 
 This will look for the following variables in flask config:
 
-|  |   |
-|---|---|
-| **SHIFTCONTENT_DB_URL** | SqlAlchemy DB URL |
-| **SHIFTCONTENT_DB_META** | Custom metadata object (optional) |
-| **SHIFTCONTENT_DB_DIALECT** | Dialect name, has to be set for mysql to `mysql` |
-| **SHIFTCONTENT_DB_PARAMS** | Additional params for sqlalchemy engine |
-| **SHIFTCONTENT_DEFINITION** | Path to content types definition yaml file (required) |
-| **SHIFTCONTENT_REVISIONS** | Path to directory for definition revisions (required) |
-| **SHIFTCONTENT_CACHE_SUPPORT** | Whether to enable caching |
-| **SHIFTCONTENT_CACHE_NAME** | Cache name (content) |
-| **SHIFTCONTENT_CACHE_TTL** | Default TTL for caches, defaults to a month (2628000) |
-| **SHIFTCONTENT_CACHE_HOST** | Redis host (localhost) |
-| **SHIFTCONTENT_CACHE_PORT** | Redis port (6379) |
-| **SHIFTCONTENT_CACHE_DB** | Redis DB (1) |
-| **SHIFTCONTENT_CACHE_PARAMS** | Additional redis parameters ({}) |
-| **SHIFTCONTENT_SEARCH_SUPPORT** | Whether to enable searching |
-| **SHIFTCONTENT_SEARCH_HOSTS** | List of elasticsearch nodes (['localhost:9200']) |
-| **SHIFTCONTENT_SEARCH_INDEX** | Index name (content) |
-| **SHIFTCONTENT_SEARCH_DOC_TYPE** | Document type (content) |
-| **SHIFTCONTENT_SEARCH_SNIFF** | Snif elastic search and form a cluster (True) |
-| **SHIFTCONTENT_SEARCH_PARAMS** | Additional elasticsearch params ({}) |
+| Setting | Required | Default | Description |
+|---|---|---|---|
+| **SHIFTCONTENT_DB_URL** | URL or engine required | `None` | SqlAlchemy DB URL |
+| **SHIFTCONTENT_DB_META** | No | `None` | Custom metadata object |
+| **SHIFTCONTENT_DB_DIALECT** | Required for mysql | `None` | Dialect name, has to be set for mysql to `mysql` |
+| **SHIFTCONTENT_DB_PARAMS** | No | `None` | Additional params for sqlalchemy engine. Only works with db_url |
+| **SHIFTCONTENT_DEFINITION** | Yes | `None` | Path to content types definition yaml file |
+| **SHIFTCONTENT_REVISIONS** | Yes | `No` | Path to directory for definition revisions (required) |
+| **SHIFTCONTENT_CACHE_SUPPORT** | No | `None` | Whether to enable caching |
+| **SHIFTCONTENT_CACHE_NAME** | No | `content` | Cache name |
+| **SHIFTCONTENT_CACHE_TTL** | No | `2628000` | Default TTL for caches, defaults to a month |
+| **SHIFTCONTENT_CACHE_HOST** | No | `localhost` | Redis host |
+| **SHIFTCONTENT_CACHE_PORT** | No | `6379` | Redis port |
+| **SHIFTCONTENT_CACHE_DB** | No | `1` | Redis DB |
+| **SHIFTCONTENT_CACHE_PARAMS** | No | `{}` | Additional redis parameters |
+| **SHIFTCONTENT_SEARCH_SUPPORT** | No | `None` | Whether to enable searching |
+| **SHIFTCONTENT_SEARCH_HOSTS** | No | `('localhost:9200', )` | List of elasticsearch nodes |
+| **SHIFTCONTENT_SEARCH_INDEX** | No | `content` | Index name |
+| **SHIFTCONTENT_SEARCH_DOC_TYPE** | No | `content` | Document type |
+| **SHIFTCONTENT_SEARCH_SNIFF** | No | `True` | Sniff elastic search and form a cluster|
+| **SHIFTCONTENT_SEARCH_PARAMS** | No | `{}` | Additional elasticsearch params |
 
 
 
