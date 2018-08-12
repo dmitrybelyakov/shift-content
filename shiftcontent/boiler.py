@@ -12,6 +12,8 @@ def content_feature(app):
     :param app: flask.Flask
     :return: None
     """
+    # get flask config
+    cfg = app.config
 
     # get engine from boiler
     engine = None
@@ -20,10 +22,7 @@ def content_feature(app):
         with app.app_context():
             engine = db.engine
     except ImportError:
-        pass
-
-    # get flask config
-    cfg = app.config
+        engine = cfg.get('SHIFTCONTENT_DB_ENGINE')
 
     # init db (required)
     db_params = dict(

@@ -62,6 +62,7 @@ This will look for the following variables in flask config:
 | Setting | Required | Default | Description |
 |---|---|---|---|
 | **SHIFTCONTENT_DB_URL** | URL or engine required | `None` | SqlAlchemy DB URL |
+| **SHIFTCONTENT_DB_ENGINE** | URL or engine required | `None` | Instance of sqlalchemy database engine |
 | **SHIFTCONTENT_DB_META** | No | `None` | Custom metadata object |
 | **SHIFTCONTENT_DB_DIALECT** | Required for mysql | `None` | Dialect name, has to be set for mysql to `mysql` |
 | **SHIFTCONTENT_DB_PARAMS** | No | `None` | Additional params for sqlalchemy engine. Only works with db_url |
