@@ -10,6 +10,11 @@ from frozendict import frozendict
 from shiftcontent import exceptions as x
 from shiftcontent.definition_schema.schema import DefinitionSchema
 
+# todo: what are the issues with current definition implementation?
+# todo: CLI can't test for breaking changes because not bootstrapped
+# todo: force-load definition must work in bootstrapped context
+# todo: how can we make sure bootstrap happened before running CLI tools?
+
 
 class DefinitionService:
     """
@@ -89,6 +94,33 @@ class DefinitionService:
         if not self._definition:
             self._definition = self.load_definition()
         return self._definition
+
+    def freeze_definition(self, definition):
+        """
+        Freeze definition
+        Recursively freezes definition to prevent accidental in-place
+        modifications.
+        :param definition: dics, definition
+        :return: frozendict
+        """
+        fd = self.freeze_definition
+
+        branch = dict()
+        for prop, val in definition.items():
+            if type(val) is dict:
+                branch[prop] = fd(val)
+                continue
+
+            elif type(val) is list:
+                lst = [fd(v) if type(v) is dict else v for v in val]
+                branch[prop] = lst
+                continue
+
+            else:
+                branch[prop] = val
+
+        # freeze and return
+        return frozendict(branch)
 
     def get_type(self, content_type):
         """
@@ -210,34 +242,6 @@ class DefinitionService:
 
         # and return
         return self.freeze_definition(definition)
-
-    def freeze_definition(self, definition):
-        """
-        Freeze definition
-        Recursively freezes definition to prevent accidental in-place
-        modifications.
-
-        :param definition:
-        :return:
-        """
-        fd = self.freeze_definition
-
-        branch = dict()
-        for prop, val in definition.items():
-            if type(val) is dict:
-                branch[prop] = fd(val)
-                continue
-
-            elif type(val) is list:
-                lst = [fd(v) if type(v) is dict else v for v in val]
-                branch[prop] = lst
-                continue
-
-            else:
-                branch[prop] = val
-
-        # freeze and return
-        return frozendict(branch)
 
     def get_latest_revision(self):
         """

@@ -32,6 +32,9 @@ class SearchService:
         # sniff nodes
         self.sniff = True
 
+        # additional params
+        self.additional_params = dict()
+
         if kwargs:
             self.init(**kwargs)
 
@@ -41,7 +44,8 @@ class SearchService:
         hosts=('localhost:9002',),
         index_name=None,
         doc_type='content',
-        sniff=True):
+        sniff=True,
+        **kwargs):
         """
         Delayed service initializer. Called either by constructor if args
         passed in, or later in userland code to configure the service.
@@ -51,12 +55,14 @@ class SearchService:
         :param index_name: str, index name
         :param doc_type: str, document type
         :param sniff: bool, whether to sniff on start
+        :param kwargs: dict, additional parameters to pass to elasticsearch
         :return: shiftcontent.search_service.SearchService
         """
         self.hosts = hosts
         self.index_name = index_name
         self.doc_type = doc_type
         self.sniff = sniff
+        self.additional_params = kwargs
         return self
 
     @property
@@ -66,7 +72,11 @@ class SearchService:
         :return:
         """
         if not self._es:
-            self._es = Elasticsearch(self.hosts, sniff_on_start=self.sniff)
+            self._es = Elasticsearch(
+                self.hosts,
+                sniff_on_start=self.sniff,
+                **self.additional_params
+            )
         return self._es
 
     @property

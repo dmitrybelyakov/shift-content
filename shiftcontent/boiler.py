@@ -25,34 +25,32 @@ def content_feature(app):
 
     # init definition config
     cwd = os.getcwd()
+    definition = os.path.join(cwd, 'tests', '_assets', 'content.yml')
+    revisions = os.path.join(cwd, 'var', 'data', 'content_revisions')
     shiftcontent.definition_service.init(
-        definition_path=os.path.join(cwd, 'tests', '_assets', 'content.yml'),
-        revisions_path=os.path.join(cwd, 'var', 'data', 'content_revisions')
+        definition_path=cfg.get('SHIFTCONTENT_DEFINITION', definition),
+        revisions_path=cfg.get('SHIFTCONTENT_REVISIONS', revisions)
     )
 
     # init cache
     if cfg.get('SHIFTCONTENT_CACHE_SUPPORT'):
         shiftcontent.cache_service.init(
-            cache_name='content_items_search',
-            host='localhost',
-            port=6379,
-            db=1,
-            params={
-                'query': {
-                    'match_phrase': {
-                        'full_text': 'horror'
-                    }
-                }
-            }
+            cache_name=cfg.get('SHIFTCONTENT_CACHE_NAME', 'content'),
+            default_ttl=cfg.get('SHIFTCONTENT_CACHE_TTL', 2628000),
+            host=cfg.get('SHIFTCONTENT_CACHE_HOST', 'localhost'),
+            port=cfg.get('SHIFTCONTENT_CACHE_PORT', 6379),
+            db=cfg.get('SHIFTCONTENT_CACHE_DB', 1),
+            **cfg.get('SHIFTCONTENT_CACHE_PARAMS', {})
         )
 
     # init search
     if cfg.get('SHIFTCONTENT_SEARCH_SUPPORT'):
         shiftcontent.search_service.init(
-            hosts=('localhost:9200', ),
-            index_name='content',
-            doc_type='content',
-            # params=dict()
+            hosts=cfg.get('SHIFTCONTENT_SEARCH_HOSTS', ('localhost:9200', )),
+            index_name=cfg.get('SHIFTCONTENT_SEARCH_INDEX', 'content'),
+            doc_type=cfg.get('SHIFTCONTENT_SEARCH_DOC_TYPE', 'content'),
+            sniff=cfg.get('SHIFTCONTENT_SEARCH_SNIFF', True),
+            **cfg.get('SHIFTCONTENT_SEARCH_PARAMS', {})
         )
 
 

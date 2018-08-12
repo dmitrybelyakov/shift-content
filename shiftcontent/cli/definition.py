@@ -4,7 +4,6 @@ import yaml
 import os
 from pprint import pprint as pp
 from shiftcontent import definition_service
-import time
 
 # -----------------------------------------------------------------------------
 # Group setup
@@ -124,12 +123,15 @@ def validate_definition(path):
     return
 
 
-@cli.command(name='load')
-@click.argument('path')
-@click.option('--force', default=False)
-def load_definition(path, force=False):
-    """ Ingest new verion of content definition """
-    print(yellow('Validating definition file'))
-    print(green('path: {}'.format(path)))
-    print(yellow('-' * 80))
+# todo: how can we have global services bootstrapped at this point?
+# todo: we need that to validate for breaking changes and force-ingest
+
+# todo: how will this work with flask integration?
+# todo: it can use app context with app that has enabled content feature
+
+
+@cli.command(name='force-load')
+def force_load_definition():
+    """ Force loading of definition with breaking changes """
+    pass
 
