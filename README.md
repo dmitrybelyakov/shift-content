@@ -18,7 +18,8 @@ shiftcontent.db.init(
     engine=engine,
     db_url='mysql://', # either url or engine,
     meta=None,         # use custom metadata
-    dialect='mysql',   # only required for mysql
+    dialect='mysql',   # only required for mysql,
+    **db_params={}     # additional db engine params
 )
 
 # init definitions
@@ -58,8 +59,12 @@ content_feature(app)
 
 This will look for the following variables in flask config:
 
-|   |   |
+|  |   |
 |---|---|
+| **SHIFTCONTENT_DB_URL** | SqlAlchemy DB URL |
+| **SHIFTCONTENT_DB_META** | Custom metadata object (optional) |
+| **SHIFTCONTENT_DB_DIALECT** | Dialect name, has to be set for mysql to `mysql` |
+| **SHIFTCONTENT_DB_PARAMS** | Additional params for sqlalchemy engine |
 | **SHIFTCONTENT_DEFINITION** | Path to content types definition yaml file (required) |
 | **SHIFTCONTENT_REVISIONS** | Path to directory for definition revisions (required) |
 | **SHIFTCONTENT_CACHE_SUPPORT** | Whether to enable caching |

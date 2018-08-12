@@ -12,16 +12,31 @@ def content_feature(app):
     :param app: flask.Flask
     :return: None
     """
-    from boiler.feature.orm import db
 
-    with app.app_context():
-        engine = db.engine
+    # get engine from boiler
+    engine = None
+    try:
+        from boiler.feature.orm import db
+        with app.app_context():
+            engine = db.engine
+    except ImportError:
+        pass
 
     # get flask config
     cfg = app.config
 
     # init db (required)
-    shiftcontent.db.init(engine=engine)
+    db_params = dict(
+        meta=cfg.get('SHIFTCONTENT_DB_META'),
+        dialect=cfg.get('SHIFTCONTENT_DB_DIALECT'),
+        **cfg.get('SHIFTCONTENT_DB_PARAMS', {})
+    )
+    if engine:
+        db_params['engine'] = engine
+    else:
+        db_params['db_url'] = cfg.get('SHIFTCONTENT_DB_URL')
+
+    shiftcontent.db.init(**db_params)
 
     # init definition config
     cwd = os.getcwd()
