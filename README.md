@@ -51,7 +51,7 @@ shiftcontent.search_service.init(
 
 In addition to manual initialization we provide feature function that accepts an instance of flask app and initializes services from flask app config. Wherever you create your flask app or have access to `app`, enable it like so:
 
-```pyython
+```python
 from shiftcontent.boiler import content_feature
 content_feature(app)
 ```
