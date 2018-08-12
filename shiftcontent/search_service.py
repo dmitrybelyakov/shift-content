@@ -194,6 +194,20 @@ class SearchService:
             body=indexable
         )
 
+    def search(self, body):
+        """
+        Search
+        Execute search query
+        :param body: dict, elasticsearch query
+        :return: dict
+        """
+        results = self.es.search(
+            index=self.index_name,
+            body=body
+        )
+
+        return results
+
 
 
 

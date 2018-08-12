@@ -126,4 +126,4 @@ Results in an error similar to this:
 sqlalchemy.exc.OperationalError: (_mysql_exceptions.OperationalError) (1366, 'Incorrect string value: \'\\xF0\\x9F\\x98\\x80"}\'
 ```
 
-Please make sure your database and python driver are bot set to use `utf8mb4`.
+Please make sure your database and python driver are both set to use `utf8mb4`.
