@@ -28,6 +28,9 @@ www.esproj
 !/var/data/.gitkeep
 /migrations
 
+# CMF Ignores
+/shiftcmf
+
 
 
 
