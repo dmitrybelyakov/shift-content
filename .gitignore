@@ -21,6 +21,7 @@ www.esproj
 /man
 
 # Project ignores
+/.env
 /.coverage
 /config
 /backend
