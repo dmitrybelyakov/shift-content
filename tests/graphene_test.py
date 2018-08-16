@@ -24,5 +24,3 @@ class DbTest(BaseTestCase):
         graphql = '{ hello }'
         result = schema.execute(graphql)
 
-        print(result.data['hello'])
-        breakpoint()
