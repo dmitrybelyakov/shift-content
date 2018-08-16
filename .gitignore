@@ -30,7 +30,7 @@ www.esproj
 /migrations
 
 # CMF Ignores
-/shiftcmf
+/cmf
 
 
 
