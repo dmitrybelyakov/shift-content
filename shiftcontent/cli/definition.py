@@ -133,5 +133,7 @@ def validate_definition(path):
 @cli.command(name='force-load')
 def force_load_definition():
     """ Force loading of definition with breaking changes """
-    pass
+    from shiftcontent import definition_service
+    print(definition_service.definition_path)
+    print(definition_service.revisions)
 
