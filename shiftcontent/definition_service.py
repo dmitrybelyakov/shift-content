@@ -54,6 +54,10 @@ class DefinitionService:
         :return: str
         """
         path = self._revisions_path
+        if not path:
+            err = 'Definition service has no revisions path.'
+            raise x.ConfigurationException(err)
+
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
         return path
