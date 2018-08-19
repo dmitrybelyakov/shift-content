@@ -65,34 +65,29 @@ def validate_definition(path):
             print('If you know what you are doing, use the force-load command')
             print('to apply those changes.\n')
 
-            changes = err.breaking_changes
-            if 'missing_types' in changes and changes['missing_types']:
+            err = err.breaking_changes
+            if 'missing_types' in err and err['missing_types']:
                 print(red('Content types deleted:'))
-                for content in changes['missing_types']:
+                for content in err['missing_types']:
                     print('{} * {}'.format(' ' * 4, content))
                 print()
 
-            if 'missing_fields' in changes and changes['missing_fields']:
+            if 'missing_fields' in err and err['missing_fields']:
                 print(red('Content fields deleted:'))
-                for field in changes['missing_fields']:
+                for field in err['missing_fields']:
                     print('{} * {}'.format(' ' * 4, field))
                 print()
 
-            if 'field_type_changes' in changes and changes['field_type_changes']:
+            if 'field_type_changes' in err and err['field_type_changes']:
                 print(red('Content fields types changed:'))
-                for field_type in changes['field_type_changes']:
+                for field_type in err['field_type_changes']:
                     print('{} * {}'.format(' ' * 4, field_type))
                 print()
 
-
-            # pp(changes)
             return
 
         # success otherwise
         print(green('No breaking changes detected\n'))
-
-
-        return
 
     def print_type(index, data):
         """ Print content type errors"""
