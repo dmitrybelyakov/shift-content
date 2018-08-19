@@ -38,12 +38,9 @@ def content_feature(app):
     shiftcontent.db.init(**db_params)
 
     # init definition config
-    cwd = os.getcwd()
-    definition = os.path.join(cwd, 'tests', '_assets', 'content.yml')
-    revisions = os.path.join(cwd, 'var', 'data', 'content_revisions')
     shiftcontent.definition_service.init(
-        definition_path=cfg.get('SHIFTCONTENT_DEFINITION', definition),
-        revisions_path=cfg.get('SHIFTCONTENT_REVISIONS', revisions)
+        definition_path=cfg.get('SHIFTCONTENT_DEFINITION'),
+        revisions_path=cfg.get('SHIFTCONTENT_REVISIONS')
     )
 
     # init cache
