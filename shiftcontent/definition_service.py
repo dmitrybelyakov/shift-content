@@ -203,6 +203,10 @@ class DefinitionService:
         :param force: bool, whether to force-load on breaking changes
         :return: dict
         """
+        if not self.definition_path:
+            msg = 'Definition path not configured for definition service'
+            raise x.ConfigurationException(msg)
+
         if not os.path.exists(self.definition_path):
             msg = 'Unable to locate definition file at path [{}]'
             raise x.ConfigurationException(msg.format(self.definition_path))
