@@ -10,11 +10,6 @@ from frozendict import frozendict
 from shiftcontent import exceptions as x
 from shiftcontent.definition_schema.schema import DefinitionSchema
 
-# todo: what are the issues with current definition implementation?
-# todo: CLI can't test for breaking changes because not bootstrapped
-# todo: force-load definition must work in bootstrapped context
-# todo: how can we make sure bootstrap happened before running CLI tools?
-
 
 class DefinitionService:
     """
@@ -231,8 +226,6 @@ class DefinitionService:
         if not ok:
             errors = ok.get_messages()
             raise x.InvalidDefinition(validation_errors=errors)
-        else:
-            definition = {t['handle'].lower(): t for t in yml['content']}
 
         # check for breaking changes
         latest_revision = self.get_latest_revision()

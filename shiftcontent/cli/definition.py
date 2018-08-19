@@ -4,6 +4,7 @@ import yaml
 import os
 from pprint import pprint as pp
 from shiftcontent import definition_service
+from shiftcontent import exceptions as x
 
 # -----------------------------------------------------------------------------
 # Group setup
@@ -35,6 +36,7 @@ def validate_definition(path):
         with open(path) as file:
             text = file.read()
             yml = yaml.load(text)
+            definition = {t['handle'].lower(): t for t in yml['content']}
     except UnicodeDecodeError:
         pass
 
@@ -45,7 +47,51 @@ def validate_definition(path):
     # validate
     ok = definition_service.validate_definition(yml)
     if ok:
-        print(green('Definition file is valid!\n'))
+        print(green('Definition file is valid!\n\n'))
+        print(yellow('Checking for breaking changes:'))
+        print(yellow('-' * 80))
+
+        previous_revision = definition_service.get_latest_revision()
+
+        try:
+            definition_service.detect_breaking_changes(
+                old_version=previous_revision,
+                new_version=definition
+            )
+        except x.BreakingSchemaChanges as err:
+
+            print('Breaking changes detected. That may result in data loss.')
+            print('Be careful and consider the changes you are making.')
+            print('If you know what you are doing, use the force-load command')
+            print('to apply those changes.\n')
+
+            changes = err.breaking_changes
+            if 'missing_types' in changes and changes['missing_types']:
+                print(red('Content types deleted:'))
+                for content in changes['missing_types']:
+                    print('{} * {}'.format(' ' * 4, content))
+                print()
+
+            if 'missing_fields' in changes and changes['missing_fields']:
+                print(red('Content fields deleted:'))
+                for field in changes['missing_fields']:
+                    print('{} * {}'.format(' ' * 4, field))
+                print()
+
+            if 'field_type_changes' in changes and changes['field_type_changes']:
+                print(red('Content fields types changed:'))
+                for field_type in changes['field_type_changes']:
+                    print('{} * {}'.format(' ' * 4, field_type))
+                print()
+
+
+            # pp(changes)
+            return
+
+        # success otherwise
+        print(green('No breaking changes detected\n'))
+
+
         return
 
     def print_type(index, data):
@@ -121,13 +167,6 @@ def validate_definition(path):
 
     # done
     return
-
-
-# todo: how can we have global services bootstrapped at this point?
-# todo: we need that to validate for breaking changes and force-ingest
-
-# todo: how will this work with flask integration?
-# todo: it can use app context with app that has enabled content feature
 
 
 @cli.command(name='force-load')
