@@ -21,10 +21,10 @@ def cli():
 # -----------------------------------------------------------------------------
 
 @cli.command(name='validate')
-@click.argument('path')
-def validate_definition(path):
+def validate_definition():
     """ Validate content definition """
-    print(yellow('\nValidating definition file: {}'.format(path)))
+    path = definition_service.definition_path
+    print(yellow('\nValidating definition file: \n{}'.format(path)))
     print(yellow('-' * 80))
 
     if not os.path.isfile(path):
@@ -88,6 +88,7 @@ def validate_definition(path):
 
         # success otherwise
         print(green('No breaking changes detected\n'))
+        return
 
     def print_type(index, data):
         """ Print content type errors"""
@@ -167,7 +168,10 @@ def validate_definition(path):
 @cli.command(name='force-load')
 def force_load_definition():
     """ Force loading of definition with breaking changes """
-    from shiftcontent import definition_service
-    print(definition_service.definition_path)
-    print(definition_service.revisions)
+    path = definition_service.definition_path
+    print(yellow('Forcefully applying definition changes: \n{}'.format(path)))
+    print(yellow('-' * 80))
+
+    definition_service.load_definition(force=True)
+    print(green('OK\n'))
 

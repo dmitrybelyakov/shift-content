@@ -227,13 +227,14 @@ class DefinitionService:
             errors = ok.get_messages()
             raise x.InvalidDefinition(validation_errors=errors)
 
-        # check for breaking changes
-        latest_revision = self.get_latest_revision()
-        if latest_revision:
-            self.detect_breaking_changes(
-                old_version=latest_revision,
-                new_version=definition
-            )
+        # check for breaking changes (unless forced)
+        if not force:
+            latest_revision = self.get_latest_revision()
+            if latest_revision:
+                self.detect_breaking_changes(
+                    old_version=latest_revision,
+                    new_version=definition
+                )
 
         # save definition to backlog
         shutil.copy(self.definition_path, revision_path)
