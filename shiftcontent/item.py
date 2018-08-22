@@ -5,6 +5,42 @@ import arrow
 from datetime import datetime
 from pprint import pprint as pp
 
+# TODO: do we define mapping separately (view, search)
+# TODO: or do we encapsulate it in field type?
+
+# TODO: whichever we choose we'll need sme processor to handle type conversions
+# TODO: for each type so we can serialize-deserialize data from-to db/cache
+
+# TODO: how do we store/process mapping for meta fields (view and search)?
+# TODO: this should probably treated as a special case, e.g. meta geopoint
+
+"""
+
+VIEW MAPPING (python data types)
+
+  * text
+  * int
+  * float
+  * bool
+  * date
+  * datetime
+  
+DATABASE MAPPING (special mapping if not auto serializable to json)
+  * date
+  * datetime   
+  
+SEARCH MAPPING (elasticsearch data types)
+  * text
+  * keyword
+  * boolean
+  * integer
+  * long
+  * float
+  * double
+  
+
+"""
+
 
 class Item:
     """
