@@ -4,7 +4,7 @@ from pprint import pprint as pp
 
 from uuid import uuid1
 from datetime import datetime
-from shiftschema.schema import Result
+from shiftschema.schema import Result, Schema
 from shiftcontent import db
 from shiftcontent import content_service
 from shiftcontent import exceptions as x
@@ -194,6 +194,19 @@ class ContentServiceTest(BaseTestCase):
         )
 
         self.assertEquals(1, item.id)
+
+    def test_getting_item_schema(self):
+        """ Generating filtering and validation for an item by type """
+        schema1 = content_service.item_schema('plain_text')
+        self.assertIsInstance(schema1, Schema)
+
+        schema2 = content_service.item_schema('markdown')
+        self.assertIsInstance(schema2, Schema)
+
+        # assert no extra props added
+        meta = ['id', 'author', 'type', 'object_id']
+        for prop, prop_obj in schema2.properties.items():
+            self.assertIn(prop, meta)
 
     def test_created_item_filtered(self):
         """ Incoming data is filtered with schema when creeating item """
