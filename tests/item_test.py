@@ -34,8 +34,18 @@ class ItemTest(BaseTestCase):
         """ Setting fields on an item """
         item = Item()
         item.path = 123
-        item.nonexistent = 'silently pass'
+        item.nonexistent = 'set on object'
         self.assertEquals(123, item.path)
+        self.assertEquals('set on object', item.nonexistent)
+
+    def test_setting_fields_with_setter(self):
+        """ Setting fields on an item using setter method """
+        item = Item()
+        item.set_field('path', 123)
+        item.set_field('nonexistent', 'silently pass')
+        self.assertEquals(123, item.path)
+        with self.assertRaises(AttributeError):
+            print(item.nonexistent)
 
     def test_set_creation_date_on_creation(self):
         """ Setting creation date on item instantiation """
