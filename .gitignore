@@ -25,6 +25,7 @@ www.esproj
 /.coverage
 /config
 /backend
+/var/*
 /var/data/*
 !/var/data/.gitkeep
 /migrations
