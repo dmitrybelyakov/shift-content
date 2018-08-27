@@ -8,6 +8,10 @@ from shiftcontent import definition_service
 from shiftcontent import exceptions as x
 
 
+# TODO: How do we store different documents in the same index
+# TODO: How to handle fields in types with the same name but different type
+
+
 class SearchService:
 
     def __init__(self, *_, **kwargs):

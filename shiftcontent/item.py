@@ -14,6 +14,8 @@ from pprint import pprint as pp
 # TODO: how do we store/process mapping for meta fields (view and search)?
 # TODO: this should probably treated as a special case, e.g. meta geopoint
 
+# TODO: can we do without field types instantiating lots of classes every time?
+
 """
 
 VIEW MAPPING (python data types)
@@ -25,7 +27,7 @@ VIEW MAPPING (python data types)
   * date
   * datetime
   
-DATABASE MAPPING (special mapping if not auto serializable to json)
+DATABASE MAPPING (if not auto serializable to json)
   * date
   * datetime   
   

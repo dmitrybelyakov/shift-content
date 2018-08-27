@@ -105,6 +105,8 @@ class FieldSchema(BaseSchema):
         self.add_property('description')
         self.description.add_filter(filters.Strip())
 
+        # todo: validate field type
+
         # field type
         self.add_property('type')
         self.type.add_filter(filters.Strip())
