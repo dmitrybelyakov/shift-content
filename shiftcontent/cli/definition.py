@@ -175,3 +175,9 @@ def force_load_definition():
     definition_service.load_definition(force=True)
     print(green('OK\n'))
 
+
+@cli.command(name='drop-history')
+def drop_revision_history():
+    """ Drops every revision except for the current one """
+    pass
+
