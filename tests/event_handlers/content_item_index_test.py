@@ -64,7 +64,6 @@ class ContentItemIndexTest(BaseTestCase):
         search_service.drop_index()
         search_service.disconnect()
 
-
     def test_rollback_event(self):
         """ Handler content item index rolling back changes """
 

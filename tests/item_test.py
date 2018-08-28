@@ -55,7 +55,7 @@ class ItemTest(BaseTestCase):
     def test_set_creation_date_from_string(self):
         """ Set creation date on item from string value """
         item = Item()
-        item.created = '2020-12-12 12:20:30'
+        item.set_field('created', '2020-12-12 12:20:30', initial=True)
         self.assertIsInstance(item.created, datetime)
 
     def test_init_custom_fields_when_setting_type(self):

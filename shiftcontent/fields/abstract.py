@@ -10,7 +10,7 @@
 
 # TODO: can we do without field types instantiating lots of classes every time?
 
-# TODO: what are the points at wich we need to do data conversions?
+# TODO: what are the points at which we need to do data conversions?
 
 """
 
@@ -40,7 +40,7 @@ SEARCH MAPPING (elasticsearch data types)
 """
 
 
-class AbstractFieldType():
+class AbstractFieldType:
     """
     Abstract field type
     Defines the interface your concrete field types must implement.
@@ -49,4 +49,36 @@ class AbstractFieldType():
     fields to be of specific data types whn put to index or cache, or loaded
     back into your application.
     """
+
+    def __init__(self, value=None):
+        self.value = value
+
+    def set(self, value):
+        self.value = value
+
+    def get(self):
+        return self.value
+
+
+
+class Text(AbstractFieldType):
     pass
+
+class Boolean(AbstractFieldType):
+    pass
+
+class DateTime(AbstractFieldType):
+    pass
+
+
+class Date(AbstractFieldType):
+    pass
+
+
+class Integer(AbstractFieldType):
+    pass
+
+class Float(AbstractFieldType):
+    pass
+
+

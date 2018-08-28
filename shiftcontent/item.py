@@ -1,9 +1,19 @@
 from shiftcontent import exceptions as x
+from shiftcontent import fields
 import json
 import copy
 import arrow
 from datetime import datetime
 from pprint import pprint as pp
+
+field_types = dict(
+    text=fields.Text,
+    boolean=fields.Boolean,
+    date=fields.Date,
+    datetime=fields.DateTime,
+    integer=fields.Integer,
+    float=fields.Float,
+)
 
 
 class Item:
@@ -18,13 +28,13 @@ class Item:
     date_format = '%Y-%m-%d %H:%M:%S'
 
     # metadata fields
-    valid_metafields = (
-        'id',
-        'created',
-        'type',
-        'path',
-        'author',
-        'object_id',
+    valid_metafields = {
+        'id': 'integer',
+        'created': 'datetime',
+        'type': 'text',
+        'path': 'text',
+        'author': 'text',
+        'object_id': 'text',
         # 'version',
         # 'parent_version',
         # 'status',
@@ -36,7 +46,7 @@ class Item:
         # 'reactions',
         # 'upvotes',
         # 'downvotes',
-    )
+    }
 
     # impossible to change after creation
     frozen_metafields = (
@@ -59,15 +69,18 @@ class Item:
         """
 
         # init metafields
-        self.fields = {prop: None for prop in self.valid_metafields}
+        # self.fields = {prop: None for prop in self.valid_metafields.keys()}
+        self.fields = dict()
+        for field, field_type in self.valid_metafields.items():
+            self.fields[field] = field_types[field_type]()
 
         # populate from kwargs
         if kwargs:
             self.from_dict(kwargs, initial=True)
 
         # set creation date
-        if not self.fields['created']:
-            self.fields['created'] = arrow.utcnow().datetime
+        if not self.fields['created'].get():
+            self.set_field('created', arrow.utcnow().datetime, initial=True)
 
     @property
     def definition(self):
@@ -98,7 +111,7 @@ class Item:
         :return:
         """
         if item in self.fields:
-            return self.fields[item]
+            return self.fields[item].get()
         return object.__getattribute__(self, item)
 
     def __setattr__(self, key, value):
@@ -123,8 +136,9 @@ class Item:
         """
         for field in self.definition['fields']:
             handle = field['handle']
+            field_type = field['type']
             if handle not in self.fields:
-                self.fields[handle] = None
+                self.fields[handle] = field_types[field_type]()
         return self
 
     def set_field(self, field, value, initial=False):
@@ -148,22 +162,20 @@ class Item:
 
         # init custom fields on first set
         if field == 'type':
-            self.fields['type'] = value
+            field_type = self.valid_metafields['type']
+            self.fields['type'] = field_types[field_type](value)
             self.init_fields()
 
         if field not in self.fields.keys():
             return
 
         # set metafields
-        if field in self.valid_metafields:
-            if field == 'created' and type(value) is str:
-                self.fields['created'] = arrow.get(value).datetime
-                return
-
-        # todo: do type conversion here
+        if field == 'created' and type(value) is str:
+            self.fields['created'].set(arrow.get(value).datetime)
+            return
 
         # set custom fields
-        self.fields[field] = value
+        self.fields[field].set(value)
         return self
 
     def is_updatable(self, field):
@@ -187,7 +199,7 @@ class Item:
         :param serialized: bool, whether to serialize values
         :return: dict
         """
-        data = copy.copy(self.fields)
+        data = {p: v.get() for p, v in self.fields.items()}
         if serialized:
             for field, value in data.items():
                 if type(value) is datetime:
@@ -230,9 +242,9 @@ class Item:
         fields = dict()
         for field, value in self.fields.items():
             if field not in self.valid_metafields:
-                fields[field] = value
+                fields[field] = value.get()
             else:
-                data[field] = value
+                data[field] = value.get()
 
         # jsonify custom fields
         data['fields'] = json.dumps(fields, ensure_ascii=False)
@@ -268,7 +280,7 @@ class Item:
         Returns representation sutable for putting to search index
         :return: dict
         """
-        data = copy.copy(self.fields)
+        data = self.to_dict()
         full_text = ('{}: {}\n'.format(f, v) for f, v in data.items())
         data['full_text'] = ''.join(full_text)
         return data
