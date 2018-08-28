@@ -16,17 +16,16 @@ field_types = dict(
 )
 
 
+# TODO: get rid of to_dict(serialized), use field types instead
+
+
 class Item:
     """
     Content item
-    This is a dto model for a content item. It holds a few generic metafields
+    This is a dto model for a content item. It holds a few generic meta fields
     and a set of configured custom fields. In addition provides representations
     for viewing, caching and searching.
     """
-
-    # datetime format
-    date_format = '%Y-%m-%d %H:%M:%S'
-
     # metadata fields
     valid_metafields = {
         'id': 'integer',
@@ -68,7 +67,7 @@ class Item:
         :param kwargs: dict, key-value pairs used to populate the item
         """
 
-        # init metafields
+        # init meta fields
         # self.fields = {prop: None for prop in self.valid_metafields.keys()}
         self.fields = dict()
         for field, field_type in self.valid_metafields.items():
@@ -191,20 +190,13 @@ class Item:
     # Representations
     # --------------------------------------------------------------------------
 
-    def to_dict(self, serialized=False):
+    def to_dict(self):
         """
         To dict
-        Returns dictionary representation of an item. Can optionally serialize
-        values to strings
-        :param serialized: bool, whether to serialize values
+        Returns dictionary representation of an item.
         :return: dict
         """
         data = {p: v.get() for p, v in self.fields.items()}
-        if serialized:
-            for field, value in data.items():
-                if type(value) is datetime:
-                    data[field] = value.strftime(self.date_format)
-
         return data
 
     def from_dict(self, data, initial=False):
@@ -242,9 +234,9 @@ class Item:
         fields = dict()
         for field, value in self.fields.items():
             if field not in self.valid_metafields:
-                fields[field] = value.get()
+                fields[field] = value.to_db()
             else:
-                data[field] = value.get()
+                data[field] = value.to_db()
 
         # jsonify custom fields
         data['fields'] = json.dumps(fields, ensure_ascii=False)
@@ -268,10 +260,7 @@ class Item:
         data = {**data}
         fields = json.loads(data['fields'])
         del data['fields']
-        for field, value in fields.items():
-            data[field] = value
-
-        self.from_dict(data, initial=True)
+        self.from_dict({**data, **fields}, initial=True)
         return self
 
     def to_search(self):
@@ -280,7 +269,7 @@ class Item:
         Returns representation sutable for putting to search index
         :return: dict
         """
-        data = self.to_dict()
+        data = {f: v.to_search() for f, v in self.fields}
         full_text = ('{}: {}\n'.format(f, v) for f, v in data.items())
         data['full_text'] = ''.join(full_text)
         return data
@@ -294,13 +283,13 @@ class Item:
         :param as_string: bool, strinify or return as dict
         :return: str | dict
         """
-        serialized = self.to_dict(serialized=True)
+        data = {f: v.to_json() for f, v in self.fields}
 
         # return dict to jsonify later?
         if not as_string:
-            return serialized
+            return data
 
-        jsonified = json.dumps(serialized, ensure_ascii=True)
+        jsonified = json.dumps(data, ensure_ascii=True)
         return jsonified
 
     def from_json(self, json_data):

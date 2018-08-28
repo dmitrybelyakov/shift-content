@@ -1,6 +1,33 @@
-from .abstract import Text
-from .abstract import Boolean
-from .abstract import Date
-from .abstract import DateTime
-from .abstract import Integer
-from .abstract import Float
+from .text import Text
+from .boolean import Boolean
+from .date import Date
+from .datetime import DateTime
+from .integer import Integer
+from .float import Float
+
+"""
+
+VIEW MAPPING (python data types)
+
+  * text
+  * int
+  * float
+  * bool
+  * date
+  * datetime
+
+DATABASE MAPPING (if not auto serializable to json)
+  * date
+  * datetime
+
+SEARCH MAPPING (elasticsearch data types)
+  * text
+  * keyword
+  * boolean
+  * integer
+  * long
+  * float
+  * double
+
+
+"""
