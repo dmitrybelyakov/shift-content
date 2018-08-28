@@ -270,8 +270,6 @@ class Item:
         :return: dict
         """
         data = {f: v.to_search() for f, v in self.fields}
-        full_text = ('{}: {}\n'.format(f, v) for f, v in data.items())
-        data['full_text'] = ''.join(full_text)
         return data
 
     def to_json(self, as_string=True):
