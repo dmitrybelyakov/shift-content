@@ -12,7 +12,8 @@ class AbstractFieldType(metaclass=ABCMeta):
     """
 
     def __init__(self, value=None):
-        self.value = value
+        if value is not None:
+            self.set(value)
 
     @abstractmethod
     def set(self, value):
