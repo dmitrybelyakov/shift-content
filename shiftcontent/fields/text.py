@@ -9,6 +9,9 @@ class Text(AbstractFieldType):
         :param value: str, field value
         :return: shiftcontent.fields.text.Text
         """
+        if value is None:
+            return self
+
         self.value = str(value)
         return self
 

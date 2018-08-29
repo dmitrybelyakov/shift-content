@@ -11,12 +11,10 @@ field_types = dict(
     boolean=fields.Boolean,
     date=fields.Date,
     datetime=fields.DateTime,
+    datetime_meta=fields.DateTimeMetaField,
     integer=fields.Integer,
     float=fields.Float,
 )
-
-
-# TODO: get rid of to_dict(serialized), use field types instead
 
 
 class Item:
@@ -29,7 +27,7 @@ class Item:
     # metadata fields
     valid_metafields = {
         'id': 'integer',
-        'created': 'datetime',
+        'created': 'datetime_meta',
         'type': 'text',
         'path': 'text',
         'author': 'text',
@@ -269,7 +267,7 @@ class Item:
         Returns representation sutable for putting to search index
         :return: dict
         """
-        data = {f: v.to_search() for f, v in self.fields}
+        data = {f: v.to_search() for f, v in self.fields.items()}
         return data
 
     def to_json(self, as_string=True):
@@ -281,7 +279,7 @@ class Item:
         :param as_string: bool, strinify or return as dict
         :return: str | dict
         """
-        data = {f: v.to_json() for f, v in self.fields}
+        data = {f: v.to_json() for f, v in self.fields.items()}
 
         # return dict to jsonify later?
         if not as_string:

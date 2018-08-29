@@ -169,7 +169,7 @@ class ContentService:
             raise x.ItemError(err.format(type(item)))
 
         object_id = str(item.object_id)
-        new_data = item.to_dict(serialized=True)
+        new_data = item.to_json()
 
         old_item = self.get_item(object_id) if object_id else None
         if not old_item:
@@ -185,8 +185,7 @@ class ContentService:
             return ok
 
         # prepare payload
-        old_data = old_item.to_dict(serialized=True)
-        new_data['type'] = old_data['type']
+        old_data = old_item.to_json()
 
         # create event
         event = event_service.event(
@@ -269,7 +268,7 @@ class ContentService:
             err = 'Unable to delete nonexistent content item [{}]'
             raise x.ItemNotFound(err.format(object_id))
 
-        rollback = item.to_dict(serialized=True)
+        rollback = item.to_json()
 
         # create event
         event = event_service.event(

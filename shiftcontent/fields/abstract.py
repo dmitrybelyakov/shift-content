@@ -12,6 +12,7 @@ class AbstractFieldType(metaclass=ABCMeta):
     """
 
     def __init__(self, value=None):
+        self.value = None
         if value is not None:
             self.set(value)
 

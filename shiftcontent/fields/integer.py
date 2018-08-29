@@ -9,6 +9,9 @@ class Integer(AbstractFieldType):
         :param value: mixed, field value
         :return: shiftcontent.fields.text.Integer
         """
+        if value is None:
+            return self
+
         self.value = int(float(value))
         return self
 

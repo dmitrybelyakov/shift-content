@@ -50,7 +50,7 @@ class ContentItemRemoveFromIndexTest(BaseTestCase):
             author=123,
             object_id=object_id,
             payload=None,
-            payload_rollback=item.to_dict(serialized=True)
+            payload_rollback=item.to_json()
         ))
 
         # assert not in index
@@ -92,7 +92,7 @@ class ContentItemRemoveFromIndexTest(BaseTestCase):
             author=123,
             object_id=object_id,
             payload=None,
-            payload_rollback=item.to_dict(serialized=True)
+            payload_rollback=item.to_json()
         ))
 
         # assert not in index

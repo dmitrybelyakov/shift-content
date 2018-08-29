@@ -62,7 +62,7 @@ class ContentItemDeleteTest(BaseTestCase):
             result = conn.execute(items.insert(), **item.to_db(update=False))
             item.id = result.inserted_primary_key[0]
 
-        rollback = item.to_dict(serialized=True)
+        rollback = item.to_json()
 
         event = Event(
             id=123,

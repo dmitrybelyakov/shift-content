@@ -2,6 +2,7 @@ from .text import Text
 from .boolean import Boolean
 from .date import Date
 from .datetime import DateTime
+from .datetime_meta import DateTimeMetaField
 from .integer import Integer
 from .float import Float
 

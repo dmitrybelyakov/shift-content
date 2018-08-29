@@ -35,7 +35,7 @@ class ItemTest(BaseTestCase):
         item = Item()
         item.path = 123
         item.nonexistent = 'set on object'
-        self.assertEquals(123, item.path)
+        self.assertEquals('123', item.path)
         self.assertEquals('set on object', item.nonexistent)
 
     def test_setting_fields_with_setter(self):
@@ -43,7 +43,7 @@ class ItemTest(BaseTestCase):
         item = Item()
         item.set_field('path', 123)
         item.set_field('nonexistent', 'silently pass')
-        self.assertEquals(123, item.path)
+        self.assertEquals('123', item.path)
         with self.assertRaises(AttributeError):
             print(item.nonexistent)
 
@@ -93,7 +93,7 @@ class ItemTest(BaseTestCase):
         """ Unable to modify frozen properties of an item after creation """
         data = dict(
             body='Some content',
-            author=123,
+            author='author_id',
             object_id=str(uuid1()),
             created='2018-12-12 12:20:20',
             type='plain_text',
@@ -219,7 +219,6 @@ class ItemTest(BaseTestCase):
         )
         search_repr = item.to_search()
         self.assertTrue(type(search_repr) is dict)
-        self.assertIn('full_text', search_repr)
 
     def test_item_to_json(self):
         """ Can convert item to json """

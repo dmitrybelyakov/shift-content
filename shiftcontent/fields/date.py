@@ -14,6 +14,9 @@ class Date(AbstractFieldType):
         :param value: mixed, field value
         :return: shiftcontent.fields.text.Date
         """
+        if value is None:
+            return self
+
         format = 'YYYY-MM-DD'
 
         if type(value) is not datetime:

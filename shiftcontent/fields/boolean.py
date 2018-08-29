@@ -9,6 +9,9 @@ class Boolean(AbstractFieldType):
         :param value: mixed, field value
         :return: shiftcontent.fields.text.Boolean
         """
+        if value is None:
+            return self
+
         self.value = bool(value)
         return self
 
