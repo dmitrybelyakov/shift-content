@@ -22,7 +22,8 @@ class ContentItemUpdate(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-        item = Item(**event.payload)
+        item = Item()
+        item.from_json(event.payload_json)
         db_data = item.to_db()
         items = db.tables['items']
         with db.engine.begin() as conn:
@@ -38,9 +39,9 @@ class ContentItemUpdate(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-        item = Item(**event.payload_rollback)
+        item = Item()
+        item.from_json(event.payload_rollback_json)
         db_data = item.to_db()
-
         items = db.tables['items']
         with db.engine.begin() as conn:
             query = items.update().where(items.c.object_id == event.object_id)

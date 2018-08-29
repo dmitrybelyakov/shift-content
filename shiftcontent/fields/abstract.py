@@ -1,46 +1,7 @@
-
-# TODO: do we define mapping separately (view, search)
-# TODO: or do we encapsulate it in field type?
-
-# TODO: whichever we choose we'll need sme processor to handle type conversions
-# TODO: for each type so we can serialize-deserialize data from-to db/cache
-
-# TODO: how do we store/process mapping for meta fields (view and search)?
-# TODO: this should probably treated as a special case, e.g. meta geopoint
-
-# TODO: can we do without field types instantiating lots of classes every time?
-
-# TODO: what are the points at which we need to do data conversions?
-
-"""
-
-VIEW MAPPING (python data types)
-
-  * text
-  * int
-  * float
-  * bool
-  * date
-  * datetime
-
-DATABASE MAPPING (if not auto serializable to json)
-  * date
-  * datetime
-
-SEARCH MAPPING (elasticsearch data types)
-  * text
-  * keyword
-  * boolean
-  * integer
-  * long
-  * float
-  * double
+from abc import ABCMeta, abstractmethod
 
 
-"""
-
-
-class AbstractFieldType:
+class AbstractFieldType(metaclass=ABCMeta):
     """
     Abstract field type
     Defines the interface your concrete field types must implement.
@@ -51,34 +12,63 @@ class AbstractFieldType:
     """
 
     def __init__(self, value=None):
-        self.value = value
+        self.value = None
+        if value is not None:
+            self.set(value)
 
+    @abstractmethod
     def set(self, value):
-        self.value = value
+        """
+        Set data, can accept proper data type or a string
+        :param value: mixed
+        :return: self
+        """
+        pass
 
+    @abstractmethod
     def get(self):
-        return self.value
+        """
+        Get view representation of value. This will depend on your concrete
+        field type implementation
+        :return: mixd
+        """
+        pass
 
+    @abstractmethod
+    def to_db(self):
+        """
+        Get db representation on field. This data type should be json
+        serializable.
+        :return: mixed
+        """
+        pass
 
+    @abstractmethod
+    def to_json(self):
+        """
+        Return JSON serializable version of value
+        :return:
+        """
+        pass
 
-class Text(AbstractFieldType):
-    pass
+    @abstractmethod
+    def to_search(self):
+        """
+        Return search representation of field. This will depend on your search
+        mapping and can sometimes event result in having several nested fields
+        for example for geopoint or range fields.
+        :return: mixed
+        """
+        pass
 
-class Boolean(AbstractFieldType):
-    pass
+    @abstractmethod
+    def search_mapping(self):
+        """
+        Type of field in elasticsearch index.
+        For possible values see docs: http://bit.ly/2wnpazF
+        :return: string
+        """
+        pass
 
-class DateTime(AbstractFieldType):
-    pass
-
-
-class Date(AbstractFieldType):
-    pass
-
-
-class Integer(AbstractFieldType):
-    pass
-
-class Float(AbstractFieldType):
-    pass
 
 

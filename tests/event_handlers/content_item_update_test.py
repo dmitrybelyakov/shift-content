@@ -7,6 +7,7 @@ from shiftevent.event import Event
 from shiftcontent.event_handlers import ContentItemUpdate
 from shiftcontent.item import Item
 from shiftcontent import db
+import json
 
 
 @attr('event', 'handler', 'content_item_update')
@@ -33,14 +34,14 @@ class ContentItemUpdateTest(BaseTestCase):
         )
 
         # remember old data
-        old_data = item.to_dict(serialized=True)
+        old_data = item.to_json()
 
         with db.engine.begin() as conn:
             result = conn.execute(items.insert(), **item.to_db(update=False))
             item.id = result.inserted_primary_key[0]
 
         item.body = 'Updated body'
-        new_data = item.to_dict(serialized=True)
+        new_data = item.to_json()
 
         # update now
         event = Event(
@@ -77,14 +78,14 @@ class ContentItemUpdateTest(BaseTestCase):
         )
 
         # remember old data
-        old_data = item.to_dict(serialized=True)
+        old_data = item.to_json()
 
         with db.engine.begin() as conn:
             result = conn.execute(items.insert(), **item.to_db(update=False))
             item.id = result.inserted_primary_key[0]
 
         item.body = 'Updated body'
-        new_data = item.to_dict(serialized=True)
+        new_data = item.to_json()
 
         # update now
         event = Event(
@@ -108,5 +109,6 @@ class ContentItemUpdateTest(BaseTestCase):
             rolled_back = Item()
             rolled_back.from_db(record)
             self.assertEquals('Initial body', rolled_back.body)
+
 
 
