@@ -231,7 +231,7 @@ class ContentService:
             return ok
 
         # is this a metafield?
-        is_metafield = field in item.valid_metafields
+        is_metafield = field in item.metafields
 
         # create event
         event = event_service.event(

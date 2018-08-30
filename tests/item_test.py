@@ -27,7 +27,7 @@ class ItemTest(BaseTestCase):
         """ Init metafields when initializing item """
         item = Item()
         self.assertIsNotNone(item.fields)
-        for metafield in item.valid_metafields:
+        for metafield in item.metafields:
             self.assertIn(metafield, item.fields)
 
     def test_setting_fields(self):

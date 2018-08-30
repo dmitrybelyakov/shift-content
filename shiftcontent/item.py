@@ -25,7 +25,7 @@ class Item:
     for viewing, caching and searching.
     """
     # metadata fields
-    valid_metafields = {
+    metafields = {
         'id': 'integer',
         'created': 'datetime_meta',
         'type': 'text',
@@ -66,9 +66,8 @@ class Item:
         """
 
         # init meta fields
-        # self.fields = {prop: None for prop in self.valid_metafields.keys()}
         self.fields = dict()
-        for field, field_type in self.valid_metafields.items():
+        for field, field_type in self.metafields.items():
             self.fields[field] = field_types[field_type]()
 
         # populate from kwargs
@@ -138,7 +137,14 @@ class Item:
                 self.fields[handle] = field_types[field_type]()
         return self
 
-    def set_field(self, field, value, initial=False):
+    def set_field(
+        self,
+        field,
+        value,
+        initial=False,
+        from_db=False,
+        from_json=False
+    ):
         """
         Set field
         Inspects content type definition for field type and converts field
@@ -150,29 +156,35 @@ class Item:
         :param field: str, field name
         :param value: str, value to set
         :param initial: bool, is this initial instantiation?
+        :param from_db: bool, use db setter on field
+        :param from_json: bool, use json setter on field
         :return: shiftcontent.item.Item
         """
-
         # skip frozen unless initial set
         if field in self.frozen_metafields and not initial:
             return self
 
-        # init custom fields on first set
+        # get setter name
+        if from_db:
+            setter_name = 'from_db'
+        elif from_json:
+            setter_name = 'from_json'
+        else:
+            setter_name = 'set'
+
+        # set type first and init custom fields
         if field == 'type':
-            field_type = self.valid_metafields['type']
-            self.fields['type'] = field_types[field_type](value)
+            field_type = field_types[self.metafields['type']]()
+            self.fields['type'] = field_type
+            getattr(self.fields['type'], setter_name)(value)
             self.init_fields()
+            return
 
         if field not in self.fields.keys():
             return
 
-        # set metafields
-        if field == 'created' and type(value) is str:
-            self.fields['created'].set(arrow.get(value).datetime)
-            return
-
-        # set custom fields
-        self.fields[field].set(value)
+        # set fields
+        getattr(self.fields[field], setter_name)(value)
         return self
 
     def is_updatable(self, field):
@@ -209,7 +221,7 @@ class Item:
         """
         data = copy.copy(data)
 
-        # set type fom dict (initializes custom fields)
+        # first, set type fom dict (initializes custom fields)
         if initial and 'type' in data:
             self.set_field('type', data['type'], initial)
             del data['type']
@@ -224,14 +236,14 @@ class Item:
         To db
         Returns database representation of item ready to be persisted in
         content items table. Additionally will drop fields that are forbidden
-        to be updated unles update flag is set to False
+        to be updated unless update flag is set to False
         :param update: bool, is it an update or initial insert?
         :return: dict
         """
         data = dict()
         fields = dict()
         for field, value in self.fields.items():
-            if field not in self.valid_metafields:
+            if field not in self.metafields:
                 fields[field] = value.to_db()
             else:
                 data[field] = value.to_db()
@@ -255,10 +267,10 @@ class Item:
         :param data: dict, data from the database
         :return: shiftcontent.itemItem
         """
-        data = {**data}
         fields = json.loads(data['fields'])
+        data = {**data, **fields}
         del data['fields']
-        self.from_dict({**data, **fields}, initial=True)
+        self.from_dict(data, initial=True)
         return self
 
     def to_search(self):

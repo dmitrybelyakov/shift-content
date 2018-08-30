@@ -37,11 +37,20 @@ class AbstractFieldType(metaclass=ABCMeta):
     @abstractmethod
     def to_db(self):
         """
-        Get db representation on field. This data type should be json
+        Get db representation of field. This data type should be json
         serializable.
         :return: mixed
         """
         pass
+
+    def from_db(self, value):
+        """
+        Populate field value from its db representation
+        :param value: mixed
+        :return: self
+        """
+        self.set(value)
+        return self
 
     @abstractmethod
     def to_json(self):
@@ -50,6 +59,15 @@ class AbstractFieldType(metaclass=ABCMeta):
         :return:
         """
         pass
+
+    def from_json(self, value):
+        """
+        Populate field value from its json representation
+        :param value: mixed
+        :return: self
+        """
+        self.set(value)
+        return self
 
     @abstractmethod
     def to_search(self):

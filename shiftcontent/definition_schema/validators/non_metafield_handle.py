@@ -32,7 +32,7 @@ class NonMetafieldHandle(AbstractValidator):
         :param context: obj or None, validation context
         :return: shiftschema.results.SimpleResult
         """
-        if value in Item.valid_metafields:
+        if value in Item.metafields:
             params = dict(handle=value)
             return Error(self.metafield, params)
 
