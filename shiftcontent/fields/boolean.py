@@ -55,7 +55,7 @@ class Boolean(AbstractFieldType):
         """
         Populate itself from json representation of value
         :param value: bool
-        :return: shiftcontent.fields.text.GeopointMeta
+        :return: shiftcontent.fields.text.Boolean
         """
         self.set(value)
         return self

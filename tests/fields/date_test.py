@@ -40,12 +40,30 @@ class DateTest(BaseTestCase):
         self.assertEquals(value, field.to_db())
         self.assertTrue(type(field.to_db()) is str)
 
+    def test_populate_from_db(self):
+        """ Populating value from db representation for date field """
+        value = '2020-10-18'
+        fmt = '%Y-%m-%d'
+        field = Date()
+        field.from_db(value)
+        self.assertEquals(value, field.get().strftime(fmt))
+        self.assertTrue(type(field.get()) is date)
+
     def test_get_json_representation(self):
         """ Getting json representation of date field value """
         value = '2020-10-18'
         field = Date(value)
         self.assertEquals(value, field.to_json())
         self.assertTrue(type(field.to_json()) is str)
+
+    def test_populate_from_json(self):
+        """ Populating value from json representation for date field """
+        value = '2020-10-18'
+        fmt = '%Y-%m-%d'
+        field = Date()
+        field.from_json(value)
+        self.assertEquals(value, field.get().strftime(fmt))
+        self.assertTrue(type(field.get()) is date)
 
     def test_get_search_representation(self):
         """ Getting search representation of date field value """
