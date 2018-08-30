@@ -43,14 +43,14 @@ class AbstractFieldType(metaclass=ABCMeta):
         """
         pass
 
+    @abstractmethod
     def from_db(self, value):
         """
         Populate field value from its db representation
         :param value: mixed
         :return: self
         """
-        self.set(value)
-        return self
+        pass
 
     @abstractmethod
     def to_json(self):
@@ -66,8 +66,7 @@ class AbstractFieldType(metaclass=ABCMeta):
         :param value: mixed
         :return: self
         """
-        self.set(value)
-        return self
+        pass
 
     @abstractmethod
     def to_search(self):

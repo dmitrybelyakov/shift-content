@@ -5,6 +5,7 @@ from .datetime import DateTime
 from .datetime_meta import DateTimeMetaField
 from .integer import Integer
 from .float import Float
+from .geopoint_meta import GeopointMeta
 
 """
 
