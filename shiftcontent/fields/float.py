@@ -12,7 +12,7 @@ class Float(AbstractFieldType):
         if value is None:
             return self
 
-        self.value = int(float(value))
+        self.value = float(value)
         return self
 
     def get(self):
@@ -29,12 +29,30 @@ class Float(AbstractFieldType):
         """
         return self.value
 
+    def from_db(self, value):
+        """
+        Populate field value from db representation
+        :param value: str or date
+        :return: shiftcontent.fields.text.Float
+        """
+        self.set(value)
+        return self
+
     def to_json(self):
         """
         Returns json representation of value
         :return: float
         """
         return self.value
+
+    def from_json(self, value):
+        """
+        Populate field value from json representation
+        :param value: str or date
+        :return: shiftcontent.fields.text.Float
+        """
+        self.set(value)
+        return self
 
     def to_search(self):
         """
