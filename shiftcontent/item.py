@@ -3,7 +3,6 @@ from shiftcontent import fields
 import json
 import copy
 import arrow
-from datetime import datetime
 from pprint import pprint as pp
 
 field_types = dict(
@@ -221,7 +220,7 @@ class Item:
         """
         data = copy.copy(data)
 
-        # first, set type fom dict (initializes custom fields)
+        # first, set type to initialize custom fields
         if initial and 'type' in data:
             self.set_field('type', data['type'], initial)
             del data['type']
@@ -270,7 +269,16 @@ class Item:
         fields = json.loads(data['fields'])
         data = {**data, **fields}
         del data['fields']
-        self.from_dict(data, initial=True)
+
+        # first, set type to initialize custom fields
+        if 'type' in data:
+            self.set_field('type', data['type'], initial=True)
+            del data['type']
+
+        # now set the rest of the fields
+        for name, value in data.items():
+            self.set_field(name, value, initial=True, from_db=True)
+
         return self
 
     def to_search(self):
@@ -312,7 +320,15 @@ class Item:
         except json.JSONDecodeError:
             raise x.ItemError('Failed to decode json')
 
-        self.from_dict(data, initial=True)
+        # first, set type to initialize custom fields
+        if 'type' in data:
+            self.set_field('type', data['type'], initial=True)
+            del data['type']
+
+        # now set the rest of the fields
+        for name, value in data.items():
+            self.set_field(name, value, initial=True, from_json=True)
+
         return self
 
 
