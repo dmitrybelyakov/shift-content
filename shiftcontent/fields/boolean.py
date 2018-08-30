@@ -12,6 +12,12 @@ class Boolean(AbstractFieldType):
         if value is None:
             return self
 
+        if value in ('False', '0', 'no'):
+            value = False
+
+        if value in ('True', '1', 'yes'):
+            value = True
+
         self.value = bool(value)
         return self
 
@@ -29,12 +35,30 @@ class Boolean(AbstractFieldType):
         """
         return self.value
 
+    def from_db(self, value):
+        """
+        Populate field value from db representation
+        :param value: str or bool
+        :return: shiftcontent.fields.text.Boolean
+        """
+        self.set(value)
+        return self
+
     def to_json(self):
         """
         Returns json representation of value
         :return: bool
         """
         return self.value
+
+    def from_json(self, value):
+        """
+        Populate itself from json representation of value
+        :param value: bool
+        :return: shiftcontent.fields.text.GeopointMeta
+        """
+        self.set(value)
+        return self
 
     def to_search(self):
         """

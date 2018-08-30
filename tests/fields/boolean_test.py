@@ -26,12 +26,28 @@ class BooleanTest(BaseTestCase):
         self.assertFalse(field.to_db())
         self.assertTrue(type(field.to_db()) is bool)
 
+    def test_populate_from_db(self):
+        """ Populating value from db representation for boolean field"""
+        value = '0'
+        field = Boolean()
+        field.from_db(value)
+        self.assertFalse(field.get())
+        self.assertTrue(type(field.get()) is bool)
+
     def test_get_json_representation(self):
         """ Getting json representation of boolean field value """
         value = 0
         field = Boolean(value)
         self.assertFalse(field.to_json())
         self.assertTrue(type(field.to_json()) is bool)
+
+    def test_populate_from_json(self):
+        """ Populating value from json representation for boolean field"""
+        value = '1'
+        field = Boolean()
+        field.from_json(value)
+        self.assertTrue(field.get())
+        self.assertTrue(type(field.get()) is bool)
 
     def test_get_search_representation(self):
         """ Getting search representation of boolean field value """
