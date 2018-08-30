@@ -29,12 +29,30 @@ class Integer(AbstractFieldType):
         """
         return self.value
 
+    def from_db(self, value):
+        """
+        Populate field value from db representation
+        :param value: str or date
+        :return: shiftcontent.fields.text.Integer
+        """
+        self.set(value)
+        return self
+
     def to_json(self):
         """
         Returns json representation of value
         :return: int
         """
         return self.value
+
+    def from_json(self, value):
+        """
+        Populate field value from json representation
+        :param value: str or date
+        :return: shiftcontent.fields.text.Integer
+        """
+        self.set(value)
+        return self
 
     def to_search(self):
         """
