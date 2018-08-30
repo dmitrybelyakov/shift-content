@@ -11,6 +11,7 @@ class FloatMeta(BaseTestCase):
     def test_instantiate_field(self):
         """ Instantiating geopoint meta field """
         field = GeopointMeta()
+        field.set(None)
         self.assertIsInstance(field, GeopointMeta)
 
     def test_get_value(self):

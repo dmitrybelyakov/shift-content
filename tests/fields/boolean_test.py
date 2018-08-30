@@ -10,6 +10,7 @@ class BooleanTest(BaseTestCase):
     def test_instantiate_field(self):
         """ Instantiating boolean field """
         field = Boolean()
+        field.set(None)
         self.assertIsInstance(field, Boolean)
 
     def test_get_value(self):

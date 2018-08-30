@@ -11,6 +11,7 @@ class DateTest(BaseTestCase):
     def test_instantiate_field(self):
         """ Instantiating date field """
         field = Date()
+        field.set(None)
         self.assertIsInstance(field, Date)
 
     def test_setting_value_from_string(self):

@@ -11,6 +11,7 @@ class DatetimeMetaFieldTest(BaseTestCase):
     def test_instantiate_field(self):
         """ Instantiating datetime meta field """
         field = DateTimeMeta()
+        field.set(None)
         self.assertIsInstance(field, DateTimeMeta)
 
     def test_get_db_representation(self):

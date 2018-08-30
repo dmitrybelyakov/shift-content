@@ -10,6 +10,7 @@ class TextTest(BaseTestCase):
     def test_instantiate_field(self):
         """ Instantiating text field """
         field = Text()
+        field.set(None)
         self.assertIsInstance(field, Text)
 
     def test_get_value(self):

@@ -10,6 +10,7 @@ class FloatTest(BaseTestCase):
     def test_instantiate_field(self):
         """ Instantiating float field """
         field = Float()
+        field.set(None)
         self.assertIsInstance(field, Float)
 
     def test_get_value(self):

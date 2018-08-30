@@ -10,6 +10,7 @@ class IntegerTest(BaseTestCase):
     def test_instantiate_field(self):
         """ Instantiating integer field """
         field = Integer()
+        field.set(None)
         self.assertIsInstance(field, Integer)
 
     def test_get_value(self):
