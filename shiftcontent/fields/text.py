@@ -29,12 +29,30 @@ class Text(AbstractFieldType):
         """
         return self.value
 
+    def from_db(self, value):
+        """
+        Populate field value from db representation
+        :param value: str or date
+        :return: shiftcontent.fields.text.Text
+        """
+        self.set(value)
+        return self
+
     def to_json(self):
         """
         Returns json representation of value
         :return: str
         """
         return self.value
+
+    def from_json(self, value):
+        """
+        Populate field value from json representation
+        :param value: str or date
+        :return: shiftcontent.fields.text.Text
+        """
+        self.set(value)
+        return self
 
     def to_search(self):
         """
