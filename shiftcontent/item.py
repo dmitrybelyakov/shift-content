@@ -11,7 +11,7 @@ field_types = dict(
     boolean=fields.Boolean,
     date=fields.Date,
     datetime=fields.DateTime,
-    datetime_meta=fields.DateTimeMetaField,
+    datetime_meta=fields.DateTimeMeta,
     integer=fields.Integer,
     float=fields.Float,
 )

@@ -2,7 +2,7 @@ from .text import Text
 from .boolean import Boolean
 from .date import Date
 from .datetime import DateTime
-from .datetime_meta import DateTimeMetaField
+from .datetime_meta import DateTimeMeta
 from .integer import Integer
 from .float import Float
 from .geopoint_meta import GeopointMeta
