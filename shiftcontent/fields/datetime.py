@@ -43,7 +43,7 @@ class DateTime(AbstractFieldType):
         """
         Populate field value from db representation
         :param value: str or date
-        :return: shiftcontent.fields.text.DateTimeMetaField
+        :return: shiftcontent.fields.text.DateTime
         """
         self.set(value)
         return self
@@ -59,7 +59,7 @@ class DateTime(AbstractFieldType):
         """
         Populate field value from json representation
         :param value: str or date
-        :return: shiftcontent.fields.text.DateTimeMetaField
+        :return: shiftcontent.fields.text.DateTime
         """
         self.set(value)
         return self
