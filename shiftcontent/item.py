@@ -1,19 +1,8 @@
 from shiftcontent import exceptions as x
-from shiftcontent import fields
 import json
 import copy
 import arrow
 from pprint import pprint as pp
-
-field_types = dict(
-    text=fields.Text,
-    boolean=fields.Boolean,
-    date=fields.Date,
-    datetime=fields.DateTime,
-    datetime_meta=fields.DateTimeMeta,
-    integer=fields.Integer,
-    float=fields.Float,
-)
 
 
 class Item:
@@ -53,6 +42,10 @@ class Item:
         'created'
     )
 
+    # content type definition and field types mapping
+    _definition = None
+    _field_types = None
+
     # meta fields + custom fields
     fields = None
 
@@ -67,7 +60,7 @@ class Item:
         # init meta fields
         self.fields = dict()
         for field, field_type in self.metafields.items():
-            self.fields[field] = field_types[field_type]()
+            self.fields[field] = self.field_types[field_type]()
 
         # populate from kwargs
         if kwargs:
@@ -85,13 +78,27 @@ class Item:
         throws an exception if not found.
         :return: dict
         """
-        try:
-            from shiftcontent import definition_service
-            type_definition = definition_service.get_type(self.type)
-            return type_definition
-        except x.UndefinedContentType:
-            err = 'Unable to set content type: [{}] is undefined'
-            raise x.ItemError(err.format(self.type))
+        if not self._definition:
+            try:
+                from shiftcontent import definition_service
+                self._definition = definition_service.get_type(self.type)
+            except x.UndefinedContentType:
+                err = 'Unable to set content type: [{}] is undefined'
+                raise x.ItemError(err.format(self.type))
+
+        return self._definition
+
+    @property
+    def field_types(self):
+        """
+        Field types
+        Returns a dictionary of field types.
+        :return: dict
+        """
+        if not self._field_types:
+            from shiftcontent.field_types import field_types
+            self._field_types = field_types
+        return self._field_types
 
     def __repr__(self):
         """ Returns printable representation of item """
@@ -133,7 +140,7 @@ class Item:
             handle = field['handle']
             field_type = field['type']
             if handle not in self.fields:
-                self.fields[handle] = field_types[field_type]()
+                self.fields[handle] = self.field_types[field_type]()
         return self
 
     def set_field(
@@ -173,7 +180,7 @@ class Item:
 
         # set type first and init custom fields
         if field == 'type':
-            field_type = field_types[self.metafields['type']]()
+            field_type = self.field_types[self.metafields['type']]()
             self.fields['type'] = field_type
             getattr(self.fields['type'], setter_name)(value)
             self.init_fields()

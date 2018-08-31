@@ -17,6 +17,12 @@ class ItemTest(BaseTestCase):
         item = Item()
         self.assertIsInstance(item, Item)
 
+    def test_can_access_field_types(self):
+        """ Content item has access to field types """
+        item = Item()
+        types = item.field_types
+        self.assertTrue(type(types) is dict)
+
     def test_getting_printable_representation_of_item(self):
         """ Getting printable representation of an item """
         item = Item()

@@ -13,7 +13,6 @@ from shiftcontent.definition_service import DefinitionService
 from shiftcontent import exceptions as x
 
 
-
 @attr('definition', 'service')
 class DefinitionServiceTest(BaseTestCase):
 
@@ -24,6 +23,19 @@ class DefinitionServiceTest(BaseTestCase):
             revisions_path=self.revisions_path
         )
         self.assertIsInstance(service, DefinitionService)
+
+    def test_get_field_types(self):
+        """ Definition service has access to field types """
+        service = DefinitionService(
+            definition_path=self.definition_path,
+            revisions_path=self.revisions_path
+        )
+
+        types = service.field_types()
+        self.assertTrue(type(types) is dict)
+        self.assertIn('text', types.keys())
+        self.assertIn('integer', types.keys())
+        self.assertIn('datetime', types.keys())
 
     def test_create_revisions_directory_on_first_access(self):
         """ Create directory for definition revisions if does not exist """

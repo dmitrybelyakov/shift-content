@@ -21,7 +21,6 @@ cache_service = CacheService()
 from .definition_service import DefinitionService
 definition_service = DefinitionService()
 
-
 # init search service
 from .search_service import SearchService
 search_service = SearchService()

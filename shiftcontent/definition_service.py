@@ -9,6 +9,7 @@ from pprint import pprint as pp
 from frozendict import frozendict
 from shiftcontent import exceptions as x
 from shiftcontent.definition_schema.schema import DefinitionSchema
+from shiftcontent.field_types import field_types as default_field_types
 
 
 class DefinitionService:
@@ -25,19 +26,24 @@ class DefinitionService:
         self.definition_path = None
         self._revisions_path = None
         self._definition = None
+        self._field_types = None
 
         if args or kwargs:
             self.init(*args, **kwargs)
 
-    def init(self, definition_path, revisions_path):
+    def init(self, definition_path, revisions_path, field_types=None):
         """
         Delayed service initializer
         :param definition_path: str, yaml definition file path
         :param revisions_path: str, where to store definition revisions
+        :param field_types: dict, field type mappings
         """
         self.definition_path = definition_path
         self._revisions_path = revisions_path
         self._definition = None
+        if field_types:
+            self._field_types = field_types
+
         return self
 
     @property
@@ -93,6 +99,16 @@ class DefinitionService:
         if not self._definition:
             self._definition = self.load_definition()
         return self._definition
+
+    def field_types(self):
+        """
+        Field types
+        Returns field types mapping
+        :return: dict
+        """
+        if not self._field_types:
+            self._field_types = default_field_types
+        return self._field_types
 
     def freeze_definition(self, definition):
         """
