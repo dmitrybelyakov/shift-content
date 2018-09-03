@@ -6,7 +6,7 @@ from shiftcontent.definition_service import DefinitionService
 from pprint import pprint as pp
 
 
-@attr('item', 'vaidator', 'type_exists')
+@attr('item', 'validator', 'type_exists')
 class ContentTypeExistsTest(BaseTestCase):
 
     def test_creating_validator(self):
