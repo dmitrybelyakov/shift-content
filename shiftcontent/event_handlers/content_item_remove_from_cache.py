@@ -1,7 +1,6 @@
 from shiftevent.handlers.base import BaseHandler
 from shiftcontent.item import Item
 from shiftcontent import cache_service
-from shiftmemory import exceptions as cx
 from pprint import pprint as pp
 
 
@@ -23,11 +22,7 @@ class ContentItemRemoveFromCache(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-        try:
-            cache_service.delete(event.object_id)
-        except cx.ConfigurationException:
-            pass
-
+        cache_service.delete(event.object_id)
         return event
 
     def rollback(self, event):
@@ -39,11 +34,7 @@ class ContentItemRemoveFromCache(BaseHandler):
         :return: shiftcontent.events.event.Event
         """
         item = Item(**event.payload_rollback)
-        try:
-            cache_service.set(item)
-        except cx.ConfigurationException:
-            pass
-
+        cache_service.set(item)
         return event
 
 

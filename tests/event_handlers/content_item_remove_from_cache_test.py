@@ -27,7 +27,7 @@ class ContentItemRemoveFromCacheTest(BaseTestCase):
     # --------------------------------------------------------------------------
 
     def test_instantiating_handler(self):
-        """ Instantiating content item removefrom index handler """
+        """ Instantiating content item remove from cache handler """
         handler = ContentItemRemoveFromCache(db=self.db)
         self.assertIsInstance(handler, ContentItemRemoveFromCache)
 
