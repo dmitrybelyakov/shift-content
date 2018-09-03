@@ -283,6 +283,22 @@ class ContentService:
         event_service.emit(event)
         return self
 
+    def set_parent(self, item, parent):
+        """
+        Set parent
+        Sets item parent to allow nesting.
+        :param item: shiftcontent.item.Item
+        :param parent: shiftcontent.item.Item
+        :return: shiftcontent.content_service.ContentService
+        """
+        pass
+
+
+    # TODO: WHAT HAPPENS WHEN WE SET THE PARENT?
+    # TODO: HOW DO WE GET CHILDREN?
+    # TODO: HOW DO WE GET A TREE?
+    # TODO: HOW DO WE CACHE THAT?
+
 
 
 
