@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class AbstractFieldType(metaclass=ABCMeta):
+class AbstractFieldType(metaclass=ABCMeta):  # pragma: no cover
     """
     Abstract field type
     Defines the interface your concrete field types must implement.
@@ -17,7 +17,7 @@ class AbstractFieldType(metaclass=ABCMeta):
             self.set(value)
 
     @abstractmethod
-    def set(self, value):  # pragma: no cover
+    def set(self, value):
         """
         Set data, can accept proper data type or a string
         :param value: mixed
@@ -26,7 +26,7 @@ class AbstractFieldType(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get(self):   # pragma: no cover
+    def get(self):
         """
         Get view representation of value. This will depend on your concrete
         field type implementation
@@ -35,7 +35,7 @@ class AbstractFieldType(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def to_db(self):  # pragma: no cover
+    def to_db(self):
         """
         Get db representation of field. This data type should be json
         serializable.
@@ -44,7 +44,7 @@ class AbstractFieldType(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def from_db(self, value):  # pragma: no cover
+    def from_db(self, value):
         """
         Populate field value from its db representation
         :param value: mixed
@@ -53,14 +53,14 @@ class AbstractFieldType(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def to_json(self):  # pragma: no cover
+    def to_json(self):
         """
         Return JSON serializable version of value
         :return:
         """
         pass
 
-    def from_json(self, value):  # pragma: no cover
+    def from_json(self, value):
         """
         Populate field value from its json representation
         :param value: mixed
@@ -69,7 +69,7 @@ class AbstractFieldType(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def to_search(self):  # pragma: no cover
+    def to_search(self):
         """
         Return search representation of field. This will depend on your search
         mapping and can sometimes event result in having several nested fields
@@ -79,7 +79,7 @@ class AbstractFieldType(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def search_mapping(self):  # pragma: no cover
+    def search_mapping(self):
         """
         Type of field in elasticsearch index.
         For possible values see docs: http://bit.ly/2wnpazF
