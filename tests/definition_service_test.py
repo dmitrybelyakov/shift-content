@@ -271,7 +271,6 @@ class DefinitionServiceTest(BaseTestCase):
             str(cm.exception)
         )
 
-    @attr('zzz')
     def test_abort_if_detected_breaking_changes(self):
         """ Detect breaking changes in new revisions and abort """
         definition = {'content': [
