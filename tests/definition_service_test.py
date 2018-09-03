@@ -271,6 +271,7 @@ class DefinitionServiceTest(BaseTestCase):
             str(cm.exception)
         )
 
+    @attr('zzz')
     def test_abort_if_detected_breaking_changes(self):
         """ Detect breaking changes in new revisions and abort """
         definition = {'content': [
@@ -349,7 +350,7 @@ class DefinitionServiceTest(BaseTestCase):
         valid3 = copy.deepcopy(definition)
         del valid3['content'][0]  # drop type
         del valid3['content'][0]['fields'][0] # drop field
-        valid3['content'][0]['fields'][0]['type'] = 'bool'  # change field type
+        valid3['content'][0]['fields'][0]['type'] = 'boolean'  # change type
 
         valid3_path = os.path.join(self.tmp, 'valid3.yml')
         with open(valid3_path, 'w') as stream:
@@ -360,7 +361,7 @@ class DefinitionServiceTest(BaseTestCase):
             revisions_path=self.revisions_path
         )
         with self.assertRaises(x.BreakingSchemaChanges) as cm:
-            service.definition
+            pp(service.definition)
 
         err = cm.exception
         breaks = err.breaking_changes

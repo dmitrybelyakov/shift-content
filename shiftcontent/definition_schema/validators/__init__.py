@@ -7,3 +7,4 @@ from .instantiatable import Instantiatable
 from .handle import Handle
 from .non_metafield_handle import NonMetafieldHandle
 from .is_list import IsList
+from .field_type import FieldType

@@ -236,6 +236,19 @@ class FieldSchemaTest(BaseTestCase):
         errors = result.get_messages()
         self.assertIn('Field requires a type', errors['type'])
 
+    def test_field_types_must_exist(self):
+        """ Field type must exist """
+        definition = dict(
+            name='a_field',
+            handle='a_handle',
+            type='nonexistent'
+        )
+        schema = FieldSchema()
+        result = schema.process(definition)
+        errors = result.get_messages()
+        self.assertIn('type', errors)
+        self.assertIn('Field type [nonexistent] does not exist', errors['type'])
+
 
 @attr('schema', 'filter')
 class FilterSchemaTest(BaseTestCase):
