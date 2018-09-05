@@ -1,10 +1,5 @@
 from tests.base import BaseTestCase
 from nose.plugins.attrib import attr
-import shiftschema
-import shiftschema.schema
-from shiftschema.schema import Schema
-from pprint import pprint as pp
-from shiftcontent.utils import import_by_name
 
 
 @attr('trees')
@@ -13,11 +8,22 @@ class UtilsTest(BaseTestCase):
     def test_trees_test(self):
         """ Testing tree sorting """
         tree = [
-            '1/2/3/4/5',
-            '1/2',
-            '1/10/6/22',
-            '1/10/60/22',
-            '1/100/60/22',
+            '1/2/',
+            '2/2/',
+            '3/2/',
+            '4/2/',
+            '5/2/',
+            '6/2/',
+            '7/2/',
+            '8/2/',
+            '9/2/',
+            '10/2/',
+            '11/2/',
+            # '1/2/3/4/5',
+            # '1/2',
+            # '1/10/6/22',
+            # '1/10/60/22',
+            # '1/100/60/22',
         ]
 
         tree2 = [
