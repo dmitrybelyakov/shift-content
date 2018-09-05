@@ -18,6 +18,7 @@ class Item:
         'created': 'datetime_meta',
         'type': 'text',
         'path': 'text',
+        'sort_order': 'integer',
         'author': 'text',
         'object_id': 'text',
         # 'version',
@@ -65,6 +66,10 @@ class Item:
         # populate from kwargs
         if kwargs:
             self.from_dict(kwargs, initial=True)
+
+        # set sort order
+        if self.fields['sort_order'].get() is None:
+            self.set_field('sort_order', 0)
 
         # set creation date
         if not self.fields['created'].get():
