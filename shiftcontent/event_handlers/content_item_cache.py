@@ -29,7 +29,6 @@ class ContentItemCache(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-
         # get item
         object_id = event.object_id
         items = db.tables['items']
