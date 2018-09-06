@@ -283,15 +283,35 @@ class ContentService:
         event_service.emit(event)
         return self
 
-    def set_parent(self, item, parent):
+    def set_parent(self, author, item, parent):
         """
         Set parent
         Sets item parent to allow nesting.
+
+        :param author: str, author of this action
         :param item: shiftcontent.item.Item
         :param parent: shiftcontent.item.Item
         :return: shiftcontent.content_service.ContentService
         """
-        pass
+        if not parent.id:
+            err = 'Item must be saved first to become a parent of another item'
+            raise x.ItemError(err)
+
+        previous_parent_id = item.path.split('.')[-1] if item.path else None
+        new_parent_id = parent.id
+
+        # create event
+        event = event_service.event(
+            type='CONTENT_ITEM_SET_PARENT',
+            author=author,
+            object_id=item.object_id,
+            payload=dict(parent_id=new_parent_id),
+            payload_rollback=dict(parent_id=previous_parent_id)
+        )
+
+        # and emit
+        event_service.emit(event)
+        return self
 
     # TODO: EACH BRANCH MUST BE INDEPENDENTLY SORTED
 
@@ -318,7 +338,8 @@ class ContentService:
     # TODO: WHY WOULD WE WANT TO SORT TREE BY HIERARCHY?
     # TODO: IF THIS IS NEEDED, WE'LL NEED TO PAD IDS IN PATH
 
-    # TODO: USE CASE: PRINT ITEMS CHRONOLOGICALLY WITH PAGINATION (CAN THIS BE ACHIEVED WITH SORTING BY DATE)
+    # TODO: USE CASE: PRINT ITEMS CHRONOLOGICALLY WITH PAGINATION
+    # TODO: NOT VERY USEFUL REALLY
 
 
 

@@ -182,6 +182,10 @@ class ContentServiceTest(BaseTestCase):
         err = 'Database contains item (1) of undefined type [nonexistent]'
         self.assertIn(err, str(cm.exception))
 
+    # --------------------------------------------------------------------------
+    # CRUD & events
+    # --------------------------------------------------------------------------
+
     def test_create_content_item(self):
         """ Create a simple content item """
         type = 'plain_text'
@@ -222,7 +226,6 @@ class ContentServiceTest(BaseTestCase):
 
     def test_return_validation_result_when_creating_with_invalid_data(self):
         """ Return validation errors when creating item with bad data """
-        # services.content.item_schema(content_type='markdown')
         type = 'plain_text'
         author = 123
         fields = dict(body='')
@@ -639,4 +642,48 @@ class ContentServiceTest(BaseTestCase):
 
         cached = cache_service.get(item.object_id)
         self.assertIsNone(cached)
+
+    # --------------------------------------------------------------------------
+    # Trees & nesting
+    # --------------------------------------------------------------------------
+
+    def test_raise_when_setting_parent_with_no_id(self):
+        """ Item must have an id to be a parent """
+        item = Item()
+        parent = Item()
+        author = 123
+        with self.assertRaises(x.ItemError) as cm:
+            content_service.set_parent(author, item, parent)
+
+        self.assertIn(
+            'Item must be saved first to become a parent',
+            str(cm.exception)
+        )
+
+    @attr('zzz')
+    def test_setting_parent(self):
+        """ Setting item parent """
+        author = 123
+        item = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am a child')
+        )
+
+        parent = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am a parent')
+        )
+
+        root = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am the root of everything')
+        )
+
+        # item.path = '2.3.4'
+        content_service.set_parent(author, parent, root)
+        content_service.set_parent(author, item, parent)
+
 
