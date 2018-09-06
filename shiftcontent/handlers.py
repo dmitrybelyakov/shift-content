@@ -6,6 +6,7 @@ from .event_handlers import ContentItemIndex
 from .event_handlers import ContentItemRemoveFromIndex
 from .event_handlers import ContentItemCache
 from .event_handlers import ContentItemRemoveFromCache
+from .event_handlers import ContentItemSetParent
 
 content_handlers = dict(
 
@@ -29,12 +30,18 @@ content_handlers = dict(
         ContentItemIndex,
         ContentItemCache
     ],
-    # update content item
+
+    # update content item field
     CONTENT_ITEM_UPDATE_FIELD=[
         ContentItemFieldUpdateField,
         ContentItemIndex,
         ContentItemCache
     ],
+
+    # set content item parent
+    CONTENT_ITEM_SET_PARENT=[
+        ContentItemSetParent
+    ]
 )
 
 

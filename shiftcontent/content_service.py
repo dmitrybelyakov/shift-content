@@ -283,6 +283,76 @@ class ContentService:
         event_service.emit(event)
         return self
 
+    def set_parent(self, author, item, parent):
+        """
+        Set parent
+        Sets item parent to allow nesting.
+
+        :param author: str, author of this action
+        :param item: shiftcontent.item.Item
+        :param parent: shiftcontent.item.Item
+        :return: shiftcontent.content_service.ContentService
+        """
+        if not item.id:
+            err = 'Item must be saved first to get a parent of another item'
+            raise x.ItemError(err)
+
+        if not parent.id:
+            err = 'Item must be saved first to become a parent of another item'
+            raise x.ItemError(err)
+
+        if item.id == parent.id:
+            err = 'Unable to set item as a parent for itself'
+            raise x.ItemError(err)
+
+        previous_parent_id = item.path.split('.')[-1] if item.path else None
+        new_parent_id = parent.id
+
+        # create event
+        event = event_service.event(
+            type='CONTENT_ITEM_SET_PARENT',
+            author=author,
+            object_id=item.object_id,
+            payload=dict(parent_id=new_parent_id),
+            payload_rollback=dict(parent_id=previous_parent_id)
+        )
+
+        # and emit
+        event_service.emit(event)
+        return self
+
+    # TODO: EACH BRANCH MUST BE INDEPENDENTLY SORTED
+
+    # TODO: WHAT HAPPENS WHEN WE SET THE PARENT?
+    # TODO: HOW DO WE GET CHILDREN?
+    # TODO: HOW DO WE GET A TREE?
+    # TODO: HOW DO WE CACHE THAT?
+
+    # TODO: WHAT TREE STRATEGY SHOULD WE USE?
+    # TODO: NESTED SETS / MATPATH INVOLVES CHANGING CHILD ITEMS.
+    # TODO: IS IT ACCEPTABLE IN AN EVENT SYSTEM?
+    # TODO: WE CAN TRIGGER A CASCADE OF CHANGE PATH EVENTS BY THE SAME AUTHOR
+    # TODO: BUT WHAT HAPPENS WHEN WE REWIND A SPECIFIC ITEM?
+    # TODO: SHALL WE CONSIDER THIS A SIDE EFFECT OF DOING TIME TRAVEL
+
+    # TODO: POSSIBLE SOLUTION
+
+    # TODO:     * WE ONLY STORE SET PARENT EVENT WITH PARENT ID
+    # TODO:     * THE HANDLER UPDATES PARENTS OF ALL CHILDREN ACCORDINGLY
+    # TODO:     * THIS ALLOWS REWINDING ITEM STATE WITHOUT AFFECTING TREE
+    # TODO:     * BUT CHANGES IN POSITIONING WILL ONLY BE STORED IN PARENT LOG
+
+    # TODO: DO WE USE OBJECT_ID OR ID FOR PATH?
+    # TODO: ID WONT ALLOW TO GET PARENTS FROM CACHE OR BUILD A TREE
+    # TODO: AS WE'LL HAVE TO QUERY PARENTS BY THEIR IDS, NOT OBJECT_IDS
+    # TODO: SHALL WE GET RID OF OBJECT IDS ALTOGETHER?
+
+
+
+    def get_path(self):
+        pass
+
+
 
 
 
