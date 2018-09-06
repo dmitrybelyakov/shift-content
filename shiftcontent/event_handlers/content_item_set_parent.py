@@ -28,26 +28,69 @@ class ContentItemSetParent(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
+        items = db.tables['items']
+        with db.engine.begin() as conn:
 
-        # get parent
+            # get parent
+            parent_id = event.payload['parent_id']
+            query = items.select().where(items.c.id == parent_id)
+            data = conn.execute(query).fetchone()
+            if not data:
+                return event
 
-        # get item
+            parent = Item()
+            parent.from_db(data)
 
-        # get item children
+            # get item
+            item_object_id = event.object_id
+            query = items.select().where(items.c.object_id == item_object_id)
+            data = conn.execute(query).fetchone()
+            if not data:
+                return event
+            item = Item()
+            item.from_db(data)
 
-        # update item path
+            # get item children
+            children = []
+            if item.id:
+                if item.path:
+                    like = '{}.{}%'.format(item.path, item.id)
+                else:
+                    like = '{}%'.format(str(item.id))
+                query = items.select().where(items.c.path.like(like))
+                data = conn.execute(query).fetchall() or ()
+                children = [Item().from_db(child) for child in data]
 
-        # update children paths
+            # update item path
+            if parent.path:
+                path = '{}.{}'.format(parent.path, parent.id)
+            else:
+                path = str(parent.id)
 
-        # put item to cache
+            query = items.update().where(items.c.object_id == item_object_id)
+            conn.execute(query.values(dict(path=path)))
+            item.path = path
 
-        # put item to index
+            # update children paths
+            for child in children:
+                update = '{}.{}'.format(item.path, item.id).split('.')
+                child_path = child.path.split('.')
+                index = child_path.index(str(item.id))
+                path = '.'.join(update + child_path[index+1:])
 
-        # put children to cache
+                where = items.c.object_id == child.object_id
+                query = items.update().where(where)
+                conn.execute(query.values(dict(path=path)))
+                child.path = path
 
-        # put children to index
+        # put item to cache & index
+        cache_service.set(item)
+        search_service.put_to_index(item)
 
-        print('HANDLE SET PARENT EVENT')
+        # put children to cache & index
+        for child in children:
+            cache_service.set(child)
+            search_service.put_to_index(child)
 
         # and return
         return event

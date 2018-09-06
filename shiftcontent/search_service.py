@@ -188,15 +188,19 @@ class SearchService:
             raise x.SearchError('Item must have object_id to be indexed')
 
         # create index if required
-        self.index_info
-
         indexable = item.to_search()
-        self.es.index(
-            index=self.index_name,
-            doc_type=self.doc_type,
-            id=item.object_id,
-            body=indexable
-        )
+        try:
+            self.index_info
+            self.es.index(
+                index=self.index_name,
+                doc_type=self.doc_type,
+                id=item.object_id,
+                body=indexable
+            )
+        except ex.ImproperlyConfigured:
+            pass
+
+        return self
 
     def search(self, body):
         """

@@ -293,8 +293,16 @@ class ContentService:
         :param parent: shiftcontent.item.Item
         :return: shiftcontent.content_service.ContentService
         """
+        if not item.id:
+            err = 'Item must be saved first to get a parent of another item'
+            raise x.ItemError(err)
+
         if not parent.id:
             err = 'Item must be saved first to become a parent of another item'
+            raise x.ItemError(err)
+
+        if item.id == parent.id:
+            err = 'Unable to set item as a parent for itself'
             raise x.ItemError(err)
 
         previous_parent_id = item.path.split('.')[-1] if item.path else None
@@ -334,12 +342,15 @@ class ContentService:
     # TODO:     * THIS ALLOWS REWINDING ITEM STATE WITHOUT AFFECTING TREE
     # TODO:     * BUT CHANGES IN POSITIONING WILL ONLY BE STORED IN PARENT LOG
 
+    # TODO: DO WE USE OBJECT_ID OR ID FOR PATH?
+    # TODO: ID WONT ALLOW TO GET PARENTS FROM CACHE OR BUILD A TREE
+    # TODO: AS WE'LL HAVE TO QUERY PARENTS BY THEIR IDS, NOT OBJECT_IDS
+    # TODO: SHALL WE GET RID OF OBJECT IDS ALTOGETHER?
 
-    # TODO: WHY WOULD WE WANT TO SORT TREE BY HIERARCHY?
-    # TODO: IF THIS IS NEEDED, WE'LL NEED TO PAD IDS IN PATH
 
-    # TODO: USE CASE: PRINT ITEMS CHRONOLOGICALLY WITH PAGINATION
-    # TODO: NOT VERY USEFUL REALLY
+
+    def get_path(self):
+        pass
 
 
 
