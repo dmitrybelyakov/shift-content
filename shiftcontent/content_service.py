@@ -302,7 +302,11 @@ class ContentService:
             raise x.ItemError(err)
 
         if item.id == parent.id:
-            err = 'Unable to set item as a parent for itself'
+            err = 'Unable to set item as a parent of itself'
+            raise x.ItemError(err)
+
+        if parent.path and str(item.id) in parent.path.split('.'):
+            err = 'Unable to set parent as a child of its children'
             raise x.ItemError(err)
 
         previous_parent_id = item.path.split('.')[-1] if item.path else None
@@ -317,7 +321,7 @@ class ContentService:
             payload_rollback=dict(parent_id=previous_parent_id)
         )
 
-        # and emit
+        # emit
         event_service.emit(event)
         return self
 
