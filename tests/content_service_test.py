@@ -42,10 +42,6 @@ class ContentServiceTest(BaseTestCase):
         service = ContentService()
         self.assertIsInstance(service, ContentService)
 
-    # def test_changes_to_items_in_service_update_iems_in_place(self):
-    #     """ Service updates items in-place when changing their properties """
-    #     self.fail('Implement me!')
-
     def test_creating_item_update_schema(self):
         """ Create schema for content item update """
         schema = content_service.item_schema('plain_text', 'update')
@@ -713,12 +709,7 @@ class ContentServiceTest(BaseTestCase):
         )
 
         content_service.set_parent(author, item2, item1)
-        item2 = content_service.get_item(item2.object_id)
-        item1 = content_service.get_item(item1.object_id)
-
         content_service.set_parent(author, item3, item2)
-        item3 = content_service.get_item(item3.object_id)
-
         with self.assertRaises(x.ItemError) as cm:
             content_service.set_parent(author, item1, item3)
 

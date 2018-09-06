@@ -196,8 +196,13 @@ class ContentService:
             payload_rollback=old_data
         )
 
-        # and emit
+        # emit
         event = event_service.emit(event)
+
+        # update in place to reflect changes in clients
+        updated = self.get_item(item.object_id)
+        item.from_dict(updated.to_dict())
+
         return self.get_item(event.object_id)
 
     def update_item_field(self, author, object_id, field, value):
@@ -250,7 +255,7 @@ class ContentService:
             )
         )
 
-        # and emit
+        # emit
         event = event_service.emit(event)
         return self.get_item(event.object_id)
 
@@ -279,7 +284,7 @@ class ContentService:
             payload_rollback=rollback
         )
 
-        # and emit
+        # emit
         event_service.emit(event)
         return self
 
@@ -323,6 +328,11 @@ class ContentService:
 
         # emit
         event_service.emit(event)
+
+        # update in place to reflect changes in clients
+        updated = self.get_item(item.object_id)
+        item.from_dict(updated.to_dict())
+
         return self
 
     # TODO: EACH BRANCH MUST BE INDEPENDENTLY SORTED
@@ -350,8 +360,6 @@ class ContentService:
     # TODO: ID WONT ALLOW TO GET PARENTS FROM CACHE OR BUILD A TREE
     # TODO: AS WE'LL HAVE TO QUERY PARENTS BY THEIR IDS, NOT OBJECT_IDS
     # TODO: SHALL WE GET RID OF OBJECT IDS ALTOGETHER?
-
-
 
     def get_path(self):
         pass
