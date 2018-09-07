@@ -31,7 +31,6 @@ class ContentItemCacheTest(BaseTestCase):
         handler = ContentItemSetParent(db=self.db)
         self.assertIsInstance(handler, ContentItemSetParent)
 
-    @attr('zzz')
     def test_handle_event(self):
         """ Handler content item set parent handles event"""
         # create items
@@ -77,12 +76,109 @@ class ContentItemCacheTest(BaseTestCase):
         # assert parent was set
         self.assertEquals(str(parent.id), child.path)
 
-
-
     def test_handle_updates_children(self):
         """ Handler content item handle updates children """
-        self.fail('Implement me!')
+        # create items
+        child1 = Item(
+            type='plain_text',
+            author=123,
+            object_id=str(uuid1()),
+            body='I am a child1'
+        )
 
+        child2 = Item(
+            type='plain_text',
+            author=123,
+            object_id=str(uuid1()),
+            body='I am a child2'
+        )
+
+        child3 = Item(
+            type='plain_text',
+            author=123,
+            object_id=str(uuid1()),
+            body='I am a child3'
+        )
+
+        parent = Item(
+            type='plain_text',
+            author=123,
+            object_id=str(uuid1()),
+            body='I am a parent'
+        )
+
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            query = items.insert()
+            result = conn.execute(query, **child1.to_db(update=False))
+            child1.set_field('id', result.inserted_primary_key[0], initial=True)
+
+            result = conn.execute(query, **child2.to_db(update=False))
+            child2.set_field('id', result.inserted_primary_key[0], initial=True)
+
+            result = conn.execute(query, **child3.to_db(update=False))
+            child3.set_field('id', result.inserted_primary_key[0], initial=True)
+
+            result = conn.execute(query, **parent.to_db(update=False))
+            parent.set_field('id', result.inserted_primary_key[0], initial=True)
+
+        # trigger events
+        handler = ContentItemSetParent(db=self.db)
+        handler.handle(Event(
+            id=123,
+            type='CONTENT_ITEM_SET_PARENT',
+            author=123,
+            object_id=child3.object_id,
+            payload=dict(parent_id=child2.id),
+            payload_rollback=None
+        ))
+        handler.handle(Event(
+            id=123,
+            type='CONTENT_ITEM_SET_PARENT',
+            author=123,
+            object_id=child2.object_id,
+            payload=dict(parent_id=child1.id),
+            payload_rollback=None
+        ))
+        handler.handle(Event(
+            id=123,
+            type='CONTENT_ITEM_SET_PARENT',
+            author=123,
+            object_id=child1.object_id,
+            payload=dict(parent_id=parent.id),
+            payload_rollback=None
+        ))
+
+        # now get back
+        with db.engine.begin() as conn:
+            query = items.select().where(items.c.object_id == child1.object_id)
+            result = conn.execute(query).fetchone()
+            child1 = Item().from_db(result)
+
+            query = items.select().where(items.c.object_id == child2.object_id)
+            result = conn.execute(query).fetchone()
+            child2 = Item().from_db(result)
+
+            query = items.select().where(items.c.object_id == child3.object_id)
+            result = conn.execute(query).fetchone()
+            child3 = Item().from_db(result)
+
+        # assert paths set properly
+        self.assertEquals(
+            '{}'.format(parent.id),
+            child1.path
+        )
+        self.assertEquals(
+            '{}.{}'.format(parent.id, child1.id),
+            child2.path
+        )
+        self.assertEquals(
+            '{}.{}.{}'.format(parent.id, child1.id, child2.id),
+            child3.path
+        )
+
+
+    @attr('zzz')
     def test_setting_parent_updates_cache(self):
         """ Handler content item handle updates cache """
         self.fail('Implement me!')
