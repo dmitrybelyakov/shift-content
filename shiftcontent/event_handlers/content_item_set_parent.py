@@ -35,7 +35,7 @@ class ContentItemSetParent(BaseHandler):
             parent_id = event.payload['parent_id']
             query = items.select().where(items.c.id == parent_id)
             data = conn.execute(query).fetchone()
-            if not data:
+            if not data:  # pragma: no cover
                 return event
 
             parent = Item()
@@ -45,8 +45,9 @@ class ContentItemSetParent(BaseHandler):
             item_object_id = event.object_id
             query = items.select().where(items.c.object_id == item_object_id)
             data = conn.execute(query).fetchone()
-            if not data:
+            if not data:  # pragma: no cover
                 return event
+
             item = Item()
             item.from_db(data)
 

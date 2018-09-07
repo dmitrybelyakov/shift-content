@@ -46,8 +46,7 @@ class ContentService:
             raise x.UndefinedContentType(msg.format(result.id, result.type))
 
         # put to cache
-        item = Item()
-        item.from_db(result)
+        item = Item().from_db(result)
         cache_service.set(item)
 
         # and return
