@@ -84,7 +84,6 @@ class ContentItemCacheTest(BaseTestCase):
         # assert parent was set
         self.assertEquals(str(parent.id), child.path)
 
-    @attr('zzz')
     def test_handle_updates_children(self):
         """ Handler content item handle updates children """
         # create items
@@ -368,10 +367,64 @@ class ContentItemCacheTest(BaseTestCase):
 
 
 
-    # @attr('zzz')
-    # def test_rollback_event(self):
-    #     """ Handler content item set parent rollback changes """
-    #     self.fail('Implement me!')
+    @attr('zzz')
+    def test_rollback_event(self):
+        """ Handler content item set parent rollback changes """
+        # create items
+        child = Item(
+            type='plain_text',
+            author=123,
+            object_id=str(uuid1()),
+            body='I am a child'
+        )
+
+        parent = Item(
+            type='plain_text',
+            author=123,
+            object_id=str(uuid1()),
+            body='I am a parent'
+        )
+
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            query = items.insert()
+            result = conn.execute(query, **child.to_db(update=False))
+            child.set_field('id', result.inserted_primary_key[0], initial=True)
+            result = conn.execute(query, **parent.to_db(update=False))
+            parent.set_field('id', result.inserted_primary_key[0], initial=True)
+
+        # trigger event
+        handler = ContentItemSetParent(db=self.db)
+        handler.handle(Event(
+            id=123,
+            type='CONTENT_ITEM_SET_PARENT',
+            author=123,
+            object_id=child.object_id,
+            payload=dict(parent_id=parent.id),
+            payload_rollback=None
+        ))
+
+        # and rollback
+        handler.rollback(Event(
+            id=123,
+            type='CONTENT_ITEM_SET_PARENT',
+            author=123,
+            object_id=child.object_id,
+            payload=dict(parent_id=parent.id),
+            payload_rollback=None
+        ))
+
+
+        # # now get back
+        # with db.engine.begin() as conn:
+        #     query = items.select().where(items.c.object_id == child.object_id)
+        #     result = conn.execute(query).fetchone()
+        #     child = Item().from_db(result)
+
+
+
+
+
     #
     # def test_rollback_event_updates_children(self):
     #     """ Handler content item set parent rollback updates children """
