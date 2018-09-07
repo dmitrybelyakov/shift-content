@@ -777,5 +777,20 @@ class ContentServiceTest(BaseTestCase):
         self.assertEquals('6.5.1.2', item3.path)
         self.assertEquals('6.5.1.2.3', item4.path)
 
+    def test_set_parent_when_creating_an_item(self):
+        """ Set parent when creating an item """
+        author = 123
+        parent = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am a parent')
+        )
 
+        item = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am a child'),
+            parent=parent
+        )
 
+        self.assertEquals(str(parent.id), item.path)

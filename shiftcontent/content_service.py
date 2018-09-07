@@ -152,6 +152,12 @@ class ContentService:
 
         # and emit
         event = event_service.emit(event)
+
+        # set parent if provided
+        if parent:
+            item = self.get_item(object_id)
+            self.set_parent(author, item, parent)
+
         return self.get_item(event.object_id)
 
     def update_item(self, author, item):
