@@ -84,6 +84,7 @@ class ContentItemCacheTest(BaseTestCase):
         # assert parent was set
         self.assertEquals(str(parent.id), child.path)
 
+    @attr('zzz')
     def test_handle_updates_children(self):
         """ Handler content item handle updates children """
         # create items
@@ -108,11 +109,18 @@ class ContentItemCacheTest(BaseTestCase):
             body='I am a child3'
         )
 
-        parent = Item(
+        parent1 = Item(
             type='plain_text',
             author=123,
             object_id=str(uuid1()),
-            body='I am a parent'
+            body='I am a parent1'
+        )
+
+        parent2 = Item(
+            type='plain_text',
+            author=123,
+            object_id=str(uuid1()),
+            body='I am a parent2'
         )
 
         items = db.tables['items']
@@ -127,8 +135,15 @@ class ContentItemCacheTest(BaseTestCase):
             result = conn.execute(query, **child3.to_db(update=False))
             child3.set_field('id', result.inserted_primary_key[0], initial=True)
 
-            result = conn.execute(query, **parent.to_db(update=False))
-            parent.set_field('id', result.inserted_primary_key[0], initial=True)
+            result = conn.execute(query, **parent1.to_db(update=False))
+            parent1.set_field(
+                'id', result.inserted_primary_key[0], initial=True
+            )
+
+            result = conn.execute(query, **parent2.to_db(update=False))
+            parent2.set_field(
+                'id', result.inserted_primary_key[0], initial=True
+            )
 
         # trigger events
         handler = ContentItemSetParent(db=self.db)
@@ -153,7 +168,7 @@ class ContentItemCacheTest(BaseTestCase):
             type='CONTENT_ITEM_SET_PARENT',
             author=123,
             object_id=child1.object_id,
-            payload=dict(parent_id=parent.id),
+            payload=dict(parent_id=parent1.id),
             payload_rollback=None
         ))
 
@@ -173,15 +188,53 @@ class ContentItemCacheTest(BaseTestCase):
 
         # assert paths set properly
         self.assertEquals(
-            '{}'.format(parent.id),
+            '{}'.format(parent1.id),
             child1.path
         )
         self.assertEquals(
-            '{}.{}'.format(parent.id, child1.id),
+            '{}.{}'.format(parent1.id, child1.id),
             child2.path
         )
         self.assertEquals(
-            '{}.{}.{}'.format(parent.id, child1.id, child2.id),
+            '{}.{}.{}'.format(parent1.id, child1.id, child2.id),
+            child3.path
+        )
+
+        # now move item (with existing path) to another parent
+        handler.handle(Event(
+            id=123,
+            type='CONTENT_ITEM_SET_PARENT',
+            author=123,
+            object_id=child1.object_id,
+            payload=dict(parent_id=parent2.id),
+            payload_rollback=None
+        ))
+
+        # now get back
+        with db.engine.begin() as conn:
+            query = items.select().where(items.c.object_id == child1.object_id)
+            result = conn.execute(query).fetchone()
+            child1 = Item().from_db(result)
+
+            query = items.select().where(items.c.object_id == child2.object_id)
+            result = conn.execute(query).fetchone()
+            child2 = Item().from_db(result)
+
+            query = items.select().where(items.c.object_id == child3.object_id)
+            result = conn.execute(query).fetchone()
+            child3 = Item().from_db(result)
+
+        # assert paths set properly
+        self.assertEquals(
+            '{}'.format(parent2.id),
+            child1.path
+        )
+        self.assertEquals(
+            '{}.{}'.format(parent2.id, child1.id),
+            child2.path
+        )
+        self.assertEquals(
+            '{}.{}.{}'.format(parent2.id, child1.id, child2.id),
             child3.path
         )
 
