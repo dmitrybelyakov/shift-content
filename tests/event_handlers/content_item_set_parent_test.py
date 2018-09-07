@@ -16,11 +16,18 @@ class ContentItemCacheTest(BaseTestCase):
 
     def setUp(self):
         cache_service.init()
+        search_service.init(
+            hosts=['127.0.0.1:9200'],
+            index_name='content_tests'
+        )
+
         super().setUp()
 
     def tearDown(self):
         cache_service.delete_all()
         cache_service.disconnect()
+        search_service.drop_index()
+        search_service.disconnect()
         super().tearDown()
 
     # --------------------------------------------------------------------------
@@ -243,6 +250,8 @@ class ContentItemCacheTest(BaseTestCase):
 
     def test_setting_parent_updates_index(self):
         """ Handler content item handle updates index """
+
+
         # create items
         child1 = Item(
             type='plain_text',
@@ -303,6 +312,8 @@ class ContentItemCacheTest(BaseTestCase):
         # assert items in index now
         self.assertIsNotNone(search_service.get(child1.object_id))
         self.assertIsNotNone(search_service.get(child2.object_id))
+
+
 
     # @attr('zzz')
     # def test_rollback_event(self):

@@ -148,6 +148,8 @@ class SearchService:
             )
         except ex.NotFoundError:
             return None
+        except ex.ImproperlyConfigured:
+            return None
 
         return item
 
