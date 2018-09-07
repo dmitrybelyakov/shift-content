@@ -241,7 +241,6 @@ class ContentItemCacheTest(BaseTestCase):
         self.assertIsNotNone(cache_service.get(child1.object_id))
         self.assertIsNotNone(cache_service.get(child2.object_id))
 
-    @attr('zzz')
     def test_setting_parent_updates_index(self):
         """ Handler content item handle updates index """
         # create items
@@ -305,83 +304,20 @@ class ContentItemCacheTest(BaseTestCase):
         self.assertIsNotNone(search_service.get(child1.object_id))
         self.assertIsNotNone(search_service.get(child2.object_id))
 
-    def test_rollback_event(self):
-        """ Handler content item set parent rollback changes """
-        self.fail('Implement me!')
-
-    def test_rollback_event_updates_children(self):
-        """ Handler content item set parent rollback updates children """
-        self.fail('Implement me!')
-
-    def test_rollback_event_updates_cache(self):
-        """ Handler content item set parent rollback updates cache """
-        self.fail('Implement me!')
-
-    def test_rollback_event_updates_index(self):
-        """ Handler content item set parent rollback updates index """
-        self.fail('Implement me!')
-
-
-    # def test_handle_event(self):
-    #     """ Handler content item cache handles event"""
-    #     # create item
-    #     object_id = str(uuid1())
-    #     item = Item(
-    #         type='plain_text',
-    #         author=123,
-    #         object_id=object_id,
-    #         body='Some body content'
-    #     )
-    #
-    #     items = db.tables['items']
-    #     with db.engine.begin() as conn:
-    #         result = conn.execute(items.insert(), **item.to_db(update=False))
-    #         item.id = result.inserted_primary_key[0]
-    #
-    #     # trigger event
-    #     handler = ContentItemCache(db=self.db)
-    #     handler.handle(Event(
-    #         id=123,
-    #         type='CONTENT_ITEM_INDEX',
-    #         author=123,
-    #         object_id=object_id,
-    #         payload=None,
-    #         payload_rollback=None
-    #     ))
-    #
-    #     # assert cached
-    #     cached = cache_service.get(object_id)
-    #     self.assertEquals(item.object_id, cached.object_id)
-    #     self.assertEquals(item.body, cached.body)
-    #
+    # @attr('zzz')
     # def test_rollback_event(self):
-    #     """ Handler content item cache rolling back changes """
-    #     # create item
-    #     object_id = str(uuid1())
-    #     item = Item(
-    #         type='plain_text',
-    #         author=123,
-    #         object_id=object_id,
-    #         body='Some body content'
-    #     )
+    #     """ Handler content item set parent rollback changes """
+    #     self.fail('Implement me!')
     #
-    #     items = db.tables['items']
-    #     with db.engine.begin() as conn:
-    #         result = conn.execute(items.insert(), **item.to_db(update=False))
-    #         item.id = result.inserted_primary_key[0]
+    # def test_rollback_event_updates_children(self):
+    #     """ Handler content item set parent rollback updates children """
+    #     self.fail('Implement me!')
     #
-    #     # trigger event
-    #     handler = ContentItemCache(db=self.db)
-    #     handler.rollback(Event(
-    #         id=123,
-    #         type='CONTENT_ITEM_INDEX',
-    #         author=123,
-    #         object_id=object_id,
-    #         payload=None,
-    #         payload_rollback=None
-    #     ))
+    # def test_rollback_event_updates_cache(self):
+    #     """ Handler content item set parent rollback updates cache """
+    #     self.fail('Implement me!')
     #
-    #     # assert cached
-    #     cached = cache_service.get(object_id)
-    #     self.assertEquals(item.object_id, cached.object_id)
-    #     self.assertEquals(item.body, cached.body)
+    # def test_rollback_event_updates_index(self):
+    #     """ Handler content item set parent rollback updates index """
+    #     self.fail('Implement me!')
+
