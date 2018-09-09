@@ -9,10 +9,10 @@ class Text(AbstractFieldType):
         :param value: str, field value
         :return: shiftcontent.fields.text.Text
         """
-        if value is None:
-            return self
+        if value is not None:
+            value = str(value)
 
-        self.value = str(value)
+        self.value = value
         return self
 
     def get(self):

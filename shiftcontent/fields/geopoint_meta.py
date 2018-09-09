@@ -9,17 +9,15 @@ class GeopointMeta(AbstractFieldType):
         :param value: dict, latitude and longitude
         :return: shiftcontent.fields.text.GeopointMeta
         """
-        if value is None:
-            return self
+        if value is not None:
+            if type(value) is not dict:
+                raise ValueError('Geopoint must be a dict')
+            if 'lat' not in value or 'lon' not in value:
+                raise ValueError('Geopoint must contain [lat] and [lon]')
 
-        if type(value) is not dict:
-            raise ValueError('Geopoint must be a dict')
-        if 'lat' not in value or 'lon' not in value:
-            raise ValueError('Geopoint must contain [lat] and [lon]')
-
-        value = {**value}
-        value['lat'] = float(value['lat'])
-        value['lon'] = float(value['lon'])
+            value = {**value}
+            value['lat'] = float(value['lat'])
+            value['lon'] = float(value['lon'])
 
         self.value = value
         return self

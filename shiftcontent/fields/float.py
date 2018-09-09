@@ -9,10 +9,10 @@ class Float(AbstractFieldType):
         :param value: mixed, field value
         :return: shiftcontent.fields.text.Float
         """
-        if value is None:
-            return self
+        if value is not None:
+            value = float(value)
 
-        self.value = float(value)
+        self.value = value
         return self
 
     def get(self):

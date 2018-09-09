@@ -14,14 +14,12 @@ class DateTime(AbstractFieldType):
         :param value: mixed, field value
         :return: shiftcontent.fields.text.DateTime
         """
-        if value is None:
-            return self
-
         format = 'YYYY-MM-DD HH:mm:ss'
+        if value is not None:
+            if type(value) is not datetime:
+                arr = arrow.get(str(value), format).to('UTC')
+                value = arr.datetime
 
-        if type(value) is not datetime:
-            arr = arrow.get(str(value), format).to('UTC')
-            value = arr.datetime
         self.value = value
         return self
 

@@ -195,7 +195,8 @@ class Item:
             return
 
         # set fields
-        getattr(self.fields[field], setter_name)(value)
+        setter = getattr(self.fields[field], setter_name)
+        setter(value)
         return self
 
     def is_updatable(self, field):

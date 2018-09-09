@@ -44,6 +44,23 @@ class ItemTest(BaseTestCase):
         self.assertEquals('123', item.path)
         self.assertEquals('set on object', item.nonexistent)
 
+    def test_setting_item_fields_to_none(self):
+        """ Allow to set item fields to none """
+        item = Item(type='plain_text')
+        self.assertIsNone(item.path)
+        self.assertIsNone(item.body)
+
+        item.path = '1.2.3.4'
+        item.body = 'hola!'
+        self.assertIsNotNone(item.path)
+        self.assertIsNotNone(item.body)
+
+        # now set to None
+        item.path = None
+        item.body = None
+        self.assertIsNone(item.path)
+        self.assertIsNone(item.body)
+
     def test_setting_fields_with_setter(self):
         """ Setting fields on an item using setter method """
         item = Item()

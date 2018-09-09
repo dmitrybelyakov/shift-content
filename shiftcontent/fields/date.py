@@ -14,14 +14,12 @@ class Date(AbstractFieldType):
         :param value: str or date
         :return: shiftcontent.fields.text.Date
         """
-        if value is None:
-            return self
-
         format = 'YYYY-MM-DD'
+        if value is not None:
+            if type(value) is not date:
+                arr = arrow.get(str(value), format).to('UTC')
+                value = arr.date()
 
-        if type(value) is not date:
-            arr = arrow.get(str(value), format).to('UTC')
-            value = arr.date()
         self.value = value
         return self
 

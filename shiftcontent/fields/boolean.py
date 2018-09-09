@@ -9,16 +9,15 @@ class Boolean(AbstractFieldType):
         :param value: mixed, field value
         :return: shiftcontent.fields.text.Boolean
         """
-        if value is None:
-            return self
+        if value is not None:
+            if value in ('False', '0', 'no'):
+                value = False
+            if value in ('True', '1', 'yes'):
+                value = True
+            value = bool(value)
 
-        if value in ('False', '0', 'no'):
-            value = False
+        self.value = value
 
-        if value in ('True', '1', 'yes'):
-            value = True
-
-        self.value = bool(value)
         return self
 
     def get(self):
