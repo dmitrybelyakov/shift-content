@@ -17,8 +17,8 @@ cli.add_command(content, name='content')
 from shiftcmf.cli import dev
 cli.add_command(dev, name='dev')
 
-from backend.cli import ingest_data
-cli.add_command(ingest_data, name='ingest')
+# from backend.cli import ingest_data
+# cli.add_command(ingest_data, name='ingest')
 
 # and run
 cli()
