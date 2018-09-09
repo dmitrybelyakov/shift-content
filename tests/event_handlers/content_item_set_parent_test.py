@@ -72,7 +72,7 @@ class ContentItemCacheTest(BaseTestCase):
             author=123,
             object_id=child.object_id,
             payload=dict(parent_id=parent.id),
-            payload_rollback=None
+            payload_rollback=dict(parent_id=None)
         ))
 
         # now get back
@@ -84,8 +84,214 @@ class ContentItemCacheTest(BaseTestCase):
         # assert parent was set
         self.assertEquals(str(parent.id), child.path)
 
-    def test_handle_updates_children(self):
-        """ Handler content item handle updates children """
+    def test_rollback_event(self):
+        """ Handler content item set parent rollback changes """
+        # create items
+        child = Item(
+            type='plain_text',
+            author=123,
+            object_id=str(uuid1()),
+            body='I am a child'
+        )
+
+        parent = Item(
+            type='plain_text',
+            author=123,
+            object_id=str(uuid1()),
+            body='I am a parent'
+        )
+
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            query = items.insert()
+            result = conn.execute(query, **child.to_db(update=False))
+            child.set_field('id', result.inserted_primary_key[0], initial=True)
+            result = conn.execute(query, **parent.to_db(update=False))
+            parent.set_field('id', result.inserted_primary_key[0], initial=True)
+
+        # trigger event
+        handler = ContentItemSetParent(db=self.db)
+        handler.handle(Event(
+            id=123,
+            type='CONTENT_ITEM_SET_PARENT',
+            author=123,
+            object_id=child.object_id,
+            payload=dict(parent_id=parent.id),
+            payload_rollback=dict(parent_id=None)
+        ))
+
+        # now get back
+        with db.engine.begin() as conn:
+            query = items.select().where(items.c.object_id == child.object_id)
+            result = conn.execute(query).fetchone()
+            child = Item().from_db(result)
+
+        # assert parent was set
+        self.assertEquals(str(parent.id), child.path)
+
+        # rollback now
+        handler.rollback(Event(
+            id=123,
+            type='CONTENT_ITEM_SET_PARENT',
+            author=123,
+            object_id=child.object_id,
+            payload=dict(parent_id=parent.id),
+            payload_rollback=dict(parent_id=None)
+        ))
+
+        # now get back
+        with db.engine.begin() as conn:
+            query = items.select().where(items.c.object_id == child.object_id)
+            result = conn.execute(query).fetchone()
+            child = Item().from_db(result)
+
+        # assert rolled back to none
+        self.assertIsNone(child.path)
+
+    def test_setting_parent(self):
+        """ Setting parent on content item """
+        # create items
+        child = Item(
+            type='plain_text',
+            author=123,
+            object_id=str(uuid1()),
+            body='I am a child'
+        )
+
+        parent = Item(
+            type='plain_text',
+            author=123,
+            object_id=str(uuid1()),
+            body='I am a parent'
+        )
+
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            query = items.insert()
+            result = conn.execute(query, **child.to_db(update=False))
+            child.set_field('id', result.inserted_primary_key[0], initial=True)
+            result = conn.execute(query, **parent.to_db(update=False))
+            parent.set_field('id', result.inserted_primary_key[0], initial=True)
+
+        # trigger event
+        handler = ContentItemSetParent(db=self.db)
+        handler.set_parent(
+            item_object_id=child.object_id,
+            parent_id=parent.id
+        )
+
+        # now get back
+        with db.engine.begin() as conn:
+            query = items.select().where(items.c.object_id == child.object_id)
+            result = conn.execute(query).fetchone()
+            child = Item().from_db(result)
+
+        # assert parent was set
+        self.assertEquals(str(parent.id), child.path)
+
+    def test_setting_parent_to_none(self):
+        """ Setting item parent to none (move item to root) """
+        # create items
+        child1 = Item(
+            type='plain_text',
+            author=123,
+            object_id=str(uuid1()),
+            body='I am a child1'
+        )
+
+        child2 = Item(
+            type='plain_text',
+            author=123,
+            object_id=str(uuid1()),
+            body='I am a child2'
+        )
+
+        child3 = Item(
+            type='plain_text',
+            author=123,
+            object_id=str(uuid1()),
+            body='I am a child3'
+        )
+
+        parent = Item(
+            type='plain_text',
+            author=123,
+            object_id=str(uuid1()),
+            body='I am a parent2'
+        )
+
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            query = items.insert()
+            result = conn.execute(query, **child1.to_db(update=False))
+            child1.set_field('id', result.inserted_primary_key[0], initial=True)
+
+            result = conn.execute(query, **child2.to_db(update=False))
+            child2.set_field('id', result.inserted_primary_key[0], initial=True)
+
+            result = conn.execute(query, **child3.to_db(update=False))
+            child3.set_field('id', result.inserted_primary_key[0], initial=True)
+
+            result = conn.execute(query, **parent.to_db(update=False))
+            parent.set_field(
+                'id', result.inserted_primary_key[0], initial=True
+            )
+
+        # set parents now
+        handler = ContentItemSetParent(db=self.db)
+        handler.set_parent(
+            item_object_id=child3.object_id,
+            parent_id=child2.id
+        )
+        handler.set_parent(
+            item_object_id=child2.object_id,
+            parent_id=child1.id
+        )
+        handler.set_parent(
+            item_object_id=child1.object_id,
+            parent_id=parent.id
+        )
+
+        # now get back
+        with db.engine.begin() as conn:
+            query = items.select().where(items.c.object_id == child1.object_id)
+            result = conn.execute(query).fetchone()
+            child1 = Item().from_db(result)
+
+            query = items.select().where(items.c.object_id == child2.object_id)
+            result = conn.execute(query).fetchone()
+            child2 = Item().from_db(result)
+
+            query = items.select().where(items.c.object_id == child3.object_id)
+            result = conn.execute(query).fetchone()
+            child3 = Item().from_db(result)
+
+        self.assertEquals(
+            '{}.{}.{}'.format(parent.id, child1.id, child2.id),
+            child3.path
+        )
+
+        # now set parent to None
+        handler.set_parent(
+            item_object_id=child1.object_id,
+            parent_id=None
+        )
+
+        # now get back
+        with db.engine.begin() as conn:
+            query = items.select().where(items.c.object_id == child1.object_id)
+            result = conn.execute(query).fetchone()
+            child1 = Item().from_db(result)
+
+            query = items.select().where(items.c.object_id == child3.object_id)
+            result = conn.execute(query).fetchone()
+            child3 = Item().from_db(result)
+
+        self.assertIsNone(child1.path)
+        self.assertEquals('{}.{}'.format(child1.id, child2.id), child3.path)
+
+    def test_setting_parent_updates_children(self):
+        """ Setting item parent updates children """
         # create items
         child1 = Item(
             type='plain_text',
@@ -144,32 +350,20 @@ class ContentItemCacheTest(BaseTestCase):
                 'id', result.inserted_primary_key[0], initial=True
             )
 
-        # trigger events
+        # set parents now
         handler = ContentItemSetParent(db=self.db)
-        handler.handle(Event(
-            id=123,
-            type='CONTENT_ITEM_SET_PARENT',
-            author=123,
-            object_id=child3.object_id,
-            payload=dict(parent_id=child2.id),
-            payload_rollback=None
-        ))
-        handler.handle(Event(
-            id=123,
-            type='CONTENT_ITEM_SET_PARENT',
-            author=123,
-            object_id=child2.object_id,
-            payload=dict(parent_id=child1.id),
-            payload_rollback=None
-        ))
-        handler.handle(Event(
-            id=123,
-            type='CONTENT_ITEM_SET_PARENT',
-            author=123,
-            object_id=child1.object_id,
-            payload=dict(parent_id=parent1.id),
-            payload_rollback=None
-        ))
+        handler.set_parent(
+            item_object_id=child3.object_id,
+            parent_id=child2.id
+        )
+        handler.set_parent(
+            item_object_id=child2.object_id,
+            parent_id=child1.id
+        )
+        handler.set_parent(
+            item_object_id=child1.object_id,
+            parent_id=parent1.id
+        )
 
         # now get back
         with db.engine.begin() as conn:
@@ -200,14 +394,10 @@ class ContentItemCacheTest(BaseTestCase):
         )
 
         # now move item (with existing path) to another parent
-        handler.handle(Event(
-            id=123,
-            type='CONTENT_ITEM_SET_PARENT',
-            author=123,
-            object_id=child1.object_id,
-            payload=dict(parent_id=parent2.id),
-            payload_rollback=None
-        ))
+        handler.set_parent(
+            item_object_id=child1.object_id,
+            parent_id=parent2.id
+        )
 
         # now get back
         with db.engine.begin() as conn:
@@ -279,22 +469,14 @@ class ContentItemCacheTest(BaseTestCase):
 
         # trigger events
         handler = ContentItemSetParent(db=self.db)
-        handler.handle(Event(
-            id=123,
-            type='CONTENT_ITEM_SET_PARENT',
-            author=123,
-            object_id=child2.object_id,
-            payload=dict(parent_id=child1.id),
-            payload_rollback=None
-        ))
-        handler.handle(Event(
-            id=123,
-            type='CONTENT_ITEM_SET_PARENT',
-            author=123,
-            object_id=child1.object_id,
-            payload=dict(parent_id=parent.id),
-            payload_rollback=None
-        ))
+        handler.set_parent(
+            item_object_id=child2.object_id,
+            parent_id=child1.id
+        )
+        handler.set_parent(
+            item_object_id=child1.object_id,
+            parent_id=parent.id
+        )
 
         # assert items in cache now
         self.assertIsNotNone(cache_service.get(child1.object_id))
@@ -302,8 +484,6 @@ class ContentItemCacheTest(BaseTestCase):
 
     def test_setting_parent_updates_index(self):
         """ Handler content item handle updates index """
-
-
         # create items
         child1 = Item(
             type='plain_text',
@@ -344,97 +524,17 @@ class ContentItemCacheTest(BaseTestCase):
 
         # trigger events
         handler = ContentItemSetParent(db=self.db)
-        handler.handle(Event(
-            id=123,
-            type='CONTENT_ITEM_SET_PARENT',
-            author=123,
-            object_id=child2.object_id,
-            payload=dict(parent_id=child1.id),
-            payload_rollback=None
-        ))
-        handler.handle(Event(
-            id=123,
-            type='CONTENT_ITEM_SET_PARENT',
-            author=123,
-            object_id=child1.object_id,
-            payload=dict(parent_id=parent.id),
-            payload_rollback=None
-        ))
+        handler.set_parent(
+            item_object_id=child2.object_id,
+            parent_id=child1.id
+        )
+        handler.set_parent(
+            item_object_id=child1.object_id,
+            parent_id=parent.id
+        )
 
         # assert items in index now
         self.assertIsNotNone(search_service.get(child1.object_id))
         self.assertIsNotNone(search_service.get(child2.object_id))
 
-
-
-    @attr('zzz')
-    def test_rollback_event(self):
-        """ Handler content item set parent rollback changes """
-        # create items
-        child = Item(
-            type='plain_text',
-            author=123,
-            object_id=str(uuid1()),
-            body='I am a child'
-        )
-
-        parent = Item(
-            type='plain_text',
-            author=123,
-            object_id=str(uuid1()),
-            body='I am a parent'
-        )
-
-        items = db.tables['items']
-        with db.engine.begin() as conn:
-            query = items.insert()
-            result = conn.execute(query, **child.to_db(update=False))
-            child.set_field('id', result.inserted_primary_key[0], initial=True)
-            result = conn.execute(query, **parent.to_db(update=False))
-            parent.set_field('id', result.inserted_primary_key[0], initial=True)
-
-        # trigger event
-        handler = ContentItemSetParent(db=self.db)
-        handler.handle(Event(
-            id=123,
-            type='CONTENT_ITEM_SET_PARENT',
-            author=123,
-            object_id=child.object_id,
-            payload=dict(parent_id=parent.id),
-            payload_rollback=None
-        ))
-
-        # and rollback
-        handler.rollback(Event(
-            id=123,
-            type='CONTENT_ITEM_SET_PARENT',
-            author=123,
-            object_id=child.object_id,
-            payload=dict(parent_id=parent.id),
-            payload_rollback=None
-        ))
-
-
-        # # now get back
-        # with db.engine.begin() as conn:
-        #     query = items.select().where(items.c.object_id == child.object_id)
-        #     result = conn.execute(query).fetchone()
-        #     child = Item().from_db(result)
-
-
-
-
-
-    #
-    # def test_rollback_event_updates_children(self):
-    #     """ Handler content item set parent rollback updates children """
-    #     self.fail('Implement me!')
-    #
-    # def test_rollback_event_updates_cache(self):
-    #     """ Handler content item set parent rollback updates cache """
-    #     self.fail('Implement me!')
-    #
-    # def test_rollback_event_updates_index(self):
-    #     """ Handler content item set parent rollback updates index """
-    #     self.fail('Implement me!')
 

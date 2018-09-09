@@ -20,117 +20,44 @@ class ContentItemSetParent(BaseHandler):
         'CONTENT_ITEM_SET_PARENT',
     )
 
-    def handle(self, event):
+    def set_parent(self, item_object_id, parent_id=None):
         """
-        Handle event
-        Updates item path and all it's children paths.
+        Set parent
+        Allows to set parent on an item or drop it by setting it to None (which
+        will make an item root-level). This gets used both in handle and
+        rollback functions as they are essentially the same.
 
-        :param event: shiftcontent.events.event.Event
-        :return: shiftcontent.events.event.Event
+        :param item_object_id: str, object id of an item to set parent on
+        :param parent_id: int, id of the parent object
+        :return:
         """
+
+
         items = db.tables['items']
         with db.engine.begin() as conn:
 
+            # get parent
+            parent = None
+            if parent_id:
+                query = items.select().where(items.c.id == parent_id)
+                data = conn.execute(query).fetchone()
+                if not data:  # pragma: no cover
+                    return
+
+                parent = Item()
+                parent.from_db(data)
+
             # get item
-            item_object_id = event.object_id
             query = items.select().where(items.c.object_id == item_object_id)
             data = conn.execute(query).fetchone()
             if not data:  # pragma: no cover
-                return event
+                return
 
             item = Item()
             item.from_db(data)
 
-            # get parent
-            parent_id = event.payload['parent_id']
-            query = items.select().where(items.c.id == parent_id)
-            data = conn.execute(query).fetchone()
-            if not data:  # pragma: no cover
-                return event
-
-            parent = Item()
-            parent.from_db(data)
-
             # get item children
             children = []
-            if item.id:
-                if item.path:
-                    like = '{}.{}%'.format(item.path, item.id)
-                else:
-                    like = '{}%'.format(str(item.id))
-                query = items.select().where(items.c.path.like(like))
-                data = conn.execute(query).fetchall() or ()
-                children = [Item().from_db(child) for child in data]
-
-            # update item path
-            if parent.path:
-                path = '{}.{}'.format(parent.path, parent.id)
-            else:
-                path = str(parent.id)
-
-            query = items.update().where(items.c.object_id == item_object_id)
-            conn.execute(query.values(dict(path=path)))
-            item.path = path
-
-            # update children paths
-            for child in children:
-                update = '{}.{}'.format(item.path, item.id).split('.')
-                child_path = child.path.split('.')
-                index = child_path.index(str(item.id))
-                path = '.'.join(update + child_path[index+1:])
-
-                where = items.c.object_id == child.object_id
-                query = items.update().where(where)
-                conn.execute(query.values(dict(path=path)))
-                child.path = path
-
-        # put item to cache & index
-        cache_service.set(item)
-        search_service.put_to_index(item)
-
-        # put children to cache & index
-        for child in children:
-            cache_service.set(child)
-            search_service.put_to_index(child)
-
-        # and return
-        return event
-
-    def rollback(self, event):
-        """
-        Rollback event
-        Resets items path from rollback payload if it has a previous parent id,
-        otherwise sets item to have no parent (root items) and updates all
-        item's children accordingly.
-
-        :param event: shiftcontent.events.event.Event
-        :return: shiftcontent.events.event.Event
-        """
-        items = db.tables['items']
-        with db.engine.begin() as conn:
-
-            # get item
-            item_object_id = event.object_id
-            query = items.select().where(items.c.object_id == item_object_id)
-            data = conn.execute(query).fetchone()
-            if not data:  # pragma: no cover
-                return event
-
-            item = Item().from_db(data)
-
-            # get parent
-            parent = None
-            if event.payload_rollback:
-                parent_id = event.payload_rollback['parent_id']
-                query = items.select().where(items.c.id == parent_id)
-                data = conn.execute(query).fetchone()
-                if not data:  # pragma: no cover
-                    return event
-
-                parent = Item().from_db(data)
-
-            # get item children
-            children = ()
             if item.id:
                 if item.path:
                     like = '{}.{}%'.format(item.path, item.id)
@@ -154,7 +81,11 @@ class ContentItemSetParent(BaseHandler):
 
             # update children paths
             for child in children:
-                update = '{}.{}'.format(item.path, item.id).split('.')
+                if item.path:
+                    update = '{}.{}'.format(item.path, item.id).split('.')
+                else:
+                    update = [str(item.id)]
+
                 child_path = child.path.split('.')
                 index = child_path.index(str(item.id))
                 path = '.'.join(update + child_path[index+1:])
@@ -173,7 +104,38 @@ class ContentItemSetParent(BaseHandler):
             cache_service.set(child)
             search_service.put_to_index(child)
 
-        # and return
+        return
+
+    def handle(self, event):
+        """
+        Handle event
+        Updates item path and all it's children paths.
+
+        :param event: shiftcontent.events.event.Event
+        :return: shiftcontent.events.event.Event
+        """
+        self.set_parent(
+            item_object_id=event.object_id,
+            parent_id=event.payload['parent_id']
+        )
+
+        return event
+
+    def rollback(self, event):
+        """
+        Rollback event
+        Resets items path from rollback payload if it has a previous parent id,
+        otherwise sets item to have no parent (root items) and updates all
+        item's children accordingly.
+
+        :param event: shiftcontent.events.event.Event
+        :return: shiftcontent.events.event.Event
+        """
+        self.set_parent(
+            item_object_id=event.object_id,
+            parent_id=event.payload_rollback['parent_id']
+        )
+
         return event
 
 
