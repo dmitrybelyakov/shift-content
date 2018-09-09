@@ -117,7 +117,7 @@ define_tables(context.config.meta, dialect='mysql')
 
 You might run into issues when trying to insert unicode content like this:
 ```
-I can do smilies! 😀
+I can do emojis! 😀
 ```
 
 Results in an error similar to this:
