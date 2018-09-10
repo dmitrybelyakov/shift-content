@@ -357,6 +357,40 @@ class ContentService:
         path = [self.get_item(object_id) for object_id in path]
         return path
 
+    def get_children(self, object_id):
+        """
+        Get children
+        returns a list of direct descendants.
+        :param object_id: str, item object id
+        :return: list
+        """
+        pass
+
+    def get_tree(self, root):
+        """
+        Get tree
+        Returns a tree starting from the root node supplied. The call to
+        this function will result in database queries being executed.
+        Results are not cached.
+
+        The resulting tree structure will look like this:
+        tree = {
+            node=Item,
+            children=[
+                {node=Item, children=[]},
+                {node=Item, children=[
+                    {node=Item, children=[]},
+                    {node=Item, children=[]},
+                ]},
+            ]
+        }
+
+        :param root: shiftcontent.item.Item
+        :return: dict
+        """
+        pass
+
+
 
 
 
