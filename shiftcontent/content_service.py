@@ -165,6 +165,7 @@ class ContentService:
         Accepts an item object validates it and tries to persist it. Will
         return validation errors if item is in invalid state, otherwise will
         emit an event.
+
         :param author: str, author id
         :param item: shiftcontent.item.Item, item object (must be saved first)
         :return: shiftcontent.item.Item
@@ -341,25 +342,6 @@ class ContentService:
         return self
 
     # TODO: EACH BRANCH MUST BE INDEPENDENTLY SORTED
-
-    # TODO: WHAT HAPPENS WHEN WE SET THE PARENT?
-    # TODO: HOW DO WE GET CHILDREN?
-    # TODO: HOW DO WE GET A TREE?
-    # TODO: HOW DO WE CACHE THAT?
-
-    # TODO: WHAT TREE STRATEGY SHOULD WE USE?
-    # TODO: NESTED SETS / MATPATH INVOLVES CHANGING CHILD ITEMS.
-    # TODO: IS IT ACCEPTABLE IN AN EVENT SYSTEM?
-    # TODO: WE CAN TRIGGER A CASCADE OF CHANGE PATH EVENTS BY THE SAME AUTHOR
-    # TODO: BUT WHAT HAPPENS WHEN WE REWIND A SPECIFIC ITEM?
-    # TODO: SHALL WE CONSIDER THIS A SIDE EFFECT OF DOING TIME TRAVEL
-
-    # TODO: POSSIBLE SOLUTION
-
-    # TODO:     * WE ONLY STORE SET PARENT EVENT WITH PARENT ID
-    # TODO:     * THE HANDLER UPDATES PARENTS OF ALL CHILDREN ACCORDINGLY
-    # TODO:     * THIS ALLOWS REWINDING ITEM STATE WITHOUT AFFECTING TREE
-    # TODO:     * BUT CHANGES IN POSITIONING WILL ONLY BE STORED IN PARENT LOG
 
     # TODO: DO WE USE OBJECT_ID OR ID FOR PATH?
     # TODO: ID WONT ALLOW TO GET PARENTS FROM CACHE OR BUILD A TREE

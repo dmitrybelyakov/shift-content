@@ -14,6 +14,14 @@ class ContentItemSetParent(BaseHandler):
     accordingly modifying their paths. The event is only reflected in the
     item getting a parent, so nested children will not get this event in their
     log and can be individually rewound.
+
+    Expects the following payload structure:
+    event = {
+        ...
+        payload={parent_id=123},
+        payload_rollback={parent_id=456},
+    }
+
     """
 
     EVENT_TYPES = (

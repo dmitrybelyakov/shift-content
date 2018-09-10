@@ -7,6 +7,7 @@ import time
 from shiftevent.event import Event
 from shiftcontent.item import Item
 from shiftcontent import cache_service
+from shiftcontent import db
 from shiftcontent.event_handlers import ContentItemRemoveFromCache
 
 
@@ -71,6 +72,11 @@ class ContentItemRemoveFromCacheTest(BaseTestCase):
             body='Some body content'
         )
 
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            result = conn.execute(items.insert(), **item.to_db(update=False))
+            item.id = result.inserted_primary_key[0]
+
         # assert not in cached
         self.assertIsNone(cache_service.get(object_id))
 
@@ -82,7 +88,7 @@ class ContentItemRemoveFromCacheTest(BaseTestCase):
             author=123,
             object_id=object_id,
             payload=None,
-            payload_rollback=item.to_json()
+            payload_rollback=None
         ))
 
         # assert cached after rollback

@@ -7,6 +7,7 @@ import time
 from shiftevent.event import Event
 from shiftcontent.item import Item
 from shiftcontent import search_service
+from shiftcontent import db
 from shiftcontent.event_handlers import ContentItemRemoveFromIndex
 
 
@@ -81,6 +82,11 @@ class ContentItemRemoveFromIndexTest(BaseTestCase):
             object_id=object_id,
             body='Some body content'
         )
+
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            result = conn.execute(items.insert(), **item.to_db(update=False))
+            item.id = result.inserted_primary_key[0]
 
         # assert not in index
         self.assertIsNone(search_service.get(object_id))

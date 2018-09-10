@@ -7,7 +7,23 @@ import json
 class ContentItemFieldUpdateField(BaseHandler):
     """
     Update content item field
-    This handler updates single field on a content item
+    This handler updates single field on a content item.
+
+    Expects the following payload structure:
+    event = {
+        ...
+        payload={
+            metafield=True,
+            field='path',
+            value='new value'
+        },
+        payload_rollback={
+            metafield=True,
+            field='path',
+            value='old value'
+        },
+    }
+
     """
 
     EVENT_TYPES = (

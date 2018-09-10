@@ -1,13 +1,20 @@
 from shiftevent.handlers.base import BaseHandler
 from shiftcontent.item import Item
 from shiftcontent import search_service
+from shiftcontent import db
 from elasticsearch import exceptions as ex
 from pprint import pprint as pp
 
 
 class ContentItemRemoveFromIndex(BaseHandler):
     """
-    Remove content item from index
+    Remove content item from index.
+    Expects the following payload structure:
+    event = {
+        ...
+        payload=None,
+        payload_rollback=None
+    }
     """
 
     EVENT_TYPES = (
@@ -36,7 +43,16 @@ class ContentItemRemoveFromIndex(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-        item = Item(**event.payload_rollback)
+        object_id = event.object_id
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            query = items.select().where(items.c.object_id == object_id)
+            data = conn.execute(query).fetchone()
+            if data:
+                item = Item()
+                item.from_db(data)
+            else:
+                return event
 
         # index
         try:

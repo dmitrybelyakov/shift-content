@@ -7,7 +7,25 @@ from pprint import pprint as pp
 class ContentItemUpdate(BaseHandler):
     """
     Update content item
-    This handler saves updates to existing content items
+    This handler saves updates to existing content items.
+
+    Expects the following payload structure:
+    event = {
+        ...
+        payload={
+            type='plain_text',
+            author=123,
+            object_id='d2bf6e2c-aba6-11e8-89e5-38c9863edaea',
+            custom_field='new value'
+        },
+        payload_rollback={
+            type='plain_text',
+            author=123,
+            object_id='d2bf6e2c-aba6-11e8-89e5-38c9863edaea',
+            custom_field='old value'
+        },
+    }
+
     """
 
     EVENT_TYPES = (
