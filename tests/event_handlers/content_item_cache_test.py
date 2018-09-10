@@ -28,7 +28,7 @@ class ContentItemCacheTest(BaseTestCase):
 
     def test_instantiating_handler(self):
         """ Instantiating content item cache handler """
-        handler = ContentItemCache(db=self.db)
+        handler = ContentItemCache()
         self.assertIsInstance(handler, ContentItemCache)
 
     def test_handle_event(self):
@@ -48,7 +48,7 @@ class ContentItemCacheTest(BaseTestCase):
             item.id = result.inserted_primary_key[0]
 
         # trigger event
-        handler = ContentItemCache(db=self.db)
+        handler = ContentItemCache()
         handler.handle(Event(
             id=123,
             type='CONTENT_ITEM_INDEX',
@@ -80,7 +80,7 @@ class ContentItemCacheTest(BaseTestCase):
             item.id = result.inserted_primary_key[0]
 
         # trigger event
-        handler = ContentItemCache(db=self.db)
+        handler = ContentItemCache()
         handler.rollback(Event(
             id=123,
             type='CONTENT_ITEM_INDEX',

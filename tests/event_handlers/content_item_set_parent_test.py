@@ -36,7 +36,7 @@ class ContentItemCacheTest(BaseTestCase):
 
     def test_instantiating_handler(self):
         """ Instantiating content item set parent handler """
-        handler = ContentItemSetParent(db=self.db)
+        handler = ContentItemSetParent()
         self.assertIsInstance(handler, ContentItemSetParent)
 
     def test_handle_event(self):
@@ -65,7 +65,7 @@ class ContentItemCacheTest(BaseTestCase):
             parent.set_field('id', result.inserted_primary_key[0], initial=True)
 
         # trigger event
-        handler = ContentItemSetParent(db=self.db)
+        handler = ContentItemSetParent()
         handler.handle(Event(
             id=123,
             type='CONTENT_ITEM_SET_PARENT',
@@ -110,7 +110,7 @@ class ContentItemCacheTest(BaseTestCase):
             parent.set_field('id', result.inserted_primary_key[0], initial=True)
 
         # trigger event
-        handler = ContentItemSetParent(db=self.db)
+        handler = ContentItemSetParent()
         handler.handle(Event(
             id=123,
             type='CONTENT_ITEM_SET_PARENT',
@@ -174,7 +174,7 @@ class ContentItemCacheTest(BaseTestCase):
             parent.set_field('id', result.inserted_primary_key[0], initial=True)
 
         # trigger event
-        handler = ContentItemSetParent(db=self.db)
+        handler = ContentItemSetParent()
         handler.set_parent(
             item_object_id=child.object_id,
             parent_id=parent.id
@@ -238,7 +238,7 @@ class ContentItemCacheTest(BaseTestCase):
             )
 
         # set parents now
-        handler = ContentItemSetParent(db=self.db)
+        handler = ContentItemSetParent()
         handler.set_parent(
             item_object_id=child3.object_id,
             parent_id=child2.id
@@ -351,7 +351,7 @@ class ContentItemCacheTest(BaseTestCase):
             )
 
         # set parents now
-        handler = ContentItemSetParent(db=self.db)
+        handler = ContentItemSetParent()
         handler.set_parent(
             item_object_id=child3.object_id,
             parent_id=child2.id
@@ -468,7 +468,7 @@ class ContentItemCacheTest(BaseTestCase):
         self.assertIsNone(cache_service.get(child2.object_id))
 
         # trigger events
-        handler = ContentItemSetParent(db=self.db)
+        handler = ContentItemSetParent()
         handler.set_parent(
             item_object_id=child2.object_id,
             parent_id=child1.id
@@ -523,7 +523,7 @@ class ContentItemCacheTest(BaseTestCase):
         self.assertIsNone(search_service.get(child2.object_id))
 
         # trigger events
-        handler = ContentItemSetParent(db=self.db)
+        handler = ContentItemSetParent()
         handler.set_parent(
             item_object_id=child2.object_id,
             parent_id=child1.id

@@ -15,7 +15,7 @@ class ContentItemUpdateTest(BaseTestCase):
 
     def test_instantiating_handler(self):
         """ Instantiating content item update handler """
-        handler = ContentItemUpdate(db=self.db)
+        handler = ContentItemUpdate()
         self.assertIsInstance(handler, ContentItemUpdate)
 
     def test_handle_event(self):
@@ -53,7 +53,7 @@ class ContentItemUpdateTest(BaseTestCase):
             payload_rollback=old_data
         )
 
-        handler = ContentItemUpdate(db=self.db)
+        handler = ContentItemUpdate()
         handler.handle(event)
 
         with self.db.engine.begin() as conn:
@@ -97,7 +97,7 @@ class ContentItemUpdateTest(BaseTestCase):
             payload_rollback=old_data
         )
 
-        handler = ContentItemUpdate(db=self.db)
+        handler = ContentItemUpdate()
         handler.handle(event)
 
         # now rollback

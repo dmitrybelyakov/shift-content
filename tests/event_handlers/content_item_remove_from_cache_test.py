@@ -28,7 +28,7 @@ class ContentItemRemoveFromCacheTest(BaseTestCase):
 
     def test_instantiating_handler(self):
         """ Instantiating content item remove from cache handler """
-        handler = ContentItemRemoveFromCache(db=self.db)
+        handler = ContentItemRemoveFromCache()
         self.assertIsInstance(handler, ContentItemRemoveFromCache)
 
     def test_handle_event(self):
@@ -45,7 +45,7 @@ class ContentItemRemoveFromCacheTest(BaseTestCase):
         cache_service.set(item)
 
         # now trigger delete event
-        handler = ContentItemRemoveFromCache(db=self.db)
+        handler = ContentItemRemoveFromCache()
         handler.handle(Event(
             id=123,
             type='CONTENT_ITEM_REMOVE_FROM_CACHE',
@@ -75,7 +75,7 @@ class ContentItemRemoveFromCacheTest(BaseTestCase):
         self.assertIsNone(cache_service.get(object_id))
 
         # now rollback delete event
-        handler = ContentItemRemoveFromCache(db=self.db)
+        handler = ContentItemRemoveFromCache()
         handler.rollback(Event(
             id=123,
             type='CONTENT_ITEM_REMOVE_FROM_CACHE',
