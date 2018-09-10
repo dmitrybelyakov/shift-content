@@ -771,11 +771,38 @@ class ContentServiceTest(BaseTestCase):
         root = content_service.get_item(root.object_id)
 
         self.assertEquals(None, root.path)
-        self.assertEquals('6', parent.path)
-        self.assertEquals('6.5', item1.path)
-        self.assertEquals('6.5.1', item2.path)
-        self.assertEquals('6.5.1.2', item3.path)
-        self.assertEquals('6.5.1.2.3', item4.path)
+        self.assertEquals(root.object_id, parent.path)
+        self.assertEquals(
+            '{}.{}'.format(root.object_id, parent.object_id),
+            item1.path
+        )
+        self.assertEquals(
+            '{}.{}.{}'.format(
+                root.object_id,
+                parent.object_id,
+                item1.object_id
+            ),
+            item2.path
+        )
+        self.assertEquals(
+            '{}.{}.{}.{}'.format(
+                root.object_id,
+                parent.object_id,
+                item1.object_id,
+                item2.object_id,
+            ),
+            item3.path
+        )
+        self.assertEquals(
+            '{}.{}.{}.{}.{}'.format(
+                root.object_id,
+                parent.object_id,
+                item1.object_id,
+                item2.object_id,
+                item3.object_id,
+            ),
+            item4.path
+        )
 
     def test_set_parent_when_creating_an_item(self):
         """ Set parent when creating an item """
@@ -793,4 +820,4 @@ class ContentServiceTest(BaseTestCase):
             parent=parent
         )
 
-        self.assertEquals(str(parent.id), item.path)
+        self.assertEquals(str(parent.object_id), item.path)

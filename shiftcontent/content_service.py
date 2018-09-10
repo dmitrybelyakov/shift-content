@@ -316,20 +316,20 @@ class ContentService:
             err = 'Unable to set item as a parent of itself'
             raise x.ItemError(err)
 
-        if parent.path and str(item.id) in parent.path.split('.'):
+        if parent.path and str(item.object_id) in parent.path.split('.'):
             err = 'Unable to set parent as a child of its children'
             raise x.ItemError(err)
 
         previous_parent_id = item.path.split('.')[-1] if item.path else None
-        new_parent_id = parent.id
+        new_parent_id = parent.object_id
 
         # create event
         event = event_service.event(
             type='CONTENT_ITEM_SET_PARENT',
             author=author,
             object_id=item.object_id,
-            payload=dict(parent_id=new_parent_id),
-            payload_rollback=dict(parent_id=previous_parent_id)
+            payload=dict(parent_object_id=new_parent_id),
+            payload_rollback=dict(parent_object_id=previous_parent_id)
         )
 
         # emit
@@ -340,13 +340,6 @@ class ContentService:
         item.from_dict(updated.to_dict())
 
         return self
-
-    # TODO: EACH BRANCH MUST BE INDEPENDENTLY SORTED
-
-    # TODO: DO WE USE OBJECT_ID OR ID FOR PATH?
-    # TODO: ID WONT ALLOW TO GET PARENTS FROM CACHE OR BUILD A TREE
-    # TODO: AS WE'LL HAVE TO QUERY PARENTS BY THEIR IDS, NOT OBJECT_IDS
-    # TODO: SHALL WE GET RID OF OBJECT IDS ALTOGETHER?
 
     def get_path(self):
         pass
