@@ -821,3 +821,33 @@ class ContentServiceTest(BaseTestCase):
         )
 
         self.assertEquals(str(parent.object_id), item.path)
+
+    def test_getting_item_path(self):
+        """ Getting gitem path """
+        author = 123
+        item = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am a child')
+        )
+
+        parent = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am a parent')
+        )
+
+        root = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am the root of everything')
+        )
+
+        content_service.set_parent(author, item, parent)
+        content_service.set_parent(author, parent, root)
+
+        path = content_service.get_path(item.object_id)
+        self.assertTrue(type(path) is list)
+        self.assertEquals(root.object_id, path[0].object_id)
+        self.assertEquals(parent.object_id, path[1].object_id)
+

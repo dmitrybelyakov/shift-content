@@ -341,8 +341,21 @@ class ContentService:
 
         return self
 
-    def get_path(self):
-        pass
+    def get_path(self, object_id):
+        """
+        Get path
+        Returns a list of item object representing item ancestors.
+
+        :param object_id: str, item object id
+        :return: list or none
+        """
+        item = self.get_item(object_id)
+        if not item or not item.path:
+            return
+
+        path = str(item.path).split('.')
+        path = [self.get_item(object_id) for object_id in path]
+        return path
 
 
 
