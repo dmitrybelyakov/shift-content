@@ -823,7 +823,7 @@ class ContentServiceTest(BaseTestCase):
         self.assertEquals(str(parent.object_id), item.path)
 
     def test_getting_item_path(self):
-        """ Getting gitem path """
+        """ Getting item path """
         author = 123
         item = content_service.create_item(
             author=author,
@@ -851,3 +851,39 @@ class ContentServiceTest(BaseTestCase):
         self.assertEquals(root.object_id, path[0].object_id)
         self.assertEquals(parent.object_id, path[1].object_id)
 
+    def test_getting_item_children(self):
+        """ Getting item children """
+        author = 123
+        child1 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 1')
+        )
+        child2 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 2')
+        )
+
+        child3 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 2')
+        )
+
+        parent = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am a parent')
+        )
+
+        content_service.set_parent(author, child1, parent)
+        content_service.set_parent(author, child2, parent)
+        content_service.set_parent(author, child3, child2)
+
+        children = content_service.get_children(parent.object_id)
+        ids = [child.object_id for child in children]
+
+        self.assertIn(child1.object_id, ids)
+        self.assertIn(child2.object_id, ids)
+        self.assertNotIn(child3.object_id, ids)

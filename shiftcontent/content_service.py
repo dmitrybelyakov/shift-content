@@ -360,11 +360,24 @@ class ContentService:
     def get_children(self, object_id):
         """
         Get children
-        returns a list of direct descendants.
+        Returns a list of direct descendants.
         :param object_id: str, item object id
         :return: list
         """
-        pass
+        item = self.get_item(object_id)
+        children = []
+        if item:
+            path = str(item.object_id)
+            if item.path:
+                path = '{}.{}'.format(item.path, path)
+
+            items = db.tables['items']
+            with db.engine.begin() as conn:
+                query = items.select().where(items.c.path == path)
+                data = conn.execute(query).fetchall() or ()
+                children = [Item().from_db(child) for child in data]
+
+        return children
 
     def get_tree(self, root):
         """
