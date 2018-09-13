@@ -436,19 +436,54 @@ class ContentService:
         if not item:
             return None
 
-        def append_to_tree(item, tree):
-            path = str(item.object_id)
-            if item.path:
-                path = '{}.{}'.format(item.path, path)
+        # tree = dict(node=item, children=[])
+        # descendants = self.get_descendants(object_id)
+        # ids = (d.object_id for d in descendants)
+        #
+        # # recursively find a place for the node and attach
+        # def attach_to_tree(item, tree):
+        #     attached = False
+        #
+        #     try:
+        #         print(tree['node'].object_id)
+        #     except AttributeError:
+        #         print(tree)
+        #         print(tree['node'])
+        #
+        #
+        #     if item.path.split('.')[-1] == tree['node'].object_id:
+        #         tree['children'].append(item)
+        #         attached = True
+        #     else:
+        #         for index, child in enumerate(tree['children']):
+        #             attached, branch = attach_to_tree(
+        #                 item,
+        #                 child
+        #             )
+        #             tree['children'][index] = branch
+        #
+        #     return attached, tree
+        #
+        # # filter out of tree nodes so we can run while
+        # for index, descendant in enumerate(descendants):
+        #     for node_id in descendant.path.split('.'):
+        #         if node_id not in ids:
+        #             del descendants[index]
+        #             continue
+        #
+        # while descendants:
+        #     for index, descendant in enumerate(descendants):
+        #         attached, tree = attach_to_tree(descendant, tree)
+        #         if attached:
+        #             del descendants[index]
+        #
+        #     pp(tree)
+        #     print('-'*80)
+        #
+        #
+        # return tree
 
-            # for i in tree:
 
-
-
-
-        tree = dict(node=item, children=[])
-
-        descendants = self.get_descendants(object_id)
 
 
 
