@@ -39,41 +39,21 @@ class ContentItemSetParent(BaseHandler):
         :param parent_object_id: str, object id of the parent object
         :return:
         """
+        from shiftcontent import content_service
+
+        # get parent
+        parent = None
+        if parent_object_id:
+            parent = content_service.get_item(parent_object_id)
+
+        # get item
+        item = content_service.get_item(item_object_id)
+
+        # get descendants
+        children = content_service.get_descendants(item_object_id)
+
         items = db.tables['items']
         with db.engine.begin() as conn:
-
-            # get parent
-            parent = None
-            if parent_object_id:
-                query = items.select().where(
-                    items.c.object_id == parent_object_id
-                )
-                data = conn.execute(query).fetchone()
-                if not data:  # pragma: no cover
-                    return
-
-                parent = Item()
-                parent.from_db(data)
-
-            # get item
-            query = items.select().where(items.c.object_id == item_object_id)
-            data = conn.execute(query).fetchone()
-            if not data:  # pragma: no cover
-                return
-
-            item = Item()
-            item.from_db(data)
-
-            # get item children
-            children = []
-            if item.object_id:
-                if item.path:
-                    like = '{}.{}%'.format(item.path, item.object_id)
-                else:
-                    like = '{}%'.format(str(item.object_id))
-                query = items.select().where(items.c.path.like(like))
-                data = conn.execute(query).fetchall() or ()
-                children = [Item().from_db(child) for child in data]
 
             # update item path
             if not parent:
