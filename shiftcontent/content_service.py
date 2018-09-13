@@ -402,6 +402,14 @@ class ContentService:
 
         return descendants
 
+    # TODO: WHY DO TREES HAVE TO START AT THE ROOT NODE?
+    # TODO: IS THAT A WAY TO HAVE SEPARATE HIERARCHIES?
+    # TODO: YES IT IS!
+    # TODO: OTHERWISE WE WILL BE UNABLE TO CREATE MULTIPLE TREES IN STORE
+    # TODO: OR SELECT SUBTREES
+
+
+
     def get_tree(self, object_id):
         """
         Get tree
@@ -426,7 +434,26 @@ class ContentService:
         """
         item = self.get_item(object_id)
         if not item:
-            return
+            return None
+
+        def append_to_tree(item, tree):
+            path = str(item.object_id)
+            if item.path:
+                path = '{}.{}'.format(item.path, path)
+
+            # for i in tree:
+
+
+
+
+        tree = dict(node=item, children=[])
+
+        descendants = self.get_descendants(object_id)
+
+
+
+
+
 
 
 
