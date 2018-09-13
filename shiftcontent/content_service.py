@@ -379,7 +379,30 @@ class ContentService:
 
         return children
 
-    def get_tree(self, root):
+    def get_descendants(self, object_id):
+        """
+        Get descendants
+        Returns all of the descendants below an item.
+        :param object_id: str, item object_id
+        :return: list
+        """
+        item = self.get_item(object_id)
+        descendants = []
+        if item:
+            if item.path:
+                like = '{}.{}%'.format(item.path, item.object_id)
+            else:
+                like = '{}%'.format(str(item.object_id))
+
+            items = db.tables['items']
+            with db.engine.begin() as conn:
+                query = items.select().where(items.c.path.like(like))
+                data = conn.execute(query).fetchall() or ()
+                descendants = [Item().from_db(child) for child in data]
+
+        return descendants
+
+    def get_tree(self, object_id):
         """
         Get tree
         Returns a tree starting from the root node supplied. The call to
@@ -398,10 +421,12 @@ class ContentService:
             ]
         }
 
-        :param root: shiftcontent.item.Item
+        :param object_id: str, object_id of tree root
         :return: dict
         """
-        pass
+        item = self.get_item(object_id)
+        if not item:
+            return
 
 
 
