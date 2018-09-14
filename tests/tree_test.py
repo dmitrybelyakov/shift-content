@@ -39,6 +39,14 @@ import random
 
 
 
+# TODO: WHAT DO WE KNOW?
+# TODO: ALL CHILDREN ARE DESCENDANTS OF ROOT
+# TODO: WE CAN START FROM THE LONGEST AND ADD FROM LEFT TO RIGHT
+
+
+
+
+
 def build_tree(item, children):
 
     ids = list(child['id'] for child in children)
