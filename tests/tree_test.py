@@ -6,19 +6,56 @@ from pprint import pprint as pp
 import random
 
 
+# def build_tree(item, children):
+#
+#     ids = list(child['id'] for child in children)
+#     ids.append(item['id'])
+#
+#     # wrap nodes
+#     item = dict(node=item, children=[])
+#     children = [dict(node=c, children=[]) for c in children if all(
+#         i in ids for i in c['path'].split('.')  # filter orphans
+#     )]
+#
+#     iteration = 0
+#     def add_to_tree(item, tree):
+#         nonlocal iteration
+#         iteration += 1
+#         print('ITERATION:' + str(iteration))
+#         is_child = tree['node']['id'] == item['node']['path'].split('.')[-1]
+#         if is_child:
+#             tree['children'].append(item)
+#             del children[children.index(item)]
+#         else:
+#             tree['children'] = [add_to_tree(item, c) for c in tree['children']]
+#
+#         return tree
+#
+#     while children:
+#         for child in children:
+#             add_to_tree(child, item)
+#
+#     return item
+
+
+
 def build_tree(item, children):
 
     ids = list(child['id'] for child in children)
     ids.append(item['id'])
 
-    # wrap nodes
-    item = dict(node=item, children=[])
-    children = [dict(node=c, children=[]) for c in children if all(
-        i in ids for i in c['path'].split('.')  # filter orphans
+    # filter orphans
+    children = [c for c in children if all(
+        i in ids for i in c['path'].split('.')
     )]
 
+
+
     def add_to_tree(item, tree):
-        is_child = tree['node']['id'] == item['node']['path'].split('.')[-1]
+        if 'children' not in tree.keys():
+            tree['children'] = []
+
+        is_child = tree['id'] == item['path'].split('.')[-1]
         if is_child:
             tree['children'].append(item)
             del children[children.index(item)]
@@ -32,6 +69,7 @@ def build_tree(item, children):
             add_to_tree(child, item)
 
     return item
+
 
 @attr('tree')
 class TreeTest(BaseTestCase):
@@ -55,13 +93,17 @@ class TreeTest(BaseTestCase):
             dict(name='An orphan', id='12', path='11.20.26.99'),
         ]
 
-        # random.shuffle(children)
+        random.shuffle(children)
+        # children = sorted(children, key=lambda c: len(c['path'].split('.')))
         tree = build_tree(root, children)
 
-        print('-'*80)
-        print('GOT TREE:')
+        # for c in children:
+        #     print(c['name'], c['path'])
+
+        # print('-'*80)
+        # print('GOT TREE:')
         pp(tree)
-        print('-'*80)
+        # print('-'*80)
 
 
         
