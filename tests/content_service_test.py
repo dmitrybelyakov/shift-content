@@ -935,7 +935,6 @@ class ContentServiceTest(BaseTestCase):
         self.assertNotIn(parent.object_id, ids)
         self.assertNotIn(root.object_id, ids)
 
-    @attr('zzz')
     def test_getting_tree(self):
         """ Getting item tree """
         author = 123
@@ -972,6 +971,18 @@ class ContentServiceTest(BaseTestCase):
             fields=dict(body='I am child 6')
         )
 
+        child7 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 7')
+        )
+
+        orphan = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am an orphan')
+        )
+
         parent1 = content_service.create_item(
             author=author,
             content_type='plain_text',
@@ -1001,6 +1012,15 @@ class ContentServiceTest(BaseTestCase):
         content_service.set_parent(author, child4, parent2)
         content_service.set_parent(author, child5, child4)
         content_service.set_parent(author, child6, child5)
+        content_service.set_parent(author, child7, child6)
+        content_service.set_parent(author, orphan, child7)
+
+        # make an orphan
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            conn.execute(items.delete().where(
+                items.c.id == child7.id
+            ))
 
         tree = content_service.get_tree(root.object_id)
         # self.fail('Implement me!')

@@ -436,12 +436,52 @@ class ContentService:
         if not item:
             return None
 
-        # tree = dict(node=item, children=[])
-        # descendants = self.get_descendants(object_id)
-        # ids = (d.object_id for d in descendants)
+        tree = dict(node=item, children=[])
+        descendants = self.get_descendants(object_id)
+        ids = list(d.object_id for d in descendants)
+        ids.append(tree['node'].object_id)
+
+        # filter out orphaned descendants (they shouldn't exist anyway)
+        for index, descendant in enumerate(descendants):
+            for node_id in descendant.path.split('.'):
+                if node_id not in ids:
+                    del descendants[index]
+                    break
+
+        # convert each descendant to node-style
+        for index, descendant in enumerate(descendants):
+            descendants[index] = dict(node=descendant, children=[])
+
+        # recursively find a place for the node and attach
+        def attach_to_tree(item, tree):
+            attached = False
+            for index, descendant in enumerate(descendants):
+                parent_id = descendant['node'].path.split('.')[-1]
+                if parent_id == tree['node'].object_id:
+                    tree['children'].append(descendant)
+                    attached = True
+                else:
+                    return True
+
+            return attached
+
+        while descendants:
+            for index, descendant in enumerate(descendants):
+                attached = attach_to_tree(descendant, tree)
+                if attached:
+                    del descendants[index]
+
+
+
         #
-        # # recursively find a place for the node and attach
-        # def attach_to_tree(item, tree):
+
+
+
+        pp(tree)
+
+
+        #
+
         #     attached = False
         #
         #     try:
@@ -464,18 +504,9 @@ class ContentService:
         #
         #     return attached, tree
         #
-        # # filter out of tree nodes so we can run while
-        # for index, descendant in enumerate(descendants):
-        #     for node_id in descendant.path.split('.'):
-        #         if node_id not in ids:
-        #             del descendants[index]
-        #             continue
+
         #
-        # while descendants:
-        #     for index, descendant in enumerate(descendants):
-        #         attached, tree = attach_to_tree(descendant, tree)
-        #         if attached:
-        #             del descendants[index]
+
         #
         #     pp(tree)
         #     print('-'*80)
