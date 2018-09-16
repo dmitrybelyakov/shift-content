@@ -39,60 +39,44 @@ import random
 
 
 
-# TODO: WHAT DO WE KNOW?
-# TODO: ALL CHILDREN ARE DESCENDANTS OF ROOT
-# TODO: WE CAN START FROM THE LONGEST AND ADD FROM LEFT TO RIGHT
-
-
-
-
-
-def build_tree(item, children):
+def build_tree(root, children):
 
     ids = list(child['id'] for child in children)
-    ids.append(item['id'])
+    ids.append(root['id'])
 
     # filter orphans
     children = [c for c in children if all(
         i in ids for i in c['path'].split('.')
     )]
 
-    def in_tree(id, tree):
-        if tree['id'] == id:
-            return True
-        return any(in_tree(id, child) for child in tree['children'])
+    # filter by path length
+    children = sorted(
+        children,
+        key=lambda c: len(c['path'].split('.')),
+        reverse=True
+    )
 
-    it = 0
     def add_to_tree(item, tree):
-        if in_tree(item['id'], tree):
-            return tree
-
         parent_ids = item['path'].split('.')
-        parents = []
-        for parent_id in parent_ids:
-            p = [c for c in children if c['id'] == parent_id]
-            if p:
-                parents.append(p[0])
+        parents = list(filter(lambda x: x['id'] in parent_ids, children))
+        for index, parent in enumerate(parents):
+            if parent in children:
+                add_to_tree(parent, tree)
 
-        for parent in parents:
-            if not in_tree(parent['id'], tree):
-                tree = add_to_tree(parent, tree)
-
-        is_child = tree['id'] == item['path'].split('.')[-1]
-        if is_child:
+        parent_id = parent_ids[-1]
+        if tree['id'] == parent_id:
             tree['children'].append(item)
+            del children[children.index(item)]
         else:
-            tree['children'] = [add_to_tree(item, c) for c in tree['children']]
+            for child in tree['children']:
+                add_to_tree(item, child)
 
         return tree
 
-
-
     for child in children:
-        item = add_to_tree(child, item)
+        add_to_tree(child, root)
 
-
-    return item
+    return root
 
 
 
@@ -121,11 +105,10 @@ class TreeTest(BaseTestCase):
         ]
 
         random.shuffle(children)
-        children = sorted(children, key=lambda c: len(c['path'].split('.')), reverse=True)
         tree = build_tree(root, children)
 
-        for c in children:
-            print(c['name'], c['path'])
+        # for c in children:
+        #     print(c['name'], c['path'])
 
         # print('-'*80)
         # print('GOT TREE:')
