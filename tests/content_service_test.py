@@ -935,6 +935,7 @@ class ContentServiceTest(BaseTestCase):
         self.assertNotIn(parent.object_id, ids)
         self.assertNotIn(root.object_id, ids)
 
+    @attr('zzz')
     def test_getting_tree(self):
         """ Getting item tree """
         author = 123
@@ -1023,4 +1024,5 @@ class ContentServiceTest(BaseTestCase):
             ))
 
         tree = content_service.get_tree(root.object_id)
+        pp(tree)
         # self.fail('Implement me!')

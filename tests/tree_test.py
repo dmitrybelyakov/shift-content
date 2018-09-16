@@ -49,7 +49,7 @@ def build_tree(root, children):
         i in ids for i in c['path'].split('.')
     )]
 
-    # filter by path length
+    # sort by path length
     children = sorted(
         children,
         key=lambda c: len(c['path'].split('.')),
@@ -59,7 +59,7 @@ def build_tree(root, children):
     def add_to_tree(item, tree):
         parent_ids = item['path'].split('.')
         parents = list(filter(lambda x: x['id'] in parent_ids, children))
-        for index, parent in enumerate(parents):
+        for parent in parents:
             if parent in children:
                 add_to_tree(parent, tree)
 
@@ -93,13 +93,13 @@ class TreeTest(BaseTestCase):
             dict(name='Child 1', id='1', path='11.9', children=[]),
             dict(name='Child 2', id='2', path='11.9.1', children=[]),
             dict(name='Child 3', id='3', path='11.9.1.2', children=[]),
-            dict(name='Child 4', id='4', path='11.9.1.2.3', children=[]),
 
             dict(name='Parent 2', id='10', path='11', children=[]),
-            dict(name='Child 5', id='5', path='11.10', children=[]),
-            dict(name='Child 6', id='6', path='11.10.5', children=[]),
-            dict(name='Child 7', id='7', path='11.10.5.6', children=[]),
-            dict(name='Child 8', id='8', path='11.10.5.6.7', children=[]),
+            dict(name='Child 4', id='4', path='11.10', children=[]),
+            dict(name='Child 5', id='5', path='11.10.4', children=[]),
+            dict(name='Child 6', id='6', path='11.10.4.5', children=[]),
+            dict(name='Child 7', id='7', path='11.10.4.5.6', children=[]),
+            dict(name='Child 8', id='8', path='11.10.4.5.6.7', children=[]),
 
             dict(name='An orphan', id='12', path='11.20.26.99', children=[]),
         ]

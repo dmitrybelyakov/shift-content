@@ -402,14 +402,6 @@ class ContentService:
 
         return descendants
 
-    # TODO: WHY DO TREES HAVE TO START AT THE ROOT NODE?
-    # TODO: IS THAT A WAY TO HAVE SEPARATE HIERARCHIES?
-    # TODO: YES IT IS!
-    # TODO: OTHERWISE WE WILL BE UNABLE TO CREATE MULTIPLE TREES IN STORE
-    # TODO: OR SELECT SUBTREES
-
-
-
     def get_tree(self, object_id):
         """
         Get tree
@@ -432,89 +424,57 @@ class ContentService:
         :param object_id: str, object_id of tree root
         :return: dict
         """
-        item = self.get_item(object_id)
-        if not item:
+        root = self.get_item(object_id)
+        if not root:
             return None
 
-        tree = dict(node=item, children=[])
-        descendants = self.get_descendants(object_id)
-        ids = list(d.object_id for d in descendants)
-        ids.append(tree['node'].object_id)
+        root = root.to_dict()
+        root['children'] = []
+        children = self.get_descendants(object_id)
+        children = [{'children': [], **c.to_dict()} for c in children]
 
-        # filter out orphaned descendants (they shouldn't exist anyway)
-        for index, descendant in enumerate(descendants):
-            for node_id in descendant.path.split('.'):
-                if node_id not in ids:
-                    del descendants[index]
-                    break
+        ids = list(child['object_id'] for child in children)
+        ids.append(root['object_id'])
 
-        # convert each descendant to node-style
-        for index, descendant in enumerate(descendants):
-            descendants[index] = dict(node=descendant, children=[])
+        # filter orphans
+        children = [c for c in children if all(
+            i in ids for i in c['path'].split('.')
+        )]
 
-        # recursively find a place for the node and attach
-        def attach_to_tree(item, tree):
-            attached = False
-            for index, descendant in enumerate(descendants):
-                parent_id = descendant['node'].path.split('.')[-1]
-                if parent_id == tree['node'].object_id:
-                    tree['children'].append(descendant)
-                    attached = True
-                else:
-                    return True
-
-            return attached
-
-        while descendants:
-            for index, descendant in enumerate(descendants):
-                attached = attach_to_tree(descendant, tree)
-                if attached:
-                    del descendants[index]
+        # sort by path length
+        children = sorted(
+            children,
+            key=lambda c: len(c['path'].split('.')),
+            reverse=True
+        )
 
 
+        def add_to_tree(item, tree):
 
-        #
+            print('ADDING ' + item['body'])
+            nonlocal children
+            parent_ids = item['path'].split('.')
+            parents = list(filter(lambda x: x['object_id'] in parent_ids, children))
+            for parent in parents:
+                if parent in children:
+                    add_to_tree(parent, tree)
 
+            parent_id = parent_ids[-1]
+            if tree['object_id'] == parent_id:
+                tree['children'].append(item)
+                children = filter(lambda c: c['id'] == item['id'], children)
+            else:
+                for child in tree['children']:
+                    add_to_tree(item, child)
 
+            return tree
 
-        pp(tree)
-
-
-        #
-
-        #     attached = False
-        #
-        #     try:
-        #         print(tree['node'].object_id)
-        #     except AttributeError:
-        #         print(tree)
-        #         print(tree['node'])
-        #
-        #
-        #     if item.path.split('.')[-1] == tree['node'].object_id:
-        #         tree['children'].append(item)
-        #         attached = True
-        #     else:
-        #         for index, child in enumerate(tree['children']):
-        #             attached, branch = attach_to_tree(
-        #                 item,
-        #                 child
-        #             )
-        #             tree['children'][index] = branch
-        #
-        #     return attached, tree
-        #
-
-        #
-
-        #
-        #     pp(tree)
-        #     print('-'*80)
-        #
-        #
-        # return tree
+        for child in children:
+            print('CHILD ' + child['body'])
+            add_to_tree(child, root)
 
 
+        # pp(root)
 
 
 
