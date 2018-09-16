@@ -7,6 +7,7 @@ import time
 from shiftevent.event import Event
 from shiftcontent.item import Item
 from shiftcontent import cache_service
+from shiftcontent import db
 from shiftcontent.event_handlers import ContentItemRemoveFromCache
 
 
@@ -28,7 +29,7 @@ class ContentItemRemoveFromCacheTest(BaseTestCase):
 
     def test_instantiating_handler(self):
         """ Instantiating content item remove from cache handler """
-        handler = ContentItemRemoveFromCache(db=self.db)
+        handler = ContentItemRemoveFromCache()
         self.assertIsInstance(handler, ContentItemRemoveFromCache)
 
     def test_handle_event(self):
@@ -45,7 +46,7 @@ class ContentItemRemoveFromCacheTest(BaseTestCase):
         cache_service.set(item)
 
         # now trigger delete event
-        handler = ContentItemRemoveFromCache(db=self.db)
+        handler = ContentItemRemoveFromCache()
         handler.handle(Event(
             id=123,
             type='CONTENT_ITEM_REMOVE_FROM_CACHE',
@@ -71,18 +72,23 @@ class ContentItemRemoveFromCacheTest(BaseTestCase):
             body='Some body content'
         )
 
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            result = conn.execute(items.insert(), **item.to_db(update=False))
+            item.id = result.inserted_primary_key[0]
+
         # assert not in cached
         self.assertIsNone(cache_service.get(object_id))
 
         # now rollback delete event
-        handler = ContentItemRemoveFromCache(db=self.db)
+        handler = ContentItemRemoveFromCache()
         handler.rollback(Event(
             id=123,
             type='CONTENT_ITEM_REMOVE_FROM_CACHE',
             author=123,
             object_id=object_id,
             payload=None,
-            payload_rollback=item.to_json()
+            payload_rollback=None
         ))
 
         # assert cached after rollback

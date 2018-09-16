@@ -14,7 +14,7 @@ class ContentItemUpdateFieldTest(BaseTestCase):
 
     def test_instantiating_handler(self):
         """ Instantiating content item update field handler """
-        handler = ContentItemFieldUpdateField(db=self.db)
+        handler = ContentItemFieldUpdateField()
         self.assertIsInstance(handler, ContentItemFieldUpdateField)
 
     def test_handle_field(self):
@@ -51,7 +51,7 @@ class ContentItemUpdateFieldTest(BaseTestCase):
             )
         )
 
-        handler = ContentItemFieldUpdateField(db=self.db)
+        handler = ContentItemFieldUpdateField()
         handler.handle(event)
 
         with self.db.engine.begin() as conn:
@@ -95,7 +95,7 @@ class ContentItemUpdateFieldTest(BaseTestCase):
             )
         )
 
-        handler = ContentItemFieldUpdateField(db=self.db)
+        handler = ContentItemFieldUpdateField()
         handler.handle(event)
         handler.rollback(event)
 
@@ -141,7 +141,7 @@ class ContentItemUpdateFieldTest(BaseTestCase):
             )
         )
 
-        handler = ContentItemFieldUpdateField(db=self.db)
+        handler = ContentItemFieldUpdateField()
         handler.handle(event)
 
         with self.db.engine.begin() as conn:
@@ -186,7 +186,7 @@ class ContentItemUpdateFieldTest(BaseTestCase):
             )
         )
 
-        handler = ContentItemFieldUpdateField(db=self.db)
+        handler = ContentItemFieldUpdateField()
         handler.handle(event)
         handler.rollback(event)
 

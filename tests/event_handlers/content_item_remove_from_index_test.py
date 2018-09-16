@@ -7,6 +7,7 @@ import time
 from shiftevent.event import Event
 from shiftcontent.item import Item
 from shiftcontent import search_service
+from shiftcontent import db
 from shiftcontent.event_handlers import ContentItemRemoveFromIndex
 
 
@@ -15,7 +16,7 @@ class ContentItemRemoveFromIndexTest(BaseTestCase):
 
     def test_instantiating_handler(self):
         """ Instantiating content item removefrom index handler """
-        handler = ContentItemRemoveFromIndex(db=self.db)
+        handler = ContentItemRemoveFromIndex()
         self.assertIsInstance(handler, ContentItemRemoveFromIndex)
 
     def test_handle_event(self):
@@ -26,7 +27,7 @@ class ContentItemRemoveFromIndexTest(BaseTestCase):
             index_name='content_tests'
         )
 
-        handler = ContentItemRemoveFromIndex(db=self.db)
+        handler = ContentItemRemoveFromIndex()
         object_id = str(uuid1())
 
         # index first
@@ -70,7 +71,7 @@ class ContentItemRemoveFromIndexTest(BaseTestCase):
             index_name='content_tests'
         )
 
-        handler = ContentItemRemoveFromIndex(db=self.db)
+        handler = ContentItemRemoveFromIndex()
         object_id = str(uuid1())
 
         # prepare data for rollback
@@ -81,6 +82,11 @@ class ContentItemRemoveFromIndexTest(BaseTestCase):
             object_id=object_id,
             body='Some body content'
         )
+
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            result = conn.execute(items.insert(), **item.to_db(update=False))
+            item.id = result.inserted_primary_key[0]
 
         # assert not in index
         self.assertIsNone(search_service.get(object_id))

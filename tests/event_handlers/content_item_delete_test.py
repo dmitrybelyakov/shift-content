@@ -12,7 +12,7 @@ class ContentItemDeleteTest(BaseTestCase):
 
     def test_instantiating_handler(self):
         """ Instantiating content item delete handler """
-        handler = ContentItemDelete(db=self.db)
+        handler = ContentItemDelete()
         self.assertIsInstance(handler, ContentItemDelete)
 
     def test_handle_event(self):
@@ -38,7 +38,7 @@ class ContentItemDeleteTest(BaseTestCase):
             payload=None
         )
 
-        handler = ContentItemDelete(db=self.db)
+        handler = ContentItemDelete()
         handler.handle(event)
 
         with self.db.engine.begin() as conn:
@@ -73,7 +73,7 @@ class ContentItemDeleteTest(BaseTestCase):
             payload_rollback=rollback
         )
 
-        handler = ContentItemDelete(db=self.db)
+        handler = ContentItemDelete()
         handler.handle(event)
         with self.db.engine.begin() as conn:
             query = items.select().where(items.c.object_id == object_id)

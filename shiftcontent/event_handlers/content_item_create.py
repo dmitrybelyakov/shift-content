@@ -8,6 +8,18 @@ class ContentItemCreate(BaseHandler):
     """
     Create content item
     This handler creates a new content item entry.
+    Expects the following payload structure:
+
+    event = {
+        ...
+        payload={
+            type='plain_text',
+            author=123,
+            object_id='d2bf6e2c-aba6-11e8-89e5-38c9863edaea',
+            custom_field='some value'
+        },
+        payload_rollback=None
+    }
     """
 
     EVENT_TYPES = (

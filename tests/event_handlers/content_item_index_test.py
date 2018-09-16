@@ -16,7 +16,7 @@ class ContentItemIndexTest(BaseTestCase):
 
     def test_instantiating_handler(self):
         """ Instantiating content item index handler """
-        handler = ContentItemIndex(db=self.db)
+        handler = ContentItemIndex()
         self.assertIsInstance(handler, ContentItemIndex)
 
     def test_handle_event(self):
@@ -28,7 +28,7 @@ class ContentItemIndexTest(BaseTestCase):
             index_name='content_tests'
         )
 
-        handler = ContentItemIndex(db=self.db)
+        handler = ContentItemIndex()
         object_id = str(uuid1())
 
         # create first
@@ -73,7 +73,7 @@ class ContentItemIndexTest(BaseTestCase):
             index_name='content_tests'
         )
 
-        handler = ContentItemIndex(db=self.db)
+        handler = ContentItemIndex()
         object_id = str(uuid1())
 
         # create first

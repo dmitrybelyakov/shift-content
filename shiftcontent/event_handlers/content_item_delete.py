@@ -7,7 +7,20 @@ from pprint import pprint as pp
 class ContentItemDelete(BaseHandler):
     """
     Delete content item
-    This handler deletes existing content items
+    This handler deletes existing content items.
+    Expects the following payload structure:
+
+    event = {
+        ...
+        payload=None,
+        payload_rollback={
+            type='plain_text',
+            author=123,
+            object_id='d2bf6e2c-aba6-11e8-89e5-38c9863edaea',
+            custom_field='some value'
+        }
+    }
+
     """
 
     EVENT_TYPES = (

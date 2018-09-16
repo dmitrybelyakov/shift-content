@@ -11,12 +11,12 @@ class ContentItemCreateTest(BaseTestCase):
 
     def test_instantiating_handler(self):
         """ Instantiating content item create handler """
-        handler = ContentItemCreate(db=self.db)
+        handler = ContentItemCreate()
         self.assertIsInstance(handler, ContentItemCreate)
 
     def test_handle_event(self):
         """ Handler content item create handles event"""
-        handler = ContentItemCreate(db=self.db)
+        handler = ContentItemCreate()
         object_id = str(uuid1())
         event = Event(
             id=123,
@@ -40,7 +40,7 @@ class ContentItemCreateTest(BaseTestCase):
 
     def test_rollback_event(self):
         """ Handler content item create rolling back changes """
-        handler = ContentItemCreate(db=self.db)
+        handler = ContentItemCreate()
         object_id = str(uuid1())
         event = Event(
             id=123,

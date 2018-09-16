@@ -771,11 +771,38 @@ class ContentServiceTest(BaseTestCase):
         root = content_service.get_item(root.object_id)
 
         self.assertEquals(None, root.path)
-        self.assertEquals('6', parent.path)
-        self.assertEquals('6.5', item1.path)
-        self.assertEquals('6.5.1', item2.path)
-        self.assertEquals('6.5.1.2', item3.path)
-        self.assertEquals('6.5.1.2.3', item4.path)
+        self.assertEquals(root.object_id, parent.path)
+        self.assertEquals(
+            '{}.{}'.format(root.object_id, parent.object_id),
+            item1.path
+        )
+        self.assertEquals(
+            '{}.{}.{}'.format(
+                root.object_id,
+                parent.object_id,
+                item1.object_id
+            ),
+            item2.path
+        )
+        self.assertEquals(
+            '{}.{}.{}.{}'.format(
+                root.object_id,
+                parent.object_id,
+                item1.object_id,
+                item2.object_id,
+            ),
+            item3.path
+        )
+        self.assertEquals(
+            '{}.{}.{}.{}.{}'.format(
+                root.object_id,
+                parent.object_id,
+                item1.object_id,
+                item2.object_id,
+                item3.object_id,
+            ),
+            item4.path
+        )
 
     def test_set_parent_when_creating_an_item(self):
         """ Set parent when creating an item """
@@ -793,4 +820,207 @@ class ContentServiceTest(BaseTestCase):
             parent=parent
         )
 
-        self.assertEquals(str(parent.id), item.path)
+        self.assertEquals(str(parent.object_id), item.path)
+
+    def test_getting_item_path(self):
+        """ Getting item path """
+        author = 123
+        item = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am a child')
+        )
+
+        parent = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am a parent')
+        )
+
+        root = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am the root of everything')
+        )
+
+        content_service.set_parent(author, item, parent)
+        content_service.set_parent(author, parent, root)
+
+        path = content_service.get_path(item.object_id)
+        self.assertTrue(type(path) is list)
+        self.assertEquals(root.object_id, path[0].object_id)
+        self.assertEquals(parent.object_id, path[1].object_id)
+
+    def test_getting_item_children(self):
+        """ Getting item children """
+        author = 123
+        child1 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 1')
+        )
+        child2 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 2')
+        )
+
+        child3 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 3')
+        )
+
+        parent = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am a parent')
+        )
+
+        content_service.set_parent(author, child1, parent)
+        content_service.set_parent(author, child2, parent)
+        content_service.set_parent(author, child3, child2)
+
+        children = content_service.get_children(parent.object_id)
+        ids = [child.object_id for child in children]
+
+        self.assertIn(child1.object_id, ids)
+        self.assertIn(child2.object_id, ids)
+        self.assertNotIn(child3.object_id, ids)
+
+    def test_getting_tem_descendants(self):
+        """ Getting item descendants """
+        author = 123
+        child1 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 1')
+        )
+        child2 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 2')
+        )
+
+        child3 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 3')
+        )
+
+        parent = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am a parent')
+        )
+
+        root = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am the root element')
+        )
+
+        content_service.set_parent(author, parent, root)
+        content_service.set_parent(author, child1, parent)
+        content_service.set_parent(author, child2, child1)
+        content_service.set_parent(author, child3, child2)
+
+        descendants = content_service.get_descendants(parent.object_id)
+        ids = [descendant.object_id for descendant in descendants]
+
+        self.assertIn(child1.object_id, ids)
+        self.assertIn(child2.object_id, ids)
+        self.assertIn(child3.object_id, ids)
+
+        self.assertNotIn(parent.object_id, ids)
+        self.assertNotIn(root.object_id, ids)
+
+    def test_getting_tree(self):
+        """ Getting item tree """
+        author = 123
+        child1 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 1')
+        )
+        child2 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 2')
+        )
+
+        child3 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 3')
+        )
+        child4 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 4')
+        )
+        child5 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 5')
+        )
+
+        child6 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 6')
+        )
+
+        child7 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 7')
+        )
+
+        orphan = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am an orphan')
+        )
+
+        parent1 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am parent 1')
+        )
+
+        parent2 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am parent 2')
+        )
+
+        root = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am a root element')
+        )
+
+        # branch 1
+        content_service.set_parent(author, parent1, root)
+        content_service.set_parent(author, child1, parent1)
+        content_service.set_parent(author, child2, child1)
+        content_service.set_parent(author, child3, child2)
+
+        # branch 2
+        content_service.set_parent(author, parent2, root)
+        content_service.set_parent(author, child4, parent2)
+        content_service.set_parent(author, child5, child4)
+        content_service.set_parent(author, child6, child5)
+        content_service.set_parent(author, child7, child6)
+        content_service.set_parent(author, orphan, child7)
+
+        # make an orphan
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            conn.execute(items.delete().where(
+                items.c.id == child7.id
+            ))
+
+        tree = content_service.get_tree(root.object_id)
+        # self.fail('Implement me!')

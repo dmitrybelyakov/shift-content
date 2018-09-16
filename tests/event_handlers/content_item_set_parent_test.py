@@ -36,7 +36,7 @@ class ContentItemCacheTest(BaseTestCase):
 
     def test_instantiating_handler(self):
         """ Instantiating content item set parent handler """
-        handler = ContentItemSetParent(db=self.db)
+        handler = ContentItemSetParent()
         self.assertIsInstance(handler, ContentItemSetParent)
 
     def test_handle_event(self):
@@ -65,14 +65,14 @@ class ContentItemCacheTest(BaseTestCase):
             parent.set_field('id', result.inserted_primary_key[0], initial=True)
 
         # trigger event
-        handler = ContentItemSetParent(db=self.db)
+        handler = ContentItemSetParent()
         handler.handle(Event(
             id=123,
             type='CONTENT_ITEM_SET_PARENT',
             author=123,
             object_id=child.object_id,
-            payload=dict(parent_id=parent.id),
-            payload_rollback=dict(parent_id=None)
+            payload=dict(parent_object_id=parent.object_id),
+            payload_rollback=dict(parent_object_id=None)
         ))
 
         # now get back
@@ -82,7 +82,7 @@ class ContentItemCacheTest(BaseTestCase):
             child = Item().from_db(result)
 
         # assert parent was set
-        self.assertEquals(str(parent.id), child.path)
+        self.assertEquals(str(parent.object_id), child.path)
 
     def test_rollback_event(self):
         """ Handler content item set parent rollback changes """
@@ -110,14 +110,14 @@ class ContentItemCacheTest(BaseTestCase):
             parent.set_field('id', result.inserted_primary_key[0], initial=True)
 
         # trigger event
-        handler = ContentItemSetParent(db=self.db)
+        handler = ContentItemSetParent()
         handler.handle(Event(
             id=123,
             type='CONTENT_ITEM_SET_PARENT',
             author=123,
             object_id=child.object_id,
-            payload=dict(parent_id=parent.id),
-            payload_rollback=dict(parent_id=None)
+            payload=dict(parent_object_id=parent.object_id),
+            payload_rollback=dict(parent_object_id=None)
         ))
 
         # now get back
@@ -127,7 +127,7 @@ class ContentItemCacheTest(BaseTestCase):
             child = Item().from_db(result)
 
         # assert parent was set
-        self.assertEquals(str(parent.id), child.path)
+        self.assertEquals(str(parent.object_id), child.path)
 
         # rollback now
         handler.rollback(Event(
@@ -135,8 +135,8 @@ class ContentItemCacheTest(BaseTestCase):
             type='CONTENT_ITEM_SET_PARENT',
             author=123,
             object_id=child.object_id,
-            payload=dict(parent_id=parent.id),
-            payload_rollback=dict(parent_id=None)
+            payload=dict(parent_object_id=parent.id),
+            payload_rollback=dict(parent_object_id=None)
         ))
 
         # now get back
@@ -174,10 +174,10 @@ class ContentItemCacheTest(BaseTestCase):
             parent.set_field('id', result.inserted_primary_key[0], initial=True)
 
         # trigger event
-        handler = ContentItemSetParent(db=self.db)
+        handler = ContentItemSetParent()
         handler.set_parent(
             item_object_id=child.object_id,
-            parent_id=parent.id
+            parent_object_id=parent.object_id
         )
 
         # now get back
@@ -187,7 +187,7 @@ class ContentItemCacheTest(BaseTestCase):
             child = Item().from_db(result)
 
         # assert parent was set
-        self.assertEquals(str(parent.id), child.path)
+        self.assertEquals(str(parent.object_id), child.path)
 
     def test_setting_parent_to_none(self):
         """ Setting item parent to none (move item to root) """
@@ -238,18 +238,18 @@ class ContentItemCacheTest(BaseTestCase):
             )
 
         # set parents now
-        handler = ContentItemSetParent(db=self.db)
+        handler = ContentItemSetParent()
         handler.set_parent(
             item_object_id=child3.object_id,
-            parent_id=child2.id
+            parent_object_id=child2.object_id
         )
         handler.set_parent(
             item_object_id=child2.object_id,
-            parent_id=child1.id
+            parent_object_id=child1.object_id
         )
         handler.set_parent(
             item_object_id=child1.object_id,
-            parent_id=parent.id
+            parent_object_id=parent.object_id
         )
 
         # now get back
@@ -267,14 +267,16 @@ class ContentItemCacheTest(BaseTestCase):
             child3 = Item().from_db(result)
 
         self.assertEquals(
-            '{}.{}.{}'.format(parent.id, child1.id, child2.id),
+            '{}.{}.{}'.format(
+                parent.object_id, child1.object_id, child2.object_id
+            ),
             child3.path
         )
 
         # now set parent to None
         handler.set_parent(
             item_object_id=child1.object_id,
-            parent_id=None
+            parent_object_id=None
         )
 
         # now get back
@@ -288,7 +290,10 @@ class ContentItemCacheTest(BaseTestCase):
             child3 = Item().from_db(result)
 
         self.assertIsNone(child1.path)
-        self.assertEquals('{}.{}'.format(child1.id, child2.id), child3.path)
+        self.assertEquals('{}.{}'.format(
+            child1.object_id, child2.object_id),
+            child3.path
+        )
 
     def test_setting_parent_updates_children(self):
         """ Setting item parent updates children """
@@ -351,18 +356,18 @@ class ContentItemCacheTest(BaseTestCase):
             )
 
         # set parents now
-        handler = ContentItemSetParent(db=self.db)
+        handler = ContentItemSetParent()
         handler.set_parent(
             item_object_id=child3.object_id,
-            parent_id=child2.id
+            parent_object_id=child2.object_id
         )
         handler.set_parent(
             item_object_id=child2.object_id,
-            parent_id=child1.id
+            parent_object_id=child1.object_id
         )
         handler.set_parent(
             item_object_id=child1.object_id,
-            parent_id=parent1.id
+            parent_object_id=parent1.object_id
         )
 
         # now get back
@@ -381,22 +386,24 @@ class ContentItemCacheTest(BaseTestCase):
 
         # assert paths set properly
         self.assertEquals(
-            '{}'.format(parent1.id),
+            '{}'.format(parent1.object_id),
             child1.path
         )
         self.assertEquals(
-            '{}.{}'.format(parent1.id, child1.id),
+            '{}.{}'.format(parent1.object_id, child1.object_id),
             child2.path
         )
         self.assertEquals(
-            '{}.{}.{}'.format(parent1.id, child1.id, child2.id),
+            '{}.{}.{}'.format(
+                parent1.object_id, child1.object_id, child2.object_id
+            ),
             child3.path
         )
 
         # now move item (with existing path) to another parent
         handler.set_parent(
             item_object_id=child1.object_id,
-            parent_id=parent2.id
+            parent_object_id=parent2.object_id
         )
 
         # now get back
@@ -415,15 +422,17 @@ class ContentItemCacheTest(BaseTestCase):
 
         # assert paths set properly
         self.assertEquals(
-            '{}'.format(parent2.id),
+            '{}'.format(parent2.object_id),
             child1.path
         )
         self.assertEquals(
-            '{}.{}'.format(parent2.id, child1.id),
+            '{}.{}'.format(parent2.object_id, child1.object_id),
             child2.path
         )
         self.assertEquals(
-            '{}.{}.{}'.format(parent2.id, child1.id, child2.id),
+            '{}.{}.{}'.format(
+                parent2.object_id, child1.object_id, child2.object_id
+            ),
             child3.path
         )
 
@@ -468,14 +477,14 @@ class ContentItemCacheTest(BaseTestCase):
         self.assertIsNone(cache_service.get(child2.object_id))
 
         # trigger events
-        handler = ContentItemSetParent(db=self.db)
+        handler = ContentItemSetParent()
         handler.set_parent(
             item_object_id=child2.object_id,
-            parent_id=child1.id
+            parent_object_id=child1.object_id
         )
         handler.set_parent(
             item_object_id=child1.object_id,
-            parent_id=parent.id
+            parent_object_id=parent.object_id
         )
 
         # assert items in cache now
@@ -523,14 +532,14 @@ class ContentItemCacheTest(BaseTestCase):
         self.assertIsNone(search_service.get(child2.object_id))
 
         # trigger events
-        handler = ContentItemSetParent(db=self.db)
+        handler = ContentItemSetParent()
         handler.set_parent(
             item_object_id=child2.object_id,
-            parent_id=child1.id
+            parent_object_id=child1.object_id
         )
         handler.set_parent(
             item_object_id=child1.object_id,
-            parent_id=parent.id
+            parent_object_id=parent.object_id
         )
 
         # assert items in index now

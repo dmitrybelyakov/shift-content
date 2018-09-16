@@ -165,6 +165,7 @@ class ContentService:
         Accepts an item object validates it and tries to persist it. Will
         return validation errors if item is in invalid state, otherwise will
         emit an event.
+
         :param author: str, author id
         :param item: shiftcontent.item.Item, item object (must be saved first)
         :return: shiftcontent.item.Item
@@ -315,20 +316,20 @@ class ContentService:
             err = 'Unable to set item as a parent of itself'
             raise x.ItemError(err)
 
-        if parent.path and str(item.id) in parent.path.split('.'):
+        if parent.path and str(item.object_id) in parent.path.split('.'):
             err = 'Unable to set parent as a child of its children'
             raise x.ItemError(err)
 
         previous_parent_id = item.path.split('.')[-1] if item.path else None
-        new_parent_id = parent.id
+        new_parent_id = parent.object_id
 
         # create event
         event = event_service.event(
             type='CONTENT_ITEM_SET_PARENT',
             author=author,
             object_id=item.object_id,
-            payload=dict(parent_id=new_parent_id),
-            payload_rollback=dict(parent_id=previous_parent_id)
+            payload=dict(parent_object_id=new_parent_id),
+            payload_rollback=dict(parent_object_id=previous_parent_id)
         )
 
         # emit
@@ -340,34 +341,186 @@ class ContentService:
 
         return self
 
-    # TODO: EACH BRANCH MUST BE INDEPENDENTLY SORTED
+    def get_path(self, object_id):
+        """
+        Get path
+        Returns a list of item object representing item ancestors.
 
-    # TODO: WHAT HAPPENS WHEN WE SET THE PARENT?
-    # TODO: HOW DO WE GET CHILDREN?
-    # TODO: HOW DO WE GET A TREE?
-    # TODO: HOW DO WE CACHE THAT?
+        :param object_id: str, item object id
+        :return: list or none
+        """
+        item = self.get_item(object_id)
+        if not item or not item.path:
+            return
 
-    # TODO: WHAT TREE STRATEGY SHOULD WE USE?
-    # TODO: NESTED SETS / MATPATH INVOLVES CHANGING CHILD ITEMS.
-    # TODO: IS IT ACCEPTABLE IN AN EVENT SYSTEM?
-    # TODO: WE CAN TRIGGER A CASCADE OF CHANGE PATH EVENTS BY THE SAME AUTHOR
-    # TODO: BUT WHAT HAPPENS WHEN WE REWIND A SPECIFIC ITEM?
-    # TODO: SHALL WE CONSIDER THIS A SIDE EFFECT OF DOING TIME TRAVEL
+        path = str(item.path).split('.')
+        path = [self.get_item(object_id) for object_id in path]
+        return path
 
-    # TODO: POSSIBLE SOLUTION
+    def get_children(self, object_id):
+        """
+        Get children
+        Returns a list of direct descendants.
+        :param object_id: str, item object id
+        :return: list
+        """
+        item = self.get_item(object_id)
+        children = []
+        if item:
+            path = str(item.object_id)
+            if item.path:
+                path = '{}.{}'.format(item.path, path)
 
-    # TODO:     * WE ONLY STORE SET PARENT EVENT WITH PARENT ID
-    # TODO:     * THE HANDLER UPDATES PARENTS OF ALL CHILDREN ACCORDINGLY
-    # TODO:     * THIS ALLOWS REWINDING ITEM STATE WITHOUT AFFECTING TREE
-    # TODO:     * BUT CHANGES IN POSITIONING WILL ONLY BE STORED IN PARENT LOG
+            items = db.tables['items']
+            with db.engine.begin() as conn:
+                query = items.select().where(items.c.path == path)
+                data = conn.execute(query).fetchall() or ()
+                children = [Item().from_db(child) for child in data]
 
-    # TODO: DO WE USE OBJECT_ID OR ID FOR PATH?
-    # TODO: ID WONT ALLOW TO GET PARENTS FROM CACHE OR BUILD A TREE
-    # TODO: AS WE'LL HAVE TO QUERY PARENTS BY THEIR IDS, NOT OBJECT_IDS
-    # TODO: SHALL WE GET RID OF OBJECT IDS ALTOGETHER?
+        return children
 
-    def get_path(self):
-        pass
+    def get_descendants(self, object_id):
+        """
+        Get descendants
+        Returns all of the descendants below an item.
+        :param object_id: str, item object_id
+        :return: list
+        """
+        item = self.get_item(object_id)
+        descendants = []
+        if item:
+            if item.path:
+                like = '{}.{}%'.format(item.path, item.object_id)
+            else:
+                like = '{}%'.format(str(item.object_id))
+
+            items = db.tables['items']
+            with db.engine.begin() as conn:
+                query = items.select().where(items.c.path.like(like))
+                data = conn.execute(query).fetchall() or ()
+                descendants = [Item().from_db(child) for child in data]
+
+        return descendants
+
+    # TODO: WHY DO TREES HAVE TO START AT THE ROOT NODE?
+    # TODO: IS THAT A WAY TO HAVE SEPARATE HIERARCHIES?
+    # TODO: YES IT IS!
+    # TODO: OTHERWISE WE WILL BE UNABLE TO CREATE MULTIPLE TREES IN STORE
+    # TODO: OR SELECT SUBTREES
+
+
+
+    def get_tree(self, object_id):
+        """
+        Get tree
+        Returns a tree starting from the root node supplied. The call to
+        this function will result in database queries being executed.
+        Results are not cached.
+
+        The resulting tree structure will look like this:
+        tree = {
+            node=Item,
+            children=[
+                {node=Item, children=[]},
+                {node=Item, children=[
+                    {node=Item, children=[]},
+                    {node=Item, children=[]},
+                ]},
+            ]
+        }
+
+        :param object_id: str, object_id of tree root
+        :return: dict
+        """
+        item = self.get_item(object_id)
+        if not item:
+            return None
+
+        tree = dict(node=item, children=[])
+        descendants = self.get_descendants(object_id)
+        ids = list(d.object_id for d in descendants)
+        ids.append(tree['node'].object_id)
+
+        # filter out orphaned descendants (they shouldn't exist anyway)
+        for index, descendant in enumerate(descendants):
+            for node_id in descendant.path.split('.'):
+                if node_id not in ids:
+                    del descendants[index]
+                    break
+
+        # convert each descendant to node-style
+        for index, descendant in enumerate(descendants):
+            descendants[index] = dict(node=descendant, children=[])
+
+        # recursively find a place for the node and attach
+        def attach_to_tree(item, tree):
+            attached = False
+            for index, descendant in enumerate(descendants):
+                parent_id = descendant['node'].path.split('.')[-1]
+                if parent_id == tree['node'].object_id:
+                    tree['children'].append(descendant)
+                    attached = True
+                else:
+                    return True
+
+            return attached
+
+        while descendants:
+            for index, descendant in enumerate(descendants):
+                attached = attach_to_tree(descendant, tree)
+                if attached:
+                    del descendants[index]
+
+
+
+        #
+
+
+
+        pp(tree)
+
+
+        #
+
+        #     attached = False
+        #
+        #     try:
+        #         print(tree['node'].object_id)
+        #     except AttributeError:
+        #         print(tree)
+        #         print(tree['node'])
+        #
+        #
+        #     if item.path.split('.')[-1] == tree['node'].object_id:
+        #         tree['children'].append(item)
+        #         attached = True
+        #     else:
+        #         for index, child in enumerate(tree['children']):
+        #             attached, branch = attach_to_tree(
+        #                 item,
+        #                 child
+        #             )
+        #             tree['children'][index] = branch
+        #
+        #     return attached, tree
+        #
+
+        #
+
+        #
+        #     pp(tree)
+        #     print('-'*80)
+        #
+        #
+        # return tree
+
+
+
+
+
+
+
+
 
 
 

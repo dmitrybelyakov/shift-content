@@ -9,7 +9,15 @@ from pprint import pprint as pp
 class ContentItemCache(BaseHandler):
     """
     Cache content item
-    Puts content item into cache
+    Puts content item into cache.
+    Expects the following payload structure:
+
+    event = {
+        ...
+        payload=None (ignored),
+        payload_rollback=None (ignored)
+    }
+
     """
 
     EVENT_TYPES = (

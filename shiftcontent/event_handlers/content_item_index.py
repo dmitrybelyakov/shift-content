@@ -9,7 +9,13 @@ from pprint import pprint as pp
 class ContentItemIndex(BaseHandler):
     """
     Index content item
-    Puts content item to index
+    Puts content item to index.
+    Expects the following payload structure:
+    event = {
+        ...
+        payload=None (ignored),
+        payload_rollback=None (ignored)
+    }
     """
 
     EVENT_TYPES = (
