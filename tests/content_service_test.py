@@ -1046,3 +1046,74 @@ class ContentServiceTest(BaseTestCase):
             tree['children'][1]['children'][0]['children'][0]['node'].id
         )
 
+
+    def test_tree_children_are_sorted(self):
+        """ Getting item tree """
+        author = 123
+        child1 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 1')
+        )
+        child2 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 2')
+        )
+
+        child3 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 3')
+        )
+        child4 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 4')
+        )
+        child5 = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am child 5')
+        )
+
+
+        parent = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am a parent')
+        )
+
+
+        root = content_service.create_item(
+            author=author,
+            content_type='plain_text',
+            fields=dict(body='I am a root element')
+        )
+
+        child1.sort_order = -6
+        child2.sort_order = 7
+        child3.sort_order = 8
+        child4.sort_order = 9
+        child5.sort_order = 10
+        content_service.update_item(author, child1)
+        content_service.update_item(author, child2)
+        content_service.update_item(author, child3)
+        content_service.update_item(author, child4)
+        content_service.update_item(author, child5)
+
+        content_service.set_parent(author, parent, root)
+        content_service.set_parent(author, child1, parent)
+        content_service.set_parent(author, child2, parent)
+        content_service.set_parent(author, child3, parent)
+        content_service.set_parent(author, child4, parent)
+        content_service.set_parent(author, child5, parent)
+
+        tree = content_service.get_tree(root.object_id)
+        children = tree['children'][0]['children']
+        self.assertEquals(child5.id, children[0]['node'].id)
+        self.assertEquals(child4.id, children[1]['node'].id)
+        self.assertEquals(child3.id, children[2]['node'].id)
+        self.assertEquals(child2.id, children[3]['node'].id)
+        self.assertEquals(child1.id, children[4]['node'].id)
+

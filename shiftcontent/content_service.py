@@ -468,6 +468,14 @@ class ContentService:
 
             if tree['node'].object_id == parent_ids[-1]:
                 tree['children'].append(item)
+
+                # sort
+                tree['children'] = sorted(
+                    tree['children'],
+                    key=lambda c: c['node'].sort_order,
+                    reverse=True
+                )
+
                 added_to_tree.append(item['node'].object_id)
             else:
                 for child in tree['children']:
