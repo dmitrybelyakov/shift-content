@@ -428,41 +428,47 @@ class ContentService:
         if not root:
             return None
 
-        root = root.to_dict()
-        root['children'] = []
+        root = dict(node=root, children=[])
+
         children = self.get_descendants(object_id)
-        children = [{'children': [], **c.to_dict()} for c in children]
+        children = [dict(node=child, children=[]) for child in children]
 
-        ids = list(child['object_id'] for child in children)
-        ids.append(root['object_id'])
+        # filter out orphans
+        ids = list(child['node'].object_id for child in children)
+        ids.append(root['node'].object_id)
 
-        # filter orphans
         children = [c for c in children if all(
-            i in ids for i in c['path'].split('.')
+            i in ids for i in c['node'].path.split('.')
         )]
 
-        # sort by path length
-        children = sorted(
-            children,
-            key=lambda c: len(c['path'].split('.')),
-            reverse=True
-        )
+        # collect items that were already added to tree
+        added_to_tree = []
 
+        def in_tree(item, tree):
+            if item['node'].object_id in added_to_tree:
+                return True
+            if tree['node'].object_id == item['node'].object_id:
+                return True
+            else:
+                return any(in_tree(item, child) for child in tree['children'])
 
         def add_to_tree(item, tree):
+            if in_tree(item, tree):
+                return tree
 
-            print('ADDING ' + item['body'])
-            nonlocal children
-            parent_ids = item['path'].split('.')
-            parents = list(filter(lambda x: x['object_id'] in parent_ids, children))
+            parent_ids = item['node'].path.split('.')
+            parents = filter(
+                lambda x: x['node'].object_id in parent_ids,
+                children
+            )
+
             for parent in parents:
-                if parent in children:
+                if not in_tree(parent, tree):
                     add_to_tree(parent, tree)
 
-            parent_id = parent_ids[-1]
-            if tree['object_id'] == parent_id:
+            if tree['node'].object_id == parent_ids[-1]:
                 tree['children'].append(item)
-                children = filter(lambda c: c['id'] == item['id'], children)
+                added_to_tree.append(item['node'].object_id)
             else:
                 for child in tree['children']:
                     add_to_tree(item, child)
@@ -470,15 +476,10 @@ class ContentService:
             return tree
 
         for child in children:
-            print('CHILD ' + child['body'])
             add_to_tree(child, root)
 
-
-        # pp(root)
-
-
-
-
+        # and return
+        return root
 
 
 
