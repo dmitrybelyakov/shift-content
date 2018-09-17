@@ -44,6 +44,13 @@ class SearchServiceTest(BaseTestCase):
         es = service.es
         self.assertIsInstance(es, Elasticsearch)
 
+    def test_get_index_config(self):
+        """ Getting index config """
+        service = search_service
+        index = service.get_index_config('blog_post')
+        self.assertTrue(type(index) is dict)
+        self.assertEquals(index['index'], 'content_tests.blog_post')
+
     def test_get_index_info(self):
         """ Getting index info """
         index_name = 'blog_post'
@@ -101,148 +108,139 @@ class SearchServiceTest(BaseTestCase):
 
         es.indices.delete('not_part_of_content_indexes', ignore=404)
 
-    def test_get_index_config(self):
-        """ Getting index config """
-        service = search_service
-        index = service.get_index_config('blog_post')
-        self.assertTrue(type(index) is dict)
-        self.assertEquals(index['index'], 'content_tests.blog_post')
+    def test_when_trying_to_index_bad_item(self):
+        """ Raise when trying to index something that is not an item """
+        with self.assertRaises(x.SearchError) as cm:
+            search_service.put_to_index('crap')
+        self.assertIn('Item must be of type', str(cm.exception))
 
-    #
-    # def test_when_trying_to_index_bad_item(self):
-    #     """ Raise when trying to index something that is not an item """
-    #     with self.assertRaises(x.SearchError) as cm:
-    #         search_service.put_to_index('crap')
-    #     self.assertIn('Item must be of type', str(cm.exception))
-    #
-    # def test_raise_when_indexing_unsaved_item(self):
-    #     """ Raise when trying to index unsaved item """
-    #     item = Item(type='plain_text', author=123)
-    #     with self.assertRaises(x.SearchError) as cm:
-    #         search_service.put_to_index(item)
-    #     self.assertIn(
-    #         'Item must be saved first to be indexed',
-    #         str(cm.exception)
-    #     )
-    #
-    # def test_raise_when_indexing_item_without_object_id(self):
-    #     """ Raise when trying to index item without object id"""
-    #     item = Item(type='plain_text', author=123, id=123)
-    #     with self.assertRaises(x.SearchError) as cm:
-    #         search_service.put_to_index(item)
-    #     self.assertIn(
-    #         'Item must have object_id to be indexed',
-    #         str(cm.exception)
-    #     )
-    #
-    # def test_indexing_item_creates_index_if_not_found(self):
-    #     """ Create index if not found when indexing an item """
-    #
-    #     # delete first
-    #     search_service.es.indices.delete(
-    #         search_service.index_name,
-    #         ignore=404
-    #     )
-    #
-    #     # put to index
-    #     object_id = str(uuid1())
-    #     item = Item(
-    #         id=123,
-    #         type='plain_text',
-    #         object_id=object_id,
-    #         author=123,
-    #         body='Here is some body content'
-    #     )
-    #
-    #     search_service.put_to_index(item)
-    #     info = search_service.es.indices.get(search_service.index_name)
-    #     self.assertIn(search_service.index_name, info)
-    #
-    # def test_can_index_item(self):
-    #     """ Putting item to index """
-    #     # put to index
-    #     object_id = str(uuid1())
-    #     item = Item(
-    #         id=123,
-    #         type='plain_text',
-    #         object_id=object_id,
-    #         author=123,
-    #         body='Here is some body content'
-    #     )
-    #
-    #     search_service.put_to_index(item)
-    #     item = search_service.get(object_id)
-    #     self.assertIsNotNone(item)
-    #     self.assertEquals(object_id, item['_id'])
-    #
-    # def test_subsequent_indexing_reindexes(self):
-    #     """ Subsequent calls to index don't result in multiple documents """
-    #     object_id = str(uuid1())
-    #     item = Item(
-    #         id=123,
-    #         type='plain_text',
-    #         object_id=object_id,
-    #         author=123,
-    #         body='Here is some body content'
-    #     )
-    #
-    #     search_service.put_to_index(item)
-    #     search_service.put_to_index(item)
-    #
-    #     time.sleep(2)  # give it some time
-    #     es = search_service.es
-    #     result = es.search(
-    #         index=search_service.index_name,
-    #         doc_type=search_service.doc_type,
-    #         body={
-    #             'query': {
-    #                 'match': {
-    #                     'object_id': item.object_id
-    #                 }
-    #             }
-    #         },
-    #     )
-    #     self.assertEquals(1, result['hits']['total'])
-    #
-    # def test_getting_item_by_id(self):
-    #     """ Search service can get item by id """
-    #     object_id = str(uuid1())
-    #     item = Item(
-    #         id=123,
-    #         type='plain_text',
-    #         object_id=object_id,
-    #         author=123,
-    #         body='Here is some body content'
-    #     )
-    #
-    #     search_service.put_to_index(item)
-    #     time.sleep(1)
-    #     found = search_service.get(object_id)
-    #     self.assertEquals(object_id, found['_source']['object_id'])
-    #
-    # def test_getting_nonexistent_item(self):
-    #     """ Getting nonexistent item returns None instead of exception"""
-    #     self.assertIsNone(search_service.get('nonexistent'))
-    #
-    # def test_deleting_item_by_id(self):
-    #     """ Search service can delete item by id """
-    #     object_id = str(uuid1())
-    #     item = Item(
-    #         id=123,
-    #         type='plain_text',
-    #         object_id=object_id,
-    #         author=123,
-    #         body='Here is some body content'
-    #     )
-    #
-    #     search_service.put_to_index(item)
-    #     time.sleep(1)
-    #
-    #     search_service.delete(object_id)
-    #     time.sleep(1)
-    #     self.assertIsNone(search_service.get(object_id))
-    #
-    # def test_deleting_nonexistent_item(self):
-    #     """ Deleting nonexistent item does not trow an exception"""
-    #     result = search_service.delete('nonexistent')
-    #     self.assertIsInstance(result, SearchService)
+    def test_raise_when_indexing_unsaved_item(self):
+        """ Raise when trying to index unsaved item """
+        item = Item(type='plain_text', author=123)
+        with self.assertRaises(x.SearchError) as cm:
+            search_service.put_to_index(item)
+        self.assertIn(
+            'Item must be saved first to be indexed',
+            str(cm.exception)
+        )
+
+    def test_raise_when_indexing_item_without_object_id(self):
+        """ Raise when trying to index item without object id"""
+        item = Item(type='plain_text', author=123, id=123)
+        with self.assertRaises(x.SearchError) as cm:
+            search_service.put_to_index(item)
+        self.assertIn(
+            'Item must have object_id to be indexed',
+            str(cm.exception)
+        )
+
+    def test_indexing_item_creates_index_if_not_found(self):
+        """ Create index if not found when indexing an item """
+        item = Item(
+            id=123,
+            type='plain_text',
+            object_id=str(uuid1()),
+            author=123,
+            body='Here is some body content'
+        )
+
+        # delete first
+        index_name = search_service.index_name(item.type)
+        search_service.es.indices.delete(index_name, ignore=404)
+
+        # put to index
+        search_service.put_to_index(item)
+        info = search_service.es.indices.get(index_name)
+        self.assertIn(index_name, info)
+
+    def test_can_index_item(self):
+        """ Putting item to index """
+        item = Item(
+            id=123,
+            type='plain_text',
+            object_id=str(uuid1()),
+            author=123,
+            body='Here is some body content'
+        )
+
+        search_service.put_to_index(item)
+        found = search_service.get(item.type, item.object_id)
+        self.assertIsNotNone(found)
+        self.assertEquals(item.object_id, found['_id'])
+
+    def test_subsequent_indexing_reindexes(self):
+        """ Subsequent calls to index don't result in multiple documents """
+        item = Item(
+            id=123,
+            type='plain_text',
+            object_id=str(uuid1()),
+            author=123,
+            body='Here is some body content'
+        )
+
+        search_service.put_to_index(item)
+
+        # reindex
+        item.body = 'UPDATED'
+        search_service.put_to_index(item)
+
+        time.sleep(2)  # give it some time
+        es = search_service.es
+        result = es.search(
+            index=search_service.index_name(item.type),
+            doc_type=search_service.doc_type,
+            body={
+                'query': {
+                    'match': {
+                        'object_id': item.object_id
+                    }
+                }
+            },
+        )
+        self.assertEquals(1, result['hits']['total'])
+        self.assertEquals(
+            'UPDATED',
+            result['hits']['hits'][0]['_source']['body']
+        )
+
+    def test_getting_item_by_id(self):
+        """ Search service can get item by id """
+        item = Item(
+            id=123,
+            type='plain_text',
+            object_id=str(uuid1()),
+            author=123,
+            body='Here is some body content'
+        )
+
+        search_service.put_to_index(item)
+        time.sleep(1)
+        found = search_service.get(item.type, item.object_id)
+        self.assertEquals(item.object_id, found['_source']['object_id'])
+
+    def test_getting_nonexistent_item(self):
+        """ Getting nonexistent item returns None instead of exception"""
+        self.assertIsNone(search_service.get('sometype', 'nonexistent'))
+
+
+    def test_deleting_item_by_id(self):
+        """ Search service can delete item by id """
+        item = Item(
+            id=123,
+            type='plain_text',
+            object_id=str(uuid1()),
+            author=123,
+            body='Here is some body content'
+        )
+
+        search_service.put_to_index(item)
+        time.sleep(1)
+
+        search_service.delete(item.type, item.object_id)
+        time.sleep(1)
+        self.assertIsNone(search_service.get(item.type, item.object_id))
+
+    def test_deleting_nonexistent_item(self):
+        """ Deleting nonexistent item does not trow an exception"""
+        result = search_service.delete('nonexistent', 'nonexistent')
+        self.assertIsInstance(result, SearchService)

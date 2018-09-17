@@ -41,7 +41,7 @@ shiftcontent.cache_service.init(
 #  init search (optional)
 shiftcontent.search_service.init(
     hosts=('localhost:9200', ),  # elasticsearch nodes
-    index_name='content',        # index name
+    index_prefix=None,           # prefix indexes
     doc_type='content',          # document type
     sniff=True,                  # sniff nodes
     **elasticsearch_params       # additional elasticsearch params
@@ -77,7 +77,7 @@ This will look for the following variables in flask config:
 | **SHIFTCONTENT_CACHE_PARAMS** | No | `{}` | Additional redis parameters |
 | **SHIFTCONTENT_SEARCH_SUPPORT** | No | `None` | Whether to enable searching |
 | **SHIFTCONTENT_SEARCH_HOSTS** | No | `('localhost:9200', )` | List of elasticsearch nodes |
-| **SHIFTCONTENT_SEARCH_INDEX** | No | `content` | Index name |
+| **SHIFTCONTENT_SEARCH_INDEX_PREFIX** | No | none | Prefix for index names |
 | **SHIFTCONTENT_SEARCH_DOC_TYPE** | No | `content` | Document type |
 | **SHIFTCONTENT_SEARCH_SNIFF** | No | `True` | Sniff elastic search and form a cluster|
 | **SHIFTCONTENT_SEARCH_PARAMS** | No | `{}` | Additional elasticsearch params |

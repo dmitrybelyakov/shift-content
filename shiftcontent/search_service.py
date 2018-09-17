@@ -167,44 +167,6 @@ class SearchService:
 
         return config
 
-    def get(self, index_name, object_id):
-        """
-        Get single item from index by its object id
-        :param index_name: str, index name
-        :param object_id:
-        :return:
-        """
-        try:
-            item = self.es.get(
-                index=self.index_name,
-                doc_type=self.doc_type,
-                id=object_id,
-            )
-        except ex.NotFoundError:
-            return None
-        except ex.ImproperlyConfigured:
-            return None
-
-        return item
-
-    def delete(self, object_id):
-        """
-        Delete
-        Removes item from index by object_id
-        :param object_id: str, object id
-        :return: shiftcontent.search_service
-        """
-        try:
-            self.es.delete(
-                index=self.index_name,
-                doc_type=self.doc_type,
-                id=object_id
-            )
-        except ex.NotFoundError:
-            pass
-
-        return self
-
     def put_to_index(self, item):
         """
         Put item to index
@@ -223,17 +185,60 @@ class SearchService:
         if not item.object_id:
             raise x.SearchError('Item must have object_id to be indexed')
 
-        # create index if required
-        indexable = item.to_search()
         try:
-            self.index_info
+            # create index if required
+            index_name = self.index_name(item.type)
+            if index_name not in self.indices:
+                self.index_info(item.type)
+
+            # put to index
             self.es.index(
-                index=self.index_name,
+                index=index_name,
                 doc_type=self.doc_type,
                 id=item.object_id,
-                body=indexable
+                body=item.to_search()
             )
         except ex.ImproperlyConfigured:
+            pass
+
+        return self
+
+    def get(self, index_name, object_id):
+        """
+        Get single item from index by its object id
+        :param index_name: str, index name
+        :param object_id:
+        :return:
+        """
+        try:
+            item = self.es.get(
+                index=self.index_name(index_name),
+                doc_type=self.doc_type,
+                id=object_id,
+            )
+        except ex.NotFoundError:
+            return None
+        except ex.ImproperlyConfigured:
+            return None
+
+        return item
+
+    def delete(self, index_name, object_id):
+        """
+        Delete
+        Removes item from index by object_id
+
+        :param index_name: str, index name
+        :param object_id: str, object id
+        :return: shiftcontent.search_service
+        """
+        try:
+            self.es.delete(
+                index=self.index_name(index_name),
+                doc_type=self.doc_type,
+                id=object_id
+            )
+        except ex.NotFoundError:
             pass
 
         return self
