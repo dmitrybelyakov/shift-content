@@ -393,9 +393,10 @@ class ContentServiceTest(BaseTestCase):
             hosts=['127.0.0.1:9200'],
             index_name='content_tests'
         )
-        search_service.drop_index()
 
         type = 'plain_text'
+        search_service.drop_index(type)
+
         author = 123
         fields = dict(body='I am a simple content item')
         item = content_service.create_item(
@@ -407,7 +408,7 @@ class ContentServiceTest(BaseTestCase):
         time.sleep(2)  # give it some time
         es = search_service.es
         result = es.search(
-            index=search_service.index_name,
+            index=search_service.index_name(type),
             doc_type=search_service.doc_type,
             body={
                 'query': {
@@ -426,7 +427,7 @@ class ContentServiceTest(BaseTestCase):
         )
 
         # cleanup
-        search_service.drop_index()
+        search_service.drop_index(item.type)
         search_service.disconnect()
 
     def test_updating_content_item_updates_index(self):
@@ -437,8 +438,10 @@ class ContentServiceTest(BaseTestCase):
             index_name='content_tests'
         )
 
-        # create first
         type = 'plain_text'
+        search_service.drop_index(type)
+
+        # create first
         author = 123
         fields = dict(body='I am a simple content item')
         item = content_service.create_item(
@@ -454,7 +457,7 @@ class ContentServiceTest(BaseTestCase):
         time.sleep(2)  # give it some time
         es = search_service.es
         result = es.search(
-            index=search_service.index_name,
+            index=search_service.index_name(type),
             doc_type=search_service.doc_type,
             body={
                 'query': {
@@ -472,7 +475,7 @@ class ContentServiceTest(BaseTestCase):
         )
 
         # cleanup
-        search_service.drop_index()
+        search_service.drop_index(type)
         search_service.disconnect()
 
     def test_updating_content_item_field_updates_index(self):
@@ -484,8 +487,11 @@ class ContentServiceTest(BaseTestCase):
         )
 
         type = 'plain_text'
+        search_service.drop_index(type)
+
         author = 123
         fields = dict(body='I am a simple content item')
+
         item = content_service.create_item(
             author=author,
             content_type=type,
@@ -503,7 +509,7 @@ class ContentServiceTest(BaseTestCase):
         time.sleep(2)  # give it some time
         es = search_service.es
         result = es.search(
-            index=search_service.index_name,
+            index=search_service.index_name(type),
             doc_type=search_service.doc_type,
             body={
                 'query': {
@@ -521,7 +527,7 @@ class ContentServiceTest(BaseTestCase):
         )
 
         # cleanup
-        search_service.drop_index()
+        search_service.drop_index(type)
         search_service.disconnect()
 
     def test_deleting_content_item_removes_it_from_index(self):
@@ -548,7 +554,7 @@ class ContentServiceTest(BaseTestCase):
         time.sleep(2)  # give it some time
         es = search_service.es
         result = es.search(
-            index=search_service.index_name,
+            index=search_service.index_name(type),
             doc_type=search_service.doc_type,
             body={
                 'query': {
@@ -563,7 +569,7 @@ class ContentServiceTest(BaseTestCase):
         self.assertEquals(0, result['hits']['total'])
 
         # cleanup
-        search_service.drop_index()
+        search_service.drop_index(type)
         search_service.disconnect()
 
     def test_creating_content_item_puts_it_to_cache(self):

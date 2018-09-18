@@ -26,7 +26,7 @@ class ContentItemCacheTest(BaseTestCase):
     def tearDown(self):
         cache_service.delete_all()
         cache_service.disconnect()
-        search_service.drop_index()
+        search_service.drop_all_indices()
         search_service.disconnect()
         super().tearDown()
 
@@ -528,8 +528,8 @@ class ContentItemCacheTest(BaseTestCase):
             parent.set_field('id', result.inserted_primary_key[0], initial=True)
 
         # assert not in index (yet)
-        self.assertIsNone(search_service.get(child1.object_id))
-        self.assertIsNone(search_service.get(child2.object_id))
+        self.assertIsNone(search_service.get(child1.type, child1.object_id))
+        self.assertIsNone(search_service.get(child2.type, child2.object_id))
 
         # trigger events
         handler = ContentItemSetParent()
@@ -543,7 +543,7 @@ class ContentItemCacheTest(BaseTestCase):
         )
 
         # assert items in index now
-        self.assertIsNotNone(search_service.get(child1.object_id))
-        self.assertIsNotNone(search_service.get(child2.object_id))
+        self.assertIsNotNone(search_service.get(child1.type, child1.object_id))
+        self.assertIsNotNone(search_service.get(child1.type, child2.object_id))
 
 

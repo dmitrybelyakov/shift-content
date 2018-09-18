@@ -24,6 +24,21 @@ class ContentItemIndex(BaseHandler):
         'CONTENT_ITEM_UPDATE_FIELD',
     )
 
+    def index(self, object_id):
+        """
+        Index
+        Retrieves item from the database and puts it to search index.
+        This will be used in both handle and rollback as they essentially
+        do the same thing.
+
+        :param object_id: str, item id (must be in the database)
+        :return: None
+        """
+        from shiftcontent import content_service
+        item = content_service.get_item(object_id)
+        if item:
+            search_service.put_to_index(item)
+
     def handle(self, event):
         """
         Handle event
@@ -35,25 +50,7 @@ class ContentItemIndex(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-        # get item
-        object_id = event.object_id
-        items = db.tables['items']
-        with db.engine.begin() as conn:
-            query = items.select().where(items.c.object_id == object_id)
-            data = conn.execute(query).fetchone()
-            if data:
-                item = Item()
-                item.from_db(data)
-            else:
-                return event  # skip if not found (e.g. rolling back creation)
-
-        # index
-        try:
-            search_service.put_to_index(item)
-        except ex.ImproperlyConfigured:
-            pass
-
-        # and return
+        self.index(event.object_id)
         return event
 
     def rollback(self, event):
@@ -65,7 +62,8 @@ class ContentItemIndex(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-        return self.handle(event)
+        self.index(event.object_id)
+        return event
 
 
 
