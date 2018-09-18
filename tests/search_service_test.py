@@ -23,7 +23,7 @@ class SearchServiceTest(BaseTestCase):
 
     def tearDown(self):
         """ Clean up """
-        search_service.drop_all_indices()
+        # search_service.drop_all_indices()
         search_service.disconnect()
         super().tearDown()
 
@@ -46,8 +46,20 @@ class SearchServiceTest(BaseTestCase):
 
     def test_get_index_config(self):
         """ Getting index config """
-        service = search_service
-        index = service.get_index_config('blog_post')
+        # item = Item(
+        #     id=123,
+        #     type='blog_post',
+        #     object_id=str(uuid1()),
+        #     author=123,
+        #     author_name='Willy Wonka',
+        #     published='2018-02-02 12:00:10',
+        #     url='https://myblog.com/articles/123/',
+        #     title='Example post',
+        #     body='Strings longer than the ignore_above setting will not be indexed or stored. For arrays of strings, ignore_above will be applied for each array element separately and string elements longer than ignore_above will not be indexed or stored. Strings longer than the ignore_above setting will not be indexed or stored. For arrays of strings, ignore_above will be applied for each array element separately and string elements longer than ignore_above will not be indexed or stored.',
+        # )
+        # search_service.put_to_index(item)
+
+        index = search_service.get_index_config('blog_post')
         self.assertTrue(type(index) is dict)
         self.assertEquals(index['index'], 'content_tests.blog_post')
 

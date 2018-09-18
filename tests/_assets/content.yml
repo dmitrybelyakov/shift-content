@@ -45,7 +45,7 @@ content:
         - name: Publication date
           handle: published
           description: Article publication date
-          type: text
+          type: datetime
           default_value: None
 
         - name: URL
