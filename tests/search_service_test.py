@@ -46,22 +46,11 @@ class SearchServiceTest(BaseTestCase):
 
     def test_get_index_config(self):
         """ Getting index config """
-        # item = Item(
-        #     id=123,
-        #     type='blog_post',
-        #     object_id=str(uuid1()),
-        #     author=123,
-        #     author_name='Willy Wonka',
-        #     published='2018-02-02 12:00:10',
-        #     url='https://myblog.com/articles/123/',
-        #     title='Example post',
-        #     body='Strings longer than the ignore_above setting will not be indexed or stored. For arrays of strings, ignore_above will be applied for each array element separately and string elements longer than ignore_above will not be indexed or stored. Strings longer than the ignore_above setting will not be indexed or stored. For arrays of strings, ignore_above will be applied for each array element separately and string elements longer than ignore_above will not be indexed or stored.',
-        # )
-        # search_service.put_to_index(item)
-
         index = search_service.get_index_config('blog_post')
         self.assertTrue(type(index) is dict)
         self.assertEquals(index['index'], 'content_tests.blog_post')
+        props = index['body']['mappings'][search_service.doc_type]['properties']
+        self.assertEquals('date', props['published']['type'])
 
     def test_get_index_info(self):
         """ Getting index info """
@@ -97,12 +86,12 @@ class SearchServiceTest(BaseTestCase):
             body=dict(mappings={}, settings={})
         ))
 
-        search_service.index_info('blog1')
-        search_service.index_info('blog2')
+        search_service.index_info('blog_post')
+        search_service.index_info('plain_text')
 
         index1 = es.indices.get('not_part_of_content_indexes', ignore=404)
-        index2 = es.indices.get('content_tests.blog1', ignore=404)
-        index3 = es.indices.get('content_tests.blog2', ignore=404)
+        index2 = es.indices.get('content_tests.blog_post', ignore=404)
+        index3 = es.indices.get('content_tests.plain_text', ignore=404)
 
         self.assertNotIn('error', index1)
         self.assertNotIn('error', index2)
@@ -111,8 +100,8 @@ class SearchServiceTest(BaseTestCase):
         search_service.drop_all_indices()
 
         index1 = es.indices.get('not_part_of_content_indexes', ignore=404)
-        index2 = es.indices.get('content_tests.blog1', ignore=404)
-        index3 = es.indices.get('content_tests.blog2', ignore=404)
+        index2 = es.indices.get('content_tests.blog_post', ignore=404)
+        index3 = es.indices.get('content_tests.plain_text', ignore=404)
 
         self.assertNotIn('error', index1)
         self.assertIn('error', index2)

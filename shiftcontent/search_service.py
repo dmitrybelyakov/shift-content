@@ -5,6 +5,7 @@ from pprint import pprint as pp
 
 from shiftcontent.item import Item
 from shiftcontent import definition_service
+from shiftcontent.field_types import field_types
 from shiftcontent import exceptions as x
 
 class SearchService:
@@ -106,7 +107,8 @@ class SearchService:
             try:
                 index = self.es.indices.get(full_index_name)
             except ex.NotFoundError:
-                self.es.indices.create(**self.get_index_config(index_name))
+                config = self.get_index_config(index_name)
+                self.es.indices.create(**config)
                 index = self.es.indices.get(full_index_name)
 
             self.indices[full_index_name] = index
@@ -155,12 +157,26 @@ class SearchService:
         :param index_name: str, index name
         :return: dict
         """
-        index_name = self.index_name(index_name)
+        fields = dict()
+
+        # meta
+        for field, field_type in Item.metafields.items():
+            fields[field] = field_types[field_type]()
+
+        # custom
+        definition = definition_service.get_type(index_name)
+        for field in definition['fields']:
+            fields[field['handle']] = field_types[field['type']]()
+
+        mappings = dict()
+        mappings[self.doc_type] = dict(
+            properties={h: f.search_mapping() for h, f in fields.items()}
+        )
 
         config = {
-            'index': index_name,
+            'index': self.index_name(index_name),
             'body': {
-                'mappings': {},
+                'mappings': mappings,
                 'settings': {}
             }
         }
