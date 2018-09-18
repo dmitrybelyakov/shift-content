@@ -56,12 +56,12 @@ class ContentItemIndexTest(BaseTestCase):
 
         time.sleep(1)
 
-        found = search_service.get(object_id)
+        found = search_service.get(item.type, object_id)
         self.assertIsNotNone(found)
         self.assertEquals(object_id, found['_source']['object_id'])
 
         # cleanup
-        search_service.drop_index()
+        search_service.drop_index(item.type)
         search_service.disconnect()
 
     def test_rollback_event(self):
@@ -101,10 +101,10 @@ class ContentItemIndexTest(BaseTestCase):
 
         time.sleep(1)
 
-        found = search_service.get(object_id)
+        found = search_service.get(item.type, object_id)
         self.assertIsNotNone(found)
         self.assertEquals(object_id, found['_source']['object_id'])
 
         # cleanup
-        search_service.drop_index()
+        search_service.drop_index(item.type)
         search_service.disconnect()

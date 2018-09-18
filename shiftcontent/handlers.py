@@ -27,15 +27,15 @@ content_handlers = dict(
     # update content item
     CONTENT_ITEM_UPDATE=[
         ContentItemUpdate,
+        ContentItemCache,
         ContentItemIndex,
-        ContentItemCache
     ],
 
     # update content item field
     CONTENT_ITEM_UPDATE_FIELD=[
         ContentItemFieldUpdateField,
+        ContentItemCache,
         ContentItemIndex,
-        ContentItemCache
     ],
 
     # set content item parent

@@ -215,6 +215,7 @@ class ContentService:
         """
         Update item field
         Updates single field on an item
+
         :param author: str, author id
         :param object_id: str, object id to update
         :param field: str, field name

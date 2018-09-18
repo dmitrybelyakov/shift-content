@@ -39,12 +39,17 @@ class ContentItemRemoveFromIndexTest(BaseTestCase):
             body='Some body content'
         )
 
+        items = db.tables['items']
+        with db.engine.begin() as conn:
+            result = conn.execute(items.insert(), **item.to_db(update=False))
+            item.id = result.inserted_primary_key[0]
+
         # assert indexed
         search_service.put_to_index(item)
         time.sleep(1)
-        self.assertIsNotNone(search_service.get(object_id))
+        self.assertIsNotNone(search_service.get(item.type, object_id))
 
-        # now trigger delete event
+        # now trigger event
         handler.handle(Event(
             id=123,
             type='CONTENT_ITEM_REMOVE_FROM_INDEX',
@@ -56,10 +61,10 @@ class ContentItemRemoveFromIndexTest(BaseTestCase):
 
         # assert not in index
         time.sleep(1)
-        self.assertIsNone(search_service.get(object_id))
+        self.assertIsNone(search_service.get(item.type, object_id))
 
         # cleanup
-        search_service.drop_index()
+        search_service.drop_index(item.type)
         search_service.disconnect()
 
     def test_rollback_event(self):
@@ -89,7 +94,7 @@ class ContentItemRemoveFromIndexTest(BaseTestCase):
             item.id = result.inserted_primary_key[0]
 
         # assert not in index
-        self.assertIsNone(search_service.get(object_id))
+        self.assertIsNone(search_service.get(item.type, object_id))
 
         # now rollback delete event
         handler.rollback(Event(
@@ -103,8 +108,8 @@ class ContentItemRemoveFromIndexTest(BaseTestCase):
 
         # assert not in index
         time.sleep(1)
-        self.assertIsNotNone(search_service.get(object_id))
+        self.assertIsNotNone(search_service.get(item.type, object_id))
 
         # cleanup
-        search_service.drop_index()
+        search_service.drop_index(item.type)
         search_service.disconnect()

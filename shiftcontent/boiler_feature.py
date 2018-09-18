@@ -58,7 +58,7 @@ def content_feature(app):
     if cfg.get('SHIFTCONTENT_SEARCH_SUPPORT'):
         shiftcontent.search_service.init(
             hosts=cfg.get('SHIFTCONTENT_SEARCH_HOSTS', ('localhost:9200', )),
-            index_name=cfg.get('SHIFTCONTENT_SEARCH_INDEX', 'content'),
+            index_prefix=cfg.get('SHIFTCONTENT_SEARCH_INDEX_PREFIX'),
             doc_type=cfg.get('SHIFTCONTENT_SEARCH_DOC_TYPE', 'content'),
             sniff=cfg.get('SHIFTCONTENT_SEARCH_SNIFF', True),
             **cfg.get('SHIFTCONTENT_SEARCH_PARAMS', {})

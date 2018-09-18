@@ -7,11 +7,6 @@ from shiftcontent.item import Item
 from shiftcontent import definition_service
 from shiftcontent import exceptions as x
 
-
-# TODO: How do we store different documents in the same index
-# TODO: How to handle fields in types with the same name but different type
-
-
 class SearchService:
 
     def __init__(self, *_, **kwargs):
@@ -27,8 +22,11 @@ class SearchService:
         # es instance
         self._es = None
 
-        # index name
-        self.index_name = None
+        # index prefix
+        self.index_prefix = None
+
+        # index data collection
+        self.indices = dict()
 
         # document type
         self.doc_type = None
@@ -46,7 +44,7 @@ class SearchService:
         self,
         *,
         hosts=('localhost:9002',),
-        index_name=None,
+        index_prefix=None,
         doc_type='content',
         sniff=True,
         **kwargs):
@@ -56,14 +54,14 @@ class SearchService:
 
         :param hosts: iterable, hosts (and ports) to connect to
         :param port: int, elasticsearch port
-        :param index_name: str, index name
+        :param index_prefix: str, prefix to add to index names (per type)
         :param doc_type: str, document type
         :param sniff: bool, whether to sniff on start
         :param kwargs: dict, additional parameters to pass to elasticsearch
         :return: shiftcontent.search_service.SearchService
         """
         self.hosts = hosts
-        self.index_name = index_name
+        self.index_prefix = index_prefix
         self.doc_type = doc_type
         self.sniff = sniff
         self.additional_params = kwargs
@@ -83,20 +81,37 @@ class SearchService:
             )
         return self._es
 
-    @property
-    def index_info(self):
+    def index_name(self, index_name):
+        """
+        Index name
+        Prefixes index name with index prefix if configured
+        :param index_name: str, index name
+        :return: str
+        """
+        if self.index_prefix:
+            index_name = '{}.{}'.format(self.index_prefix, index_name)
+
+        return index_name
+
+    def index_info(self, index_name):
         """
         Index info
         Returns information about te index and creates one if not found.
-        :return:
-        """
-        try:
-            index = self.es.indices.get(self.index_name)
-        except ex.NotFoundError:
-            self.es.indices.create(**self.get_index_config())
-            index = self.es.indices.get(self.index_name)
 
-        return index
+        :param index_name: str, index name
+        :return: dict
+        """
+        full_index_name = self.index_name(index_name)
+        if index_name not in self.indices.keys():
+            try:
+                index = self.es.indices.get(full_index_name)
+            except ex.NotFoundError:
+                self.es.indices.create(**self.get_index_config(index_name))
+                index = self.es.indices.get(full_index_name)
+
+            self.indices[full_index_name] = index
+
+        return self.indices[full_index_name]
 
     def disconnect(self):
         """
@@ -107,25 +122,43 @@ class SearchService:
         """
         self.hosts = ()
         self._es = None
+        self.index_prefix = None
+        self.indices = dict()
         return self
 
-    def drop_index(self):
+    def drop_index(self, index_name):
         """
         Drop index
         Deletes index and all the documents in it.
+
+        :param index_name: str, index name
         :return: shiftcontent.search_service.SearchService
         """
-        self.es.indices.delete(self.index_name, ignore=404)
+        self.es.indices.delete(self.index_name(index_name), ignore=404)
         return self
 
-    def get_index_config(self):
+    def drop_all_indices(self):
+        """
+        Drop all indices
+        Removes all indices and data under self.index_prefix namespace if
+        configures, otherwise removes everything in elasticsearch.
+        :return: shiftcontent.search_service.SearchService
+        """
+        self.es.indices.delete('{}*'.format(self.index_prefix), ignore=404)
+        return self
+
+    def get_index_config(self, index_name):
         """
         Get index config
         Returns index config based off content definition
+
+        :param index_name: str, index name
         :return: dict
         """
+        index_name = self.index_name(index_name)
+
         config = {
-            'index': self.index_name,
+            'index': index_name,
             'body': {
                 'mappings': {},
                 'settings': {}
@@ -133,43 +166,6 @@ class SearchService:
         }
 
         return config
-
-    def get(self, object_id):
-        """
-        Get single item from index by its object id
-        :param object_id: str, object id
-        :return:
-        """
-        try:
-            item = self.es.get(
-                index=self.index_name,
-                doc_type=self.doc_type,
-                id=object_id,
-            )
-        except ex.NotFoundError:
-            return None
-        except ex.ImproperlyConfigured:
-            return None
-
-        return item
-
-    def delete(self, object_id):
-        """
-        Delete
-        Removes item from index by object_id
-        :param object_id: str, object id
-        :return: shiftcontent.search_service
-        """
-        try:
-            self.es.delete(
-                index=self.index_name,
-                doc_type=self.doc_type,
-                id=object_id
-            )
-        except ex.NotFoundError:
-            pass
-
-        return self
 
     def put_to_index(self, item):
         """
@@ -189,17 +185,60 @@ class SearchService:
         if not item.object_id:
             raise x.SearchError('Item must have object_id to be indexed')
 
-        # create index if required
-        indexable = item.to_search()
         try:
-            self.index_info
+            # create index if required
+            index_name = self.index_name(item.type)
+            if index_name not in self.indices:
+                self.index_info(item.type)
+
+            # put to index
             self.es.index(
-                index=self.index_name,
+                index=index_name,
                 doc_type=self.doc_type,
                 id=item.object_id,
-                body=indexable
+                body=item.to_search()
             )
         except ex.ImproperlyConfigured:
+            pass
+
+        return self
+
+    def get(self, index_name, object_id):
+        """
+        Get single item from index by its object id
+        :param index_name: str, index name
+        :param object_id:
+        :return:
+        """
+        try:
+            item = self.es.get(
+                index=self.index_name(index_name),
+                doc_type=self.doc_type,
+                id=object_id,
+            )
+        except ex.NotFoundError:
+            return None
+        except ex.ImproperlyConfigured:
+            return None
+
+        return item
+
+    def delete(self, index_name, object_id):
+        """
+        Delete
+        Removes item from index by object_id
+
+        :param index_name: str, index name
+        :param object_id: str, object id
+        :return: shiftcontent.search_service
+        """
+        try:
+            self.es.delete(
+                index=self.index_name(index_name),
+                doc_type=self.doc_type,
+                id=object_id
+            )
+        except ex.NotFoundError:
             pass
 
         return self
