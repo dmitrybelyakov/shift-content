@@ -78,5 +78,7 @@ class GeopointMeta(AbstractFieldType):
         Returns search index data type for the value
         :return: str
         """
-        return 'geo_point'
+        return dict(
+            type='geo_point'
+        )
 

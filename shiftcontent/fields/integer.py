@@ -66,5 +66,7 @@ class Integer(AbstractFieldType):
         Returns search index data type for the value
         :return: str
         """
-        return 'long'
+        return dict(
+            type='long'
+        )
 

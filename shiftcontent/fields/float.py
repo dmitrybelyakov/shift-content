@@ -66,4 +66,6 @@ class Float(AbstractFieldType):
         Returns search index data type for the value
         :return: str
         """
-        return 'double'
+        return dict(
+            type='double'
+        )

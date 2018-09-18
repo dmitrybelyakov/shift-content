@@ -66,5 +66,7 @@ class Text(AbstractFieldType):
         Returns search index data type for the value
         :return: str
         """
-        return 'text'
+        return dict(
+            type='text'
+        )
 

@@ -58,7 +58,8 @@ class IntegerTest(BaseTestCase):
     def test_get_search_mapping(self):
         """ Getting search index data type for the integer field """
         field = Integer()
-        self.assertEquals('long', field.search_mapping())
+        mapping = field.search_mapping()
+        self.assertEquals('long', mapping['type'])
 
 
 

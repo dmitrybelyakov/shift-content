@@ -60,7 +60,8 @@ class BooleanTest(BaseTestCase):
     def test_get_search_mapping(self):
         """ Getting search index data type for the boolean field """
         field = Boolean()
-        self.assertEquals('boolean', field.search_mapping())
+        mapping = field.search_mapping()
+        self.assertEquals('boolean', mapping['type'])
 
 
 

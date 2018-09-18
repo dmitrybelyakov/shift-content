@@ -60,7 +60,8 @@ class TextTest(BaseTestCase):
     def test_get_search_mapping(self):
         """ Getting search index data type for the text field """
         field = Text()
-        self.assertEquals('text', field.search_mapping())
+        mapping = field.search_mapping()
+        self.assertEquals('text', mapping['type'])
 
 
 

@@ -71,5 +71,7 @@ class Boolean(AbstractFieldType):
         Returns search index data type for the value
         :return: str
         """
-        return 'boolean'
+        return dict(
+            type='boolean'
+        )
 

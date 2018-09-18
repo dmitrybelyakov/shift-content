@@ -76,7 +76,8 @@ class DatetimeTest(BaseTestCase):
     def test_get_search_mapping(self):
         """ Getting search index data type for the datetime field """
         field = DateTime()
-        self.assertEquals('date', field.search_mapping())
+        mapping = field.search_mapping()
+        self.assertEquals('date', mapping['type'])
 
 
 

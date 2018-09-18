@@ -74,5 +74,7 @@ class DateTime(AbstractFieldType):
         Returns search index data type for the value
         :return: str
         """
-        return 'date'
+        return dict(
+            type='date'
+        )
 

@@ -23,7 +23,7 @@ class SearchServiceTest(BaseTestCase):
 
     def tearDown(self):
         """ Clean up """
-        # search_service.drop_all_indices()
+        search_service.drop_all_indices()
         search_service.disconnect()
         super().tearDown()
 

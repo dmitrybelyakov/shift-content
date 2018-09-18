@@ -75,7 +75,8 @@ class FloatMeta(BaseTestCase):
     def test_get_search_mapping(self):
         """ Getting search index data type for the geopoint meta field """
         field = GeopointMeta()
-        self.assertEquals('geo_point', field.search_mapping())
+        mapping = field.search_mapping()
+        self.assertEquals('geo_point', mapping['type'])
 
 
 
