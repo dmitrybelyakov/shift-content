@@ -34,7 +34,7 @@ def define_tables(meta, dialect=None):
         sa.Column('id', sa.Integer, primary_key=True, autoincrement=True),
         sa.Column('created', sa.DateTime, nullable=False, index=True),
         sa.Column('type', sa.String(256), nullable=False, index=True),
-        sa.Column('path', text, nullable=True),
+        sa.Column('path', text, nullable=True, unique=False),
         sa.Column('sort_order', sa.Integer, nullable=True, index=True),
         sa.Column('author', sa.String(256), nullable=False, index=True),
         sa.Column('object_id', sa.String(256), nullable=False, index=True),
