@@ -2,40 +2,28 @@ from .event_handlers import ContentItemCreate
 from .event_handlers import ContentItemDelete
 from .event_handlers import ContentItemUpdate
 from .event_handlers import ContentItemFieldUpdateField
-from .event_handlers import ContentItemIndex
-from .event_handlers import ContentItemRemoveFromIndex
-from .event_handlers import ContentItemCache
-from .event_handlers import ContentItemRemoveFromCache
 from .event_handlers import ContentItemSetParent
 
 content_handlers = dict(
 
     # create content item
     CONTENT_ITEM_CREATE=[
-        ContentItemCreate,
-        ContentItemIndex,
-        ContentItemCache
+        ContentItemCreate
     ],
 
     # delete content item
     CONTENT_ITEM_DELETE=[
-        ContentItemDelete,
-        ContentItemRemoveFromIndex,
-        ContentItemRemoveFromCache
+        ContentItemDelete
     ],
 
     # update content item
     CONTENT_ITEM_UPDATE=[
-        ContentItemUpdate,
-        ContentItemCache,
-        ContentItemIndex,
+        ContentItemUpdate
     ],
 
     # update content item field
     CONTENT_ITEM_UPDATE_FIELD=[
         ContentItemFieldUpdateField,
-        ContentItemCache,
-        ContentItemIndex,
     ],
 
     # set content item parent

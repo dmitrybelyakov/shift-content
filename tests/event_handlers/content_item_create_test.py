@@ -38,6 +38,14 @@ class ContentItemCreateTest(BaseTestCase):
             result = conn.execute(query).fetchone()
             self.assertIsNotNone(result)
 
+    def test_created_item_is_cached(self):
+        """ Create item handler caches item """
+        self.fail('Implement me!')
+
+    def test_created_item_is_put_to_index(self):
+        """ Create item handler puts item to index """
+        self.fail('Implement me!')
+
     def test_rollback_event(self):
         """ Handler content item create rolling back changes """
         handler = ContentItemCreate()
@@ -68,3 +76,10 @@ class ContentItemCreateTest(BaseTestCase):
             result = conn.execute(query).fetchone()
             self.assertIsNone(result)
 
+    def test_create_item_rollback_removes_item_from_cache(self):
+        """ Create item rollback removes item from cache """
+        self.fail('Implement me!')
+
+    def test_create_item_rollback_removes_item_from_index(self):
+        """ Create item rollback removes item from index """
+        self.fail('Implement me!')

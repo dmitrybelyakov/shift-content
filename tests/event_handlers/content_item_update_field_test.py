@@ -61,51 +61,6 @@ class ContentItemUpdateFieldTest(BaseTestCase):
             updated.from_db(record)
             self.assertEquals('Updated body', updated.body)
 
-    def test_rollback_field(self):
-        """ Content item update field: rollback  field"""
-        items = db.tables['items']
-
-        author = '123'
-        object_id = str(uuid1())
-
-        item = Item(
-            type='plain_text',
-            author=author,
-            object_id=object_id,
-            body='Initial body'
-        )
-        with db.engine.begin() as conn:
-            result = conn.execute(items.insert(), **item.to_db(update=False))
-            item.id = result.inserted_primary_key[0]
-
-        event = Event(
-            id=123,
-            type='CONTENT_ITEM_UPDATE_FIELD',
-            author=author,
-            object_id=object_id,
-            payload=dict(
-                metafield=False,
-                field='body',
-                value='Updated body'
-            ),
-            payload_rollback=dict(
-                metafield=False,
-                field='body',
-                value='Initial body'
-            )
-        )
-
-        handler = ContentItemFieldUpdateField()
-        handler.handle(event)
-        handler.rollback(event)
-
-        with self.db.engine.begin() as conn:
-            query = items.select().where(items.c.object_id == object_id)
-            record = conn.execute(query).fetchone()
-            updated = Item()
-            updated.from_db(record)
-            self.assertEquals('Initial body', updated.body)
-
     def test_handle_metafield(self):
         """ Content item update field: handle metafield"""
         items = db.tables['items']
@@ -150,6 +105,59 @@ class ContentItemUpdateFieldTest(BaseTestCase):
             updated = Item()
             updated.from_db(record)
             self.assertEquals(new_author, updated.author)
+
+    def test_update_field_updates_cache(self):
+        """ Update field handler updates cache """
+        self.fail('Implement me!')
+
+    def test_update_field_updates_index(self):
+        """ Update field handler updates index """
+        self.fail('Implement me!')
+
+    def test_rollback_field(self):
+        """ Content item update field: rollback  field"""
+        items = db.tables['items']
+
+        author = '123'
+        object_id = str(uuid1())
+
+        item = Item(
+            type='plain_text',
+            author=author,
+            object_id=object_id,
+            body='Initial body'
+        )
+        with db.engine.begin() as conn:
+            result = conn.execute(items.insert(), **item.to_db(update=False))
+            item.id = result.inserted_primary_key[0]
+
+        event = Event(
+            id=123,
+            type='CONTENT_ITEM_UPDATE_FIELD',
+            author=author,
+            object_id=object_id,
+            payload=dict(
+                metafield=False,
+                field='body',
+                value='Updated body'
+            ),
+            payload_rollback=dict(
+                metafield=False,
+                field='body',
+                value='Initial body'
+            )
+        )
+
+        handler = ContentItemFieldUpdateField()
+        handler.handle(event)
+        handler.rollback(event)
+
+        with self.db.engine.begin() as conn:
+            query = items.select().where(items.c.object_id == object_id)
+            record = conn.execute(query).fetchone()
+            updated = Item()
+            updated.from_db(record)
+            self.assertEquals('Initial body', updated.body)
 
     def test_rollback_metafield(self):
         """ Content item update field: rollback  metafield"""
@@ -197,4 +205,10 @@ class ContentItemUpdateFieldTest(BaseTestCase):
             updated.from_db(record)
             self.assertEquals(author, updated.author)
 
+    def test_update_field_rollback_updates_cache(self):
+        """ Update field rollback updates cache """
+        self.fail('Implement me!')
 
+    def test_update_field_rollback__updates_index(self):
+        """ Update field rollback updates index """
+        self.fail('Implement me!')

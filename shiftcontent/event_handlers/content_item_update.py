@@ -1,6 +1,8 @@
 from shiftevent.handlers.base import BaseHandler
 from shiftcontent.item import Item
 from shiftcontent import db
+from shiftcontent import search_service
+from shiftcontent import cache_service
 from pprint import pprint as pp
 
 
@@ -40,6 +42,8 @@ class ContentItemUpdate(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
+
+        # update
         item = Item()
         item.from_json(event.payload_json)
         db_data = item.to_db()
@@ -47,6 +51,12 @@ class ContentItemUpdate(BaseHandler):
         with db.engine.begin() as conn:
             query = items.update().where(items.c.object_id == event.object_id)
             conn.execute(query.values(**db_data))
+
+        # cache
+        cache_service.set(item)
+
+        # index
+        search_service.put_to_index(item)
 
         return event
 
@@ -57,6 +67,8 @@ class ContentItemUpdate(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
+
+        # rollback
         item = Item()
         item.from_json(event.payload_rollback_json)
         db_data = item.to_db()
@@ -64,6 +76,12 @@ class ContentItemUpdate(BaseHandler):
         with db.engine.begin() as conn:
             query = items.update().where(items.c.object_id == event.object_id)
             conn.execute(query.values(**db_data))
+
+        # cache
+        cache_service.set(item)
+
+        # index
+        search_service.put_to_index(item)
 
 
 

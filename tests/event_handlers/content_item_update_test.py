@@ -27,6 +27,7 @@ class ContentItemUpdateTest(BaseTestCase):
         object_id = str(uuid1())
 
         item = Item(
+            id=123,
             type='plain_text',
             author=author,
             object_id=object_id,
@@ -63,6 +64,14 @@ class ContentItemUpdateTest(BaseTestCase):
             updated.from_db(record)
             self.assertEquals('Updated body', updated.body)
 
+    def update_item_updates_cache(self):
+        """ Update item handler updates cache """
+        self.fail('Implement me!')
+
+    def update_item_updates_index(self):
+        """ Update item handler updates index """
+        self.fail('Implement me!')
+
     def test_rollback_event(self):
         """ Handler content item update rolling back changes """
         items = db.tables['items']
@@ -71,6 +80,7 @@ class ContentItemUpdateTest(BaseTestCase):
         object_id = str(uuid1())
 
         item = Item(
+            id=123,
             type='plain_text',
             author=author,
             object_id=object_id,
@@ -110,5 +120,11 @@ class ContentItemUpdateTest(BaseTestCase):
             rolled_back.from_db(record)
             self.assertEquals('Initial body', rolled_back.body)
 
+    def update_item_rollback_updates_cache(self):
+        """ Update item rollback updates cache """
+        self.fail('Implement me!')
 
+    def update_item_rollback_updates_index(self):
+        """ Update item rol updates index """
+        self.fail('Implement me!')
 

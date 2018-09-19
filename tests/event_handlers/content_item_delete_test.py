@@ -46,6 +46,14 @@ class ContentItemDeleteTest(BaseTestCase):
             result = conn.execute(query).fetchone()
             self.assertIsNone(result)
 
+    def test_delete_item_removes_it_from_cache(self):
+        """ Delete item handler removes item from cache """
+        self.fail('Implement me!')
+
+    def test_delete_item_removes_it_from_index(self):
+        """ Delete item handler removes item from index """
+        self.fail('Implement me!')
+
     def test_rollback_event(self):
         """ Handler content item delete rolling back changes """
         object_id = str(uuid1())
@@ -88,3 +96,11 @@ class ContentItemDeleteTest(BaseTestCase):
             query = items.select().where(items.c.object_id == object_id)
             recovered = conn.execute(query).fetchone()
             self.assertIsNotNone(recovered)
+
+    def test_delete_item_rollback_caches_item(self):
+        """ Delete item rollback caches item """
+        self.fail('Implement me!')
+
+    def test_delete_item_rollback_indexes_item(self):
+        """ Delete item rollback put item to index """
+        self.fail('Implement me!')

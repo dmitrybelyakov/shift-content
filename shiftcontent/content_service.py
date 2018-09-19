@@ -264,7 +264,8 @@ class ContentService:
 
         # emit
         event = event_service.emit(event)
-        return self.get_item(event.object_id)
+        updated = self.get_item(event.object_id)
+        return updated
 
     def delete_item(self, author, object_id):
         """
