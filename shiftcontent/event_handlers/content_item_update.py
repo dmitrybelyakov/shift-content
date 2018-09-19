@@ -67,7 +67,6 @@ class ContentItemUpdate(BaseHandler):
         :param event: shiftcontent.events.event.Event
         :return: shiftcontent.events.event.Event
         """
-
         # rollback
         item = Item()
         item.from_json(event.payload_rollback_json)
