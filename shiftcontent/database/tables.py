@@ -19,7 +19,14 @@ def define_tables(meta, dialect=None):
     event_tables = define_event_tables(meta, dialect=dialect)
 
     # mysql dialect requires longtext column for fields
-    text = sa.Text() if dialect != 'mysql' else mysql.LONGTEXT()
+    text = sa.Text()
+    path_index = sa.Index('ix_content_items_path', 'path', unique=False)
+
+    if dialect == 'mysql':
+        text = mysql.LONGTEXT()
+        path_index = sa.Index(
+            'ix_content_items_path', 'path', unique=False, mysql_length=768
+        )
 
     # content tables
     content_tables = dict()
@@ -27,11 +34,12 @@ def define_tables(meta, dialect=None):
         sa.Column('id', sa.Integer, primary_key=True, autoincrement=True),
         sa.Column('created', sa.DateTime, nullable=False, index=True),
         sa.Column('type', sa.String(256), nullable=False, index=True),
-        sa.Column('path', text, nullable=True, index=True),
+        sa.Column('path', text, nullable=True),
         sa.Column('sort_order', sa.Integer, nullable=True, index=True),
         sa.Column('author', sa.String(256), nullable=False, index=True),
         sa.Column('object_id', sa.String(256), nullable=False, index=True),
         sa.Column('fields', text),
+        path_index
     )
 
     tables = {**content_tables, **event_tables}
