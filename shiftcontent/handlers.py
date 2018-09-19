@@ -4,6 +4,13 @@ from .event_handlers import ContentItemUpdate
 from .event_handlers import ContentItemFieldUpdateField
 from .event_handlers import ContentItemSetParent
 
+"""
+Note: we used to have multiple chained handlers per event, but then decided to
+have one handler do everything. It was starting to get a bit confusing. You can
+still append your own handlers if you want to customize the behaviour.
+
+@see: https://github.com/dmitrybelyakov/shift-content/issues/19
+"""
 content_handlers = dict(
 
     # create content item
