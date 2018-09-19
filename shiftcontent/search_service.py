@@ -8,6 +8,7 @@ from shiftcontent import definition_service
 from shiftcontent.field_types import field_types
 from shiftcontent import exceptions as x
 
+
 class SearchService:
 
     def __init__(self, *_, **kwargs):
@@ -75,11 +76,15 @@ class SearchService:
         :return:
         """
         if not self._es:
-            self._es = Elasticsearch(
-                self.hosts,
-                sniff_on_start=self.sniff,
-                **self.additional_params
-            )
+            try:
+                self._es = Elasticsearch(
+                    self.hosts,
+                    sniff_on_start=self.sniff,
+                    **self.additional_params
+                )
+            except ex.ImproperlyConfigured:
+                pass
+
         return self._es
 
     def index_name(self, index_name):
@@ -201,7 +206,7 @@ class SearchService:
         if not item.object_id:
             raise x.SearchError('Item must have object_id to be indexed')
 
-        try:
+        if self.es:
             # create index if required
             index_name = self.index_name(item.type)
             if index_name not in self.indices:
@@ -214,8 +219,6 @@ class SearchService:
                 id=item.object_id,
                 body=item.to_search()
             )
-        except ex.ImproperlyConfigured:
-            pass
 
         return self
 
@@ -226,16 +229,16 @@ class SearchService:
         :param object_id:
         :return:
         """
-        try:
-            item = self.es.get(
-                index=self.index_name(index_name),
-                doc_type=self.doc_type,
-                id=object_id,
-            )
-        except ex.NotFoundError:
-            return None
-        except ex.ImproperlyConfigured:
-            return None
+        item = None
+        if self.es:
+            try:
+                item = self.es.get(
+                    index=self.index_name(index_name),
+                    doc_type=self.doc_type,
+                    id=object_id,
+                )
+            except ex.NotFoundError:
+                return None
 
         return item
 
@@ -248,14 +251,15 @@ class SearchService:
         :param object_id: str, object id
         :return: shiftcontent.search_service
         """
-        try:
-            self.es.delete(
-                index=self.index_name(index_name),
-                doc_type=self.doc_type,
-                id=object_id
-            )
-        except ex.NotFoundError:
-            pass
+        if self.es:
+            try:
+                self.es.delete(
+                    index=self.index_name(index_name),
+                    doc_type=self.doc_type,
+                    id=object_id
+                )
+            except ex.NotFoundError:
+                pass
 
         return self
 
@@ -266,10 +270,12 @@ class SearchService:
         :param body: dict, elasticsearch query
         :return: dict
         """
-        results = self.es.search(
-            index=self.index_name,
-            body=body
-        )
+        results = None
+        if self.es:
+            results = self.es.search(
+                index=self.index_name,
+                body=body
+            )
 
         return results
 
