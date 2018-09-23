@@ -41,8 +41,11 @@ class ContentItemCreate(BaseHandler):
         items = db.tables['items']
         with db.engine.begin() as conn:
             result = conn.execute(items.insert(), **item.to_db(update=False))
+            event.object_id = item.object_id
             item.set_field(
-                'id', initial=True, value=result.inserted_primary_key[0]
+                'id',
+                initial=True,
+                value=result.inserted_primary_key[0]
             )
 
         # cache

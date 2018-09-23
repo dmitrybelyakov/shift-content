@@ -145,12 +145,16 @@ class ContentService:
         event = event_service.event(
             type='CONTENT_ITEM_CREATE',
             author=author,
-            object_id=object_id,
+            # object_id=object_id,
             payload=item_data
         )
 
         # and emit
         event = event_service.emit(event)
+
+        # persist event to set it's object_id
+        if event:
+            event_service.save_event(event)
 
         # set parent if provided
         if parent:

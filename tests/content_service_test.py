@@ -5,6 +5,7 @@ from pprint import pprint as pp
 from uuid import uuid1
 from datetime import datetime
 from shiftschema.schema import Result, Schema
+from shiftcontent import event_service
 from shiftcontent import db
 from shiftcontent import content_service
 from shiftcontent import exceptions as x
@@ -198,6 +199,23 @@ class ContentServiceTest(BaseTestCase):
         )
 
         self.assertEquals(1, item.id)
+
+    def test_event_updated_with_item_id_after_running_handlers(self):
+        """ Update event with item id after running create handlers """
+        type = 'plain_text'
+        author = 123
+        fields = dict(body='I am a simple content item 😂😂😂😂')
+        item = content_service.create_item(
+            author=author,
+            content_type=type,
+            fields=fields
+        )
+
+        event = event_service.get_event(1)
+        self.assertIsNotNone(event.object_id)
+        self.assertEquals(event.object_id, item.object_id)
+
+
 
     def test_getting_item_schema(self):
         """ Generating filtering and validation for an item by type """
