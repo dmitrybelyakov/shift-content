@@ -1,24 +1,9 @@
 #!/usr/bin/env python3
 from boiler.cli import cli as kernel
-from backend.app import app
 
 # root project command
 cli = kernel.cli
 
-# add orm cli
-from boiler.cli import db
-cli.add_command(db.cli, name='db')
-
-# add content cli
-from shiftcontent.cli import cli as content
-cli.add_command(content, name='content')
-
-
-from shiftcmf.cli import dev
-cli.add_command(dev, name='dev')
-
-# from backend.cli import ingest_data
-# cli.add_command(ingest_data, name='ingest')
 
 # and run
 cli()
