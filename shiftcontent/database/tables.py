@@ -1,7 +1,7 @@
 import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
-from pprint import pprint as pp
 from shiftevent.db import define_tables as define_event_tables
+from pprint import pprint as pp
 
 
 def define_tables(meta, dialect=None):

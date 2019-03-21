@@ -4,6 +4,10 @@ from boiler.cli import cli as kernel
 # root project command
 cli = kernel.cli
 
+# add content cli
+from shiftcontent.cli.definition import cli as schema_cli
+cli.add_command(schema_cli, name='schema')
+
 
 # and run
 cli()
